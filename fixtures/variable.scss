@@ -1,0 +1,16 @@
+@import "./a.scss";
+@import "./includes/b";
+@import "./includes/b.css";
+@import "**/*.scss";
+
+$name: "value";
+
+.test-mixin {
+	$test-var: 1;
+
+	@mixin loop($index) {
+		content: $index;
+	}
+
+	@include loop();
+}

@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"target": "es2015",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"rootDir": "src",
+		"outDir": "out",
+		"noLib": false,
+		"noImplicitAny": false,
+		"experimentalDecorators": true,
+		"removeComments": true,
+		"declaration": false
+	}
+}

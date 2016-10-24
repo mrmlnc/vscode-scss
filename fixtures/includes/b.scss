@@ -1,0 +1,13 @@
+@import "../mixins/c";
+
+$b: "test value";
+
+.b {
+	@mixin c($one: 1, $two) {
+		content: $one + $two;
+	}
+}
+
+.test {
+	content: $d;
+}
