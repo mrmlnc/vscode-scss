@@ -90,7 +90,7 @@
     "vscode-css-languageservice": "1.1.0",
     "readdir-enhanced": "1.4.4",
     "micromatch": "2.3.11",
-    "scss-symbols-parser": "1.0.0"
+    "scss-symbols-parser": "1.0.1"
   },
   "scripts": {
     "test": "rimraf out && tslint src/**/*.ts && tsc && mocha out/**/*.spec.js",
