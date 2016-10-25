@@ -3,138 +3,83 @@
 import * as assert from 'assert';
 
 import { TextDocument } from 'vscode-languageserver';
-import { getSCSSLanguageService } from 'vscode-css-languageservice';
 
 import { getCacheStorage } from '../../services/cache';
 import { doHover } from '../../providers/hover';
 import { ISettings } from '../../types/settings';
 
-const ls = getSCSSLanguageService();
+const cache = getCacheStorage();
 
-ls.configure({
-	lint: false,
-	validate: false
-});
+const settings = <ISettings>{
+	scannerExclude: [],
+	scannerDepth: 20,
+	showErrors: false,
+	suggestMixins: true,
+	suggestVariables: true,
+	suggestFunctions: true
+};
 
 interface IHover {
 	language: string;
 	value: string;
 }
 
+function makeDocument(lines: string | string[]) {
+	return TextDocument.create('test.scss', 'scss', 1, Array.isArray(lines) ? lines.join('\n') : lines);
+}
+
 describe('Providers/Hover', () => {
 
-	it('doHover', () => {
-		const cache = getCacheStorage();
+	it('doHover - Variables', () => {
+		const doc = makeDocument([
+			'$one: 1;',
+			'$two: 2;'
+		]);
 
-		cache.set('test.scss', {
-			document: 'test.scss',
-			variables: [
-				{
-					name: '$test',
-					value: '1',
-					offset: 0
-				}
-			],
-			mixins: [
-				{
-					name: 'test',
-					parameters: [],
-					offset: 0
-				}
-			],
-			functions: [
-				{
-					name: 'func',
-					parameters: [],
-					offset: 0
-				}
-			],
-			imports: []
-		});
-
-		const settings = <ISettings>{
-			scannerExclude: [],
-			scannerDepth: 20,
-			showErrors: false,
-			suggestMixins: true,
-			suggestVariables: true,
-			suggestFunctions: true
-		};
-
-		const document = TextDocument.create('test.scss', 'scss', 1, [
-			'$test: 1;',
-			'@mixin test() {}',
-			'.a { content: func(); }',
-			'@function func() {}'
-		].join('\n'));
-
-		// Variable
-		const variableHover: IHover = <any>doHover(document, 2, cache, settings).contents;
-
-		assert.equal(variableHover.language, 'scss');
-		assert.equal(variableHover.value, '$test: 1;');
-
-		// Mixin
-		const mixinHover: IHover = <any>doHover(document, 18, cache, settings).contents;
-
-		assert.equal(mixinHover.language, 'scss');
-		assert.equal(mixinHover.value, '@mixin test() {…}');
-
-		// Function
-		const functionReferenceHover: IHover = <any>doHover(document, 45, cache, settings).contents;
-
-		assert.equal(functionReferenceHover.language, 'scss');
-		assert.equal(functionReferenceHover.value, '@function func() {…}');
-
-		const functionDefenitionHover: IHover = <any>doHover(document, 62, cache, settings).contents;
-
-		assert.equal(functionDefenitionHover.language, 'scss');
-		assert.equal(functionDefenitionHover.value, '@function func() {…}');
+		// $o|
+		assert.equal((<IHover>doHover(doc, 2, cache, settings).contents).value, '$one: 1;');
+		// $t|
+		assert.equal((<IHover>doHover(doc, 12, cache, settings).contents).value, '$two: 2;');
 	});
 
-	it('issue-8', () => {
-		const cache = getCacheStorage();
+	it('doHover - Mixins', () => {
+		const doc = makeDocument([
+			'@mixin one($a) { content: "nope"; }',
+			'@include one(1);'
+		]);
 
-		cache.set('test.scss', {
-			document: 'test.scss',
-			variables: [],
-			mixins: [
-				{
-					name: 'a',
-					parameters: [],
-					offset: 0
-				},
-				{
-					name: 'b',
-					parameters: [],
-					offset: 0
-				}
-			],
-			functions: [],
-			imports: []
-		});
+		// @m|
+		assert.equal((<IHover>doHover(doc, 2, cache, settings).contents).value, '@mixin one($a: null) {…}');
+		// @mixin on|
+		assert.equal((<IHover>doHover(doc, 9, cache, settings).contents).value, '@mixin one($a: null) {…}');
+		// @mixin one($|
+		assert.equal((<IHover>doHover(doc, 12, cache, settings).contents).value, '$a: null;');
+		// @mixin one($a) { con|
+		assert.equal(<any>doHover(doc, 20, cache, settings), null);
+		// @mixin one($a) { content: "no|
+		assert.equal(<any>doHover(doc, 29, cache, settings), null);
+		// @inc|
+		assert.equal((<IHover>doHover(doc, 40, cache, settings).contents).value, '@mixin one($a: null) {…}');
+		// @include on|
+		assert.equal((<IHover>doHover(doc, 47, cache, settings).contents).value, '@mixin one($a: null) {…}');
+	});
 
-		const settings = <ISettings>{
-			scannerExclude: [],
-			scannerDepth: 20,
-			showErrors: false,
-			suggestMixins: true,
-			suggestVariables: true,
-			suggestFunctions: true
-		};
+	it('doHover - Functions', () => {
+		const doc = makeDocument([
+			'@function make($a) { @return $a; }',
+			'.hi { content: make(1); }'
+		]);
 
-		const document = TextDocument.create('test.scss', 'scss', 1, [
-			'@mixin a() {',
-			'  @mixin b() {}',
-			'  @include b();',
-			'}'
-		].join('\n'));
-
-		// Mixin
-		const mixinHover: IHover = <any>doHover(document, 40, cache, settings).contents;
-
-		assert.equal(mixinHover.language, 'scss');
-		assert.equal(mixinHover.value, '@mixin b() {…}');
+		// @f|
+		assert.equal((<IHover>doHover(doc, 2, cache, settings).contents).value, '@function make($a: null) {…}');
+		// @function ma|
+		assert.equal((<IHover>doHover(doc, 12, cache, settings).contents).value, '@function make($a: null) {…}');
+		// @function make($a) { @re|
+		assert.equal(<any>doHover(doc, 24, cache, settings), null);
+		// @function make($a) { @return $|
+		assert.equal((<IHover>doHover(doc, 30, cache, settings).contents).value, '$a: null;');
+		// .hi { content: ma|
+		assert.equal((<IHover>doHover(doc, 52, cache, settings).contents).value, '@function make($a: null) {…}');
 	});
 
 });

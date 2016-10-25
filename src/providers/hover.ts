@@ -16,7 +16,6 @@ import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getCurrentDocumentImportPaths, getDocumentPath } from '../utils/document';
 import { getLimitedString } from '../utils/string';
-import { getParentNodeByType } from '../utils/ast';
 
 /**
  * Returns a colored (marked) line for Variable.
@@ -118,32 +117,35 @@ export function doHover(document: TextDocument, offset: number, cache: ICache, s
 			name: hoverNode.getName(),
 			type: 'variables'
 		};
-	} else {
-		let name;
-		let type = 'mixins';
-		let node = getParentNodeByType(hoverNode, NodeType.MixinReference) || getParentNodeByType(hoverNode, NodeType.MixinDeclaration);
+	} else if (hoverNode.type === NodeType.Identifier) {
+		let node;
+		let type;
 
-		if (hoverNode.type === NodeType.MixinDeclaration || hoverNode.type === NodeType.MixinReference) {
-			name = hoverNode.getName();
-		} else if (!node) {
-			node = hoverNode.getParent();
-			if (node.type === NodeType.Function || node.type === NodeType.FunctionDeclaration) {
-				name = node.getName();
-				type = 'functions';
-			} else if (hoverNode.type === NodeType.FunctionDeclaration) {
-				name = hoverNode.getName();
-				type = 'functions';
-			}
-		} else {
-			name = node.getName();
+		const parent = hoverNode.getParent();
+		if (parent.type === NodeType.FunctionDeclaration || parent.type === NodeType.Function) {
+			node = parent;
+			type = 'functions';
+		} else if (parent.type === NodeType.MixinReference || parent.type === NodeType.MixinDeclaration) {
+			node = parent;
+			type = 'mixins';
 		}
 
-		if (name) {
+		if (node) {
 			identifier = {
-				name,
+				name: node.getName(),
 				type
 			};
 		}
+	} else if (hoverNode.type === NodeType.MixinDeclaration || hoverNode.type === NodeType.MixinReference) {
+		identifier = {
+			name: hoverNode.getName(),
+			type: 'mixins'
+		};
+	} else if (hoverNode.type === NodeType.FunctionDeclaration) {
+		identifier = {
+			name: hoverNode.getName(),
+			type: 'functions'
+		};
 	}
 
 	if (!identifier) {
