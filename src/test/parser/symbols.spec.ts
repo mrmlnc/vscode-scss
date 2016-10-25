@@ -57,6 +57,20 @@ describe('Parser/Symbols', () => {
 		assert.equal(mixins[1].name, 'c');
 	});
 
+	it('findSymbols - Functions', () => {
+		const text = [
+			'@function a($arg) {',
+			'  @return $arg;',
+			'}'
+		].join('\n');
+
+		const { functions } = findSymbols(text);
+
+		assert.equal(functions.length, 1);
+
+		assert.equal(functions[0].name, 'a');
+	});
+
 	it('findSymbols - Imports', () => {
 		const text = [
 			'@import "styles.scss";',
@@ -117,6 +131,19 @@ describe('Parser/Symbols', () => {
 		assert.equal(findSymbolsAtOffset(ast, 49).mixins.length, 1, '__4__');
 		assert.equal(findSymbolsAtOffset(ast, 64).mixins.length, 1, '__5__');
 		assert.equal(findSymbolsAtOffset(ast, 67).mixins.length, 1, '__6__');
+	});
+
+	it('findSymbolsAtOffset - Functions', () => {
+		const ast = parseText([
+			'@function name($a: 1) { @return  }'
+		]);
+
+		const { variables } = findSymbolsAtOffset(ast, 32);
+
+		assert.equal(variables.length, 1);
+
+		assert.equal(variables[0].name, '$a');
+		assert.equal(variables[0].value, '1');
 	});
 
 });

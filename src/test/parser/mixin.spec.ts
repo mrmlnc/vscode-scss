@@ -57,7 +57,7 @@ describe('Parser/Mixin', () => {
 
 	it('Nesting', (done) => {
 		const ast = parseText([
-			'.a {',
+			'.a-#{$name} {',
 			'  @mixin b($a: 1, $b) {',
 			'    content: "1";',
 			'  }',

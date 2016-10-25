@@ -14,3 +14,8 @@ $name: "value";
 
 	@include loop();
 }
+
+@function grid-width($n) {
+	@return $n * $grid-width + ($n - 1) * $gutter-width;
+}
+

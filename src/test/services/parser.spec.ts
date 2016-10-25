@@ -48,10 +48,13 @@ describe('Services/Parser', () => {
 	it('Find symbols with offset position', () => {
 		const doc = parseText([
 			'$name: "value";',
-			'@mixin mixin($a: 1, $b) {}'
+			'@function func($a) { @return $a }',
+			'@mixin mixin($a: 1, $b) {',
+			'  content: ',
+			'}',
 		]);
 
-		const { symbols } = parseDocument(doc, 41, <ISettings>{
+		const { symbols } = parseDocument(doc, 87, <ISettings>{
 			showErrors: false
 		});
 
@@ -78,6 +81,15 @@ describe('Services/Parser', () => {
 
 		assert.equal(symbols.mixins[0].parameters[1].name, '$b');
 		assert.equal(symbols.mixins[0].parameters[1].value, null);
+
+		// Functions
+		assert.equal(symbols.functions.length, 1);
+
+		assert.equal(symbols.functions[0].name, 'func');
+		assert.equal(symbols.functions[0].parameters.length, 1);
+
+		assert.equal(symbols.functions[0].parameters[0].name, '$a');
+		assert.equal(symbols.functions[0].parameters[0].value, null);
 
 		// Imports
 		assert.equal(symbols.imports.length, 0);
