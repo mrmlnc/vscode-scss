@@ -80,9 +80,6 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 		return completions;
 	}
 
-	console.log('before: ' + textBeforeWord);
-	console.log('word: ' + currentWord);
-
 	// Variables
 	if (settings.suggestVariables && (currentWord.startsWith('$') || isInterpolationVariable || isPropertyValue)) {
 		symbolsList.forEach((symbols) => {
