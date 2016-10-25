@@ -2,7 +2,7 @@
   "name": "vscode-scss",
   "displayName": "SCSS IntelliSense",
   "description": "Advanced autocompletion and refactoring support for SCSS",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "preview": true,
   "publisher": "mrmlnc",
   "license": "MIT",
