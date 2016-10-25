@@ -29,7 +29,7 @@ function makeVariableAsMarkedString(symbol: IVariable, fsPath: string, suffix: s
 
 	return {
 		language: 'scss',
-		value: `${symbol.name}: ${value}` + suffix
+		value: `${symbol.name}: ${value};` + suffix
 	};
 }
 
@@ -118,23 +118,31 @@ export function doHover(document: TextDocument, offset: number, cache: ICache, s
 			name: hoverNode.getName(),
 			type: 'variables'
 		};
-	} else if (hoverNode.type === NodeType.Identifier) {
+	} else {
+		let name;
+		let type = 'mixins';
 		let node = getParentNodeByType(hoverNode, NodeType.MixinReference) || getParentNodeByType(hoverNode, NodeType.MixinDeclaration);
 
-		if (node) {
-			identifier = {
-				name: node.getName(),
-				type: 'mixins'
-			};
-		} else {
-			node = getParentNodeByType(hoverNode, NodeType.FunctionDeclaration);
-
-			if (node) {
-				identifier = {
-					name: node.getName(),
-					type: 'functions'
-				};
+		if (hoverNode.type === NodeType.MixinDeclaration || hoverNode.type === NodeType.MixinReference) {
+			name = hoverNode.getName();
+		} else if (!node) {
+			node = hoverNode.getParent();
+			if (node.type === NodeType.Function || node.type === NodeType.FunctionDeclaration) {
+				name = node.getName();
+				type = 'functions';
+			} else if (hoverNode.type === NodeType.FunctionDeclaration) {
+				name = hoverNode.getName();
+				type = 'functions';
 			}
+		} else {
+			name = node.getName();
+		}
+
+		if (name) {
+			identifier = {
+				name,
+				type
+			};
 		}
 	}
 

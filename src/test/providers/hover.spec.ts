@@ -64,6 +64,7 @@ describe('Providers/Hover', () => {
 		const document = TextDocument.create('test.scss', 'scss', 1, [
 			'$test: 1;',
 			'@mixin test() {}',
+			'.a { content: func(); }',
 			'@function func() {}'
 		].join('\n'));
 
@@ -71,7 +72,7 @@ describe('Providers/Hover', () => {
 		const variableHover: IHover = <any>doHover(document, 2, cache, settings).contents;
 
 		assert.equal(variableHover.language, 'scss');
-		assert.equal(variableHover.value, '$test: 1');
+		assert.equal(variableHover.value, '$test: 1;');
 
 		// Mixin
 		const mixinHover: IHover = <any>doHover(document, 18, cache, settings).contents;
@@ -80,10 +81,15 @@ describe('Providers/Hover', () => {
 		assert.equal(mixinHover.value, '@mixin test() {…}');
 
 		// Function
-		const functionHover: IHover = <any>doHover(document, 38, cache, settings).contents;
+		const functionReferenceHover: IHover = <any>doHover(document, 45, cache, settings).contents;
 
-		assert.equal(functionHover.language, 'scss');
-		assert.equal(functionHover.value, '@function func() {…}');
+		assert.equal(functionReferenceHover.language, 'scss');
+		assert.equal(functionReferenceHover.value, '@function func() {…}');
+
+		const functionDefenitionHover: IHover = <any>doHover(document, 62, cache, settings).contents;
+
+		assert.equal(functionDefenitionHover.language, 'scss');
+		assert.equal(functionDefenitionHover.value, '@function func() {…}');
 	});
 
 	it('issue-8', () => {

@@ -19,3 +19,6 @@ $name: "value";
 	@return $n * $grid-width + ($n - 1) * $gutter-width;
 }
 
+.test {
+	content: grid-width();
+}
