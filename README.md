@@ -1,6 +1,6 @@
-# vscode-scss (WIP)
+# vscode-scss
 
-> SCSS intellisense for Variables and Mixins in all SCSS files.
+> SCSS intellisense for Variables, Mixins and Functions in all SCSS files.
 
 > **Disclaimer**
 >
