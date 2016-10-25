@@ -9,72 +9,61 @@ import { ISettings } from '../../types/settings';
 import { getCacheStorage } from '../../services/cache';
 import { doCompletion } from '../../providers/completion';
 
+const settings = <ISettings>{
+	scannerExclude: [],
+	scannerDepth: 20,
+	showErrors: false,
+	suggestMixins: true,
+	suggestVariables: true,
+	suggestFunctions: true
+};
+
+function makeDocument(lines: string | string[]) {
+	return TextDocument.create('test.scss', 'scss', 1, Array.isArray(lines) ? lines.join('\n') : lines);
+}
+
+const cache = getCacheStorage();
+
+cache.set('one.scss', {
+	document: 'one.scss',
+	variables: [
+		{ name: '$one', value: '1', offset: 0 },
+		{ name: '$two', value: null, offset: 0 }
+	],
+	mixins: [
+		{ name: 'test', parameters: [], offset: 0 }
+	],
+	functions: [
+		{ name: 'make', parameters: [], offset: 0 }
+	],
+	imports: []
+});
+
 describe('Providers/Completion', () => {
 
-	it('doCompletion', () => {
-		const cache = getCacheStorage();
+	it('doCompletion - Variables suggestions', () => {
+		const doc = makeDocument('$');
+		assert.equal(doCompletion(doc, 1, settings, cache).items.length, 2);
+	});
 
-		cache.set('hide.scss', {
-			document: 'test.scss',
-			variables: [
-				{
-					name: '$test',
-					value: null,
-					offset: 0
-				},
-				{
-					name: '$skip',
-					value: '{ content: ""; }',
-					offset: 0
-				}
-			],
-			mixins: [
-				{
-					name: 'test',
-					parameters: [],
-					offset: 0
-				}
-			],
-			functions: [
-				{
-					name: 'func',
-					parameters: [],
-					offset: 0
-				}
-			],
-			imports: []
-		});
+	it('doCompletion - Mixins suggestions', () => {
+		const doc = makeDocument('@include ');
+		assert.equal(doCompletion(doc, 9, settings, cache).items.length, 1);
+	});
 
-		const settings = <ISettings>{
-			scannerExclude: [],
-			scannerDepth: 20,
-			showErrors: false,
-			suggestMixins: true,
-			suggestVariables: true,
-			suggestFunctions: true
-		};
+	it('doCompletion - Functions suggestions', () => {
+		const doc = makeDocument('.a { content:  }');
+		assert.equal(doCompletion(doc, 14, settings, cache).items.length, 1);
+	});
 
-		let document = null;
+	it('doCompletion - discard suggestions inside single-line comments', () => {
+		const doc = makeDocument('// $');
+		assert.equal(doCompletion(doc, 4, settings, cache).items.length, 0);
+	});
 
-		// Should show Variables suggestions
-		document = TextDocument.create('test.scss', 'scss', 1, '$');
-		assert.equal(doCompletion(document, 1, settings, cache).items.length, 2);
-
-		// Should show Mixins suggestions
-		document = TextDocument.create('test.scss', 'scss', 1, '@include ');
-		assert.equal(doCompletion(document, 9, settings, cache).items.length, 1);
-
-		// Should show Functions suggestions
-		document = TextDocument.create('test.scss', 'scss', 1, 'content: ');
-		assert.equal(doCompletion(document, 9, settings, cache).items.length, 1);
-
-		// Should discard suggestions inside comments
-		document = TextDocument.create('test.scss', 'scss', 1, '// $');
-		assert.equal(doCompletion(document, 4, settings, cache).items.length, 0);
-
-		// Should discard suggestions for parent Mixins in Mixin
-		document = TextDocument.create('test.scss', 'scss', 1, '@mixin test() { . }');
-		assert.equal(doCompletion(document, 17, settings, cache).items.length, 0);
+	it('doCompletion - discard suggestions inside block comments', () => {
+		const doc = makeDocument('/* $ */');
+		assert.equal(doCompletion(doc, 4, settings, cache).items.length, 0);
 	});
 
 });
