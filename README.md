@@ -25,23 +25,23 @@ Just install the plugin and use it.
 
 **Intellisense for Variables**
 
-![Less Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19413624/2d794d5a-933b-11e6-837d-66b86e873004.png)
+![SCSS Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19685974/c2c3aee4-9ac7-11e6-9dca-4590c8785b23.png)
 
 **Hover for Variables**
 
-![Less Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19413666/40bc63c4-933c-11e6-92c7-3f5ed0cf0d3d.png)
+![SCSS Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19685947/9d34f6b0-9ac7-11e6-8f91-ae9b4e775959.png)
 
 **Intellisense for Mixins**
 
-![Less Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19413672/795d40fe-933c-11e6-919d-de14532ee49a.png)
+![SCSS Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19685869/3f234860-9ac7-11e6-8e27-c87015b5b5cb.png)
 
 **Hover for Mixins**
 
-![Less Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19413681/a3789ed8-933c-11e6-81ea-0fd853bb5a00.png)
+![SCSS Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19685901/6bb002b0-9ac7-11e6-84a5-3659c72305b3.png)
 
 **Signature Help**
 
-![Less Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19627576/753228e8-9952-11e6-9d10-6089b878a118.png)
+![SCSS Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19685885/5608efb2-9ac7-11e6-9050-f0d4f91307ed.png)
 
 ## Supported settings
 
