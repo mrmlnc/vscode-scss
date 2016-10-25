@@ -73,14 +73,18 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 	const isMixinReference = /.*@include\s+(.*)/.test(textBeforeWord);
 
 	// Is function reference
-	const isFunctionReference = /.*:\s*/.test(textBeforeWord);
+	const isPropertyValue = /.*:\s*/.test(textBeforeWord);
 
 	// Bad idea: Drop suggestions inside `//` and `/* */` comments
 	if (/^(\/(\/|\*)|\*)/.test(textBeforeWord.trim())) {
 		return completions;
 	}
 
-	if (settings.suggestVariables && (currentWord.startsWith('$') || isInterpolationVariable)) { // Variables
+	console.log('before: ' + textBeforeWord);
+	console.log('word: ' + currentWord);
+
+	// Variables
+	if (settings.suggestVariables && (currentWord.startsWith('$') || isInterpolationVariable || isPropertyValue)) {
 		symbolsList.forEach((symbols) => {
 			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = symbols.document !== documentPath && documentImports.indexOf(symbols.document) === -1;
@@ -113,7 +117,10 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 				});
 			});
 		});
-	} else if (settings.suggestMixins && isMixinReference) { // Mixins
+	}
+
+	// Mixins
+	if (settings.suggestMixins && isMixinReference) {
 		symbolsList.forEach((symbols) => {
 			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = symbols.document !== documentPath && documentImports.indexOf(symbols.document) === -1;
@@ -138,7 +145,10 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 				});
 			});
 		});
-	} else if (settings.suggestFunctions && isFunctionReference) { // Functions
+	}
+
+	// Functions
+	if (settings.suggestFunctions && isPropertyValue) {
 		symbolsList.forEach((symbols) => {
 			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = symbols.document !== documentPath && documentImports.indexOf(symbols.document) === -1;

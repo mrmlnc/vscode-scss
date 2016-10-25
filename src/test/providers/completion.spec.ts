@@ -51,9 +51,9 @@ describe('Providers/Completion', () => {
 		assert.equal(doCompletion(doc, 9, settings, cache).items.length, 1);
 	});
 
-	it('doCompletion - Functions suggestions', () => {
+	it('doCompletion - Property value suggestions', () => {
 		const doc = makeDocument('.a { content:  }');
-		assert.equal(doCompletion(doc, 14, settings, cache).items.length, 1);
+		assert.equal(doCompletion(doc, 14, settings, cache).items.length, 3);
 	});
 
 	it('doCompletion - discard suggestions inside single-line comments', () => {
