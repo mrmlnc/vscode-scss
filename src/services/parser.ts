@@ -76,12 +76,14 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 
 	symbols.variables = symbols.variables.map((x) => {
 		x.position = document.positionAt(x.offset);
-
 		return x;
 	});
 	symbols.mixins = symbols.mixins.map((x) => {
 		x.position = document.positionAt(x.offset);
-
+		return x;
+	});
+	symbols.functions = symbols.functions.map((x) => {
+		x.position = document.positionAt(x.offset);
 		return x;
 	});
 
