@@ -26,6 +26,7 @@ Just install the plugin and use it.
   * Code Completion Proposals (variables, mixins) — [description](http://code.visualstudio.com/docs/extensions/language-support#_show-code-completion-proposals)
   * Hover (variables, mixins) — [description](http://code.visualstudio.com/docs/extensions/language-support#_show-hovers)
   * Signature Help (mixins) — [description](http://code.visualstudio.com/docs/extensions/language-support#_help-with-function-and-method-signatures)
+  * Code navigation (Go to) (variables, mixins) — [description](http://code.visualstudio.com/docs/extensions/language-support#_show-definitions-of-a-symbol)
   * Visual Studio reference comments: `// <reference path="./variable.scss" />`.
   * Import files by `@import "filepath";` from anywhere. Even outside of the open workspace.
 
