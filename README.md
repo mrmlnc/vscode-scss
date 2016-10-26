@@ -1,6 +1,6 @@
 # vscode-scss
 
-> SCSS intellisense for Variables, Mixins and Functions in all SCSS files.
+> SCSS IntelliSense (Variables, Mixins and Functions) for all files in the workspace.
 
 > **Disclaimer**
 >
@@ -23,87 +23,69 @@ Just install the plugin and use it.
 
 ## Supported features
 
-**Intellisense for Variables**
-
-![SCSS Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19685974/c2c3aee4-9ac7-11e6-9dca-4590c8785b23.png)
-
-**Hover for Variables**
-
-![SCSS Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19685947/9d34f6b0-9ac7-11e6-8f91-ae9b4e775959.png)
-
-**Intellisense for Mixins**
-
-![SCSS Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19685869/3f234860-9ac7-11e6-8e27-c87015b5b5cb.png)
-
-**Hover for Mixins**
-
-![SCSS Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19685901/6bb002b0-9ac7-11e6-84a5-3659c72305b3.png)
-
-**Signature Help**
-
-![SCSS Intellisense VS Code](https://cloud.githubusercontent.com/assets/7034281/19685885/5608efb2-9ac7-11e6-9050-f0d4f91307ed.png)
+  * Code Completion Proposals (variables, mixins) — [description](http://code.visualstudio.com/docs/extensions/language-support#_show-code-completion-proposals)
+  * Hover (variables, mixins) — [description](http://code.visualstudio.com/docs/extensions/language-support#_show-hovers)
+  * Signature Help (mixins) — [description](http://code.visualstudio.com/docs/extensions/language-support#_help-with-function-and-method-signatures)
+  * Visual Studio reference comments: `// <reference path="./variable.scss" />`.
+  * Import files by `@import "filepath";` from anywhere. Even outside of the open workspace.
 
 ## Supported settings
 
-**scss.scannerDepth**
+#### scss.scannerDepth
 
   * Type: `number`
   * Default: `30`
 
 The maximum number of nested directories to scan.
 
-**scss.scannerExclude**
+#### scss.scannerExclude
 
   * Type: `string[]`
   * Default: `[".git", "**/node_modules", "**/bower_components"]`
 
 List of Glob-patterns for directories that are excluded when scanning.
 
-**scss.scanImportedFiles**
+#### scss.scanImportedFiles
 
   * Type: `boolean`
   * Default: `true`
 
 Allows scan imported files.
 
-**scss.scanImportedFilesDepth**
+#### scss.scanImportedFilesDepth
 
   * Type: `number`
   * Default: `50`
 
 The maximum number of imported files to scan. Prevent an infinite recursion and very deep `@import`.
 
-**scss.showErrors**
+#### scss.showErrors
 
   * Type: `boolean`
   * Default: `false`
 
 Allows to display errors.
 
-**scss.suggestVariables**
+#### scss.suggestVariables
 
   * Type: `boolean`
   * Default: `true`
 
 Allows prompt Variables.
 
-**scss.suggestMixins**
+#### scss.suggestMixins
 
   * Type: `boolean`
   * Default: `true`
 
 Allows prompt Mixins.
 
-**scss.suggestFunctions**
+#### scss.suggestFunctions
 
   * Type: `boolean`
   * Default: `true`
 
 Allows prompt Functions.
-
-## What's next?
-
-See Issues with [`feature-request`](https://github.com/mrmlnc/vscode-scss/issues?q=is%3Aissue+is%3Aopen+label%3Afeature-request) and [`next-iteration`](https://github.com/mrmlnc/vscode-scss/issues?q=is%3Aissue+is%3Aopen+label%3Anext-iteration) labels.
 
 ## Questions
 
