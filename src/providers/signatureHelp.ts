@@ -29,7 +29,7 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 		text = text.slice(text.indexOf('{') + 1, text.length).trim();
 	}
 
-	const name = text.match(/\s([^\(]+)/);
+	const name = text.match(/\s(([\w-]+))\(/);
 	const paramsString = text.slice(text.indexOf('(') + 1, text.length);
 
 	let parameters = [];
