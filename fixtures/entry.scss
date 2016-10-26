@@ -1,0 +1,17 @@
+@import "mixins/one";
+@import "mixins/two.scss";
+@import "functions/one";
+@import "functions/two.scss";
+@import "variables/one";
+@import "variables/two.scss";
+@import "./includes/b.css";
+@import "**/*.scss";
+
+$local: local;
+
+// local mixin
+@mixin two() {
+	content: $one + $two;
+}
+
+@include two();
