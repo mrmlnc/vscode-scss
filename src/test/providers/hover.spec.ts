@@ -33,13 +33,16 @@ describe('Providers/Hover', () => {
 	it('doHover - Variables', () => {
 		const doc = makeDocument([
 			'$one: 1;',
-			'$two: 2;'
+			'$two: 2;',
+			'.a { content: $one; }'
 		]);
 
 		// $o|
 		assert.equal((<IHover>doHover(doc, 2, cache, settings).contents).value, '$one: 1;');
 		// $t|
 		assert.equal((<IHover>doHover(doc, 12, cache, settings).contents).value, '$two: 2;');
+		// .a { content: $o|
+		assert.equal((<IHover>doHover(doc, 34, cache, settings).contents).value, '$one: 1;');
 	});
 
 	it('doHover - Mixins', () => {
