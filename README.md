@@ -66,6 +66,13 @@ The maximum number of imported files to scan. Prevent an infinite recursion and 
 
 Allows to display errors.
 
+#### scss.showImplicitlyLabel
+
+  * Type: `boolean`
+  * Default: `true`
+
+Display a label if the file imported implicitly.
+
 #### scss.suggestVariables
 
   * Type: `boolean`

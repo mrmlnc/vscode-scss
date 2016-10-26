@@ -9,6 +9,7 @@ export interface ISettings {
 
 	// Display
 	showErrors: boolean;
+	showImplicitlyLabel: boolean;
 
 	// Suggestions
 	suggestVariables: boolean;

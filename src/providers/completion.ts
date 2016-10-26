@@ -95,7 +95,7 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 
 				// Add 'implicitly' prefix for Path if the file imported implicitly
 				let detailPath = fsPath;
-				if (isImplicitlyImport) {
+				if (isImplicitlyImport && settings.showImplicitlyLabel) {
 					detailPath = `(implicitly) ${detailPath}`;
 				}
 
