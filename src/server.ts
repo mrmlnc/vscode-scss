@@ -7,8 +7,7 @@ import {
 	IPCMessageWriter,
 	TextDocuments,
 	InitializeParams,
-	InitializeResult,
-	Files
+	InitializeResult
 } from 'vscode-languageserver';
 
 import { ISettings } from './types/settings';
@@ -36,13 +35,6 @@ console.error = connection.console.error.bind(connection.console);
 // Create a simple text document manager. The text document manager
 // supports full document sync only
 const documents: TextDocuments = new TextDocuments();
-
-// Drop cache for closed files
-documents.onDidClose((event) => {
-	const fsPath = Files.uriToFilePath(event.document.uri);
-
-	cache.drop(fsPath);
-});
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events
