@@ -5,6 +5,7 @@ import {
 	SignatureInformation,
 	TextDocument
 } from 'vscode-languageserver';
+import { tokenizer } from 'scss-symbols-parser';
 
 import { IVariable } from '../types/symbols';
 import { ISettings } from '../types/settings';
@@ -28,37 +29,35 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 		text = text.slice(text.indexOf('{') + 1, text.length).trim();
 	}
 
-	const name = text.match(/\s([^\(]+)/)[1] || null;
+	const name = text.match(/\s([^\(]+)/);
 	const paramsString = text.slice(text.indexOf('(') + 1, text.length);
 
 	let parameters = [];
 	if (paramsString.length !== 0) {
+		const tokens = tokenizer(paramsString);
+
 		let pos = 0;
-		let char;
-		let push = 0;
-		let quotes = false;
+		let token;
 		let param = '';
-		while (pos < paramsString.length) {
-			char = paramsString.charAt(pos);
-			if ((char === ',') && push === 0) {
+		while (pos < tokens.length) {
+			token = tokens[pos];
+			if (token[1] === ',') {
 				parameters.push(param);
 				param = '';
-			} else if ('({['.includes(char)) {
-				push++;
-			} else if (']})'.includes(char)) {
-				push--;
-			} else if ('\'"'.includes(char) && paramsString.charAt(pos - 1) !== '\\') {
-				quotes = !quotes;
-				push = quotes ? push + 1 : push - 1;
+			} else if (token[1].endsWith(',')) {
+				token[1] = token[1].slice(0, -1);
+				tokens.splice(pos + 1, 0, ['word', ',', 0]);
+				pos--;
+			} else {
+				param += token[1];
 			}
-			param += char;
 			pos++;
 		}
 		parameters.push('');
 	}
 
 	return {
-		name,
+		name: name ? name[1] : null,
 		parameters
 	};
 }
@@ -69,15 +68,21 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 export function doSignatureHelp(document: TextDocument, offset: number, cache: ICache, settings: ISettings): SignatureHelp {
 	const suggestions: { name: string; parameters: IVariable[]; }[] = [];
 
+	const ret: SignatureHelp = {
+		activeSignature: 0,
+		activeParameter: 0,
+		signatures: []
+	};
+
 	// Skip suggestions if the text not include `(` or include `);`
 	const textBeforeWord = getTextBeforePosition(document.getText(), offset);
 	if (textBeforeWord.endsWith(');') || !textBeforeWord.includes('(')) {
-		return null;
+		return ret;
 	}
 
 	const entry = parseArgumentsAtLine(textBeforeWord);
 	if (!entry.name) {
-		return null;
+		return ret;
 	}
 
 	const symbolType = /@include/.test(textBeforeWord) ? 'mixins' : 'functions';
@@ -97,14 +102,10 @@ export function doSignatureHelp(document: TextDocument, offset: number, cache: I
 	});
 
 	if (suggestions.length === 0) {
-		return null;
+		return ret;
 	}
 
-	const ret: SignatureHelp = {
-		activeSignature: 0,
-		activeParameter: Math.max(0, entry.parameters.length - 1),
-		signatures: []
-	};
+	ret.activeParameter = Math.max(0, entry.parameters.length - 1);
 
 	suggestions.forEach((mixin) => {
 		const paramsString = mixin.parameters.map((x) => `${x.name}: ${x.value}`).join(', ');

@@ -50,7 +50,6 @@ cache.set('one.scss', {
 });
 
 describe('Providers/SignatureHelp', () => {
-
 	it('doSignatureHelp - Empty', () => {
 		const doc = makeDocument('@include one(');
 		assert.equal(doSignatureHelp(doc, 13, cache, settings).signatures.length, 1);
@@ -58,7 +57,7 @@ describe('Providers/SignatureHelp', () => {
 
 	it('doSignatureHelp - Closed', () => {
 		const doc = makeDocument('@include two(1);');
-		assert.equal(doSignatureHelp(doc, 16, cache, settings), null);
+		assert.equal(doSignatureHelp(doc, 16, cache, settings).signatures.length, 0);
 	});
 
 	it('doSignatureHelp - Two parameters', () => {
@@ -70,8 +69,8 @@ describe('Providers/SignatureHelp', () => {
 	});
 
 	it('doSignatureHelp - RGBA', () => {
-		const doc = makeDocument('@include two(rgba(0,0,0,0),');
-		const signature = doSignatureHelp(doc, 27, cache, settings);
+		const doc = makeDocument('@include two(rgba(0,0,0,.0001),');
+		const signature = doSignatureHelp(doc, 31, cache, settings);
 
 		assert.equal(signature.activeParameter, 1);
 		assert.equal(signature.signatures.length, 1);
@@ -88,6 +87,16 @@ describe('Providers/SignatureHelp', () => {
 	it('doSignatureHelp - With overload', () => {
 		const doc = makeDocument('@include two(');
 		assert.equal(doSignatureHelp(doc, 13, cache, settings).signatures.length, 3);
+	});
+
+	it('doSignatureHelp - Single-line selector', () => {
+		const doc = makeDocument('h1 { @include two(1, }');
+		assert.equal(doSignatureHelp(doc, 20, cache, settings).signatures.length, 1);
+	});
+
+	it('doSignatureHelp - Mixin with named argument', () => {
+		const doc = makeDocument('@include two(@a: 1,');
+		assert.equal(doSignatureHelp(doc, 19, cache, settings).signatures.length, 1);
 	});
 
 });
