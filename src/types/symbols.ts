@@ -1,18 +1,20 @@
 'use strict';
 
+import { Position } from 'vscode-languageserver';
 import { IVariable as IVar, IMixin as IMix, IFunction as IFun, IImport as IImp } from 'scss-symbols-parser';
 import { INode } from './nodes';
 
 export interface IVariable extends IVar {
+	position?: Position;
 	mixin?: string;
 }
 
 export interface IMixin extends IMix {
-  // :)
+	position?: Position;
 }
 
 export interface IFunction extends IFun {
-  // :)
+	position?: Position;
 }
 
 export interface IImport extends IImp {

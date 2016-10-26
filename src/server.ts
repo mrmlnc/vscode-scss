@@ -18,6 +18,7 @@ import { doScanner } from './services/scanner';
 import { doCompletion } from './providers/completion';
 import { doHover } from './providers/hover';
 import { doSignatureHelp } from './providers/signatureHelp';
+import { goDefinition } from './providers/goDefinition';
 
 // Cache Storage
 let cache = getCacheStorage();
@@ -54,7 +55,8 @@ connection.onInitialize((params: InitializeParams): Promise<InitializeResult> =>
 				signatureHelpProvider: {
 					triggerCharacters: ['(', ',', ';']
 				},
-				hoverProvider: true
+				hoverProvider: true,
+				definitionProvider: true
 			}
 		};
 	}).catch((err) => {
@@ -92,6 +94,12 @@ connection.onSignatureHelp((textDocumentPosition) => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
 	return doSignatureHelp(document, offset, cache, settings);
+});
+
+connection.onDefinition((textDocumentPosition) => {
+	const document = documents.get(textDocumentPosition.textDocument.uri);
+	const offset = document.offsetAt(textDocumentPosition.position);
+	return goDefinition(document, offset, cache, settings);
 });
 
 // Dispose cache

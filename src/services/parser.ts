@@ -74,6 +74,17 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 		return x;
 	});
 
+	symbols.variables = symbols.variables.map((x) => {
+		x.position = document.positionAt(x.offset);
+
+		return x;
+	});
+	symbols.mixins = symbols.mixins.map((x) => {
+		x.position = document.positionAt(x.offset);
+
+		return x;
+	});
+
 	return {
 		symbols,
 		ast: offset ? getNodeAtOffset(ast, offset) : null

@@ -93,6 +93,7 @@
     "vscode-languageclient": "2.6.0",
     "vscode-languageserver": "2.6.0",
     "vscode-css-languageservice": "1.1.0",
+    "vscode-uri": "1.0.0",
     "readdir-enhanced": "1.4.4",
     "micromatch": "2.3.11",
     "scss-symbols-parser": "1.1.1"

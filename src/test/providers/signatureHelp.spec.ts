@@ -27,14 +27,15 @@ cache.set('one.scss', {
 	document: 'one.scss',
 	variables: [],
 	mixins: [
-		{ name: 'one', parameters: [], offset: 0 },
-		{ name: 'two', parameters: [], offset: 0 },
+		{ name: 'one', parameters: [], offset: 0, position: null },
+		{ name: 'two', parameters: [], offset: 0, position: null },
 		{
 			name: 'two',
 			parameters: [
 				{ name: '$a', value: null, offset: 0 }
 			],
-			offset: 0
+			offset: 0,
+			position: null
 		},
 		{
 			name: 'two',
@@ -42,7 +43,8 @@ cache.set('one.scss', {
 				{ name: '$a', value: null, offset: 0 },
 				{ name: '$b', value: null, offset: 0 }
 			],
-			offset: 0
+			offset: 0,
+			position: null
 		}
 	],
 	functions: [],
