@@ -28,12 +28,33 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 		text = text.slice(text.indexOf('{') + 1, text.length).trim();
 	}
 
-	const name = text.match(/.*\s+([\w-]+)\(/)[1] || null;
+	const name = text.match(/\s([^\(]+)/)[1] || null;
 	const paramsString = text.slice(text.indexOf('(') + 1, text.length);
 
 	let parameters = [];
 	if (paramsString.length !== 0) {
-		parameters = paramsString.split(',');
+		let pos = 0;
+		let char;
+		let push = 0;
+		let quotes = false;
+		let param = '';
+		while (pos < paramsString.length) {
+			char = paramsString.charAt(pos);
+			if ((char === ',') && push === 0) {
+				parameters.push(param);
+				param = '';
+			} else if ('({['.includes(char)) {
+				push++;
+			} else if (']})'.includes(char)) {
+				push--;
+			} else if ('\'"'.includes(char) && paramsString.charAt(pos - 1) !== '\\') {
+				quotes = !quotes;
+				push = quotes ? push + 1 : push - 1;
+			}
+			param += char;
+			pos++;
+		}
+		parameters.push('');
 	}
 
 	return {
@@ -45,7 +66,7 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 /**
  * Do Signature Help :)
  */
-export function doSignatureHelp(document: TextDocument, offset: number, cache: ICache, settings: ISettings): Promise<SignatureHelp> {
+export function doSignatureHelp(document: TextDocument, offset: number, cache: ICache, settings: ISettings): SignatureHelp {
 	const suggestions: { name: string; parameters: IVariable[]; }[] = [];
 
 	// Skip suggestions if the text not include `(` or include `);`
@@ -99,5 +120,5 @@ export function doSignatureHelp(document: TextDocument, offset: number, cache: I
 		ret.signatures.push(signatureInfo);
 	});
 
-	return Promise.resolve(ret);
+	return ret;
 }
