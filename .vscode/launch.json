@@ -11,7 +11,7 @@
 			],
 			"stopOnEntry": false,
 			"outDir": "${workspaceRoot}/out",
-			"preLaunchTask": "tsc"
+			"preLaunchTask": "npm"
 		}
 	]
 }

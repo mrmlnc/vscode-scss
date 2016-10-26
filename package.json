@@ -99,6 +99,7 @@
   },
   "scripts": {
     "test": "rimraf out && tslint src/**/*.ts && tsc && mocha out/**/*.spec.js",
-    "build": "tslint src/**/*.ts && tsc"
+    "build": "tslint src/**/*.ts && tsc",
+    "watch": "tsc"
   }
 }
