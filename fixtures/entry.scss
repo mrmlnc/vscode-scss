@@ -11,7 +11,7 @@ $local: local;
 
 // local mixin
 @mixin two() {
-	content: $one + $two;
+	content: $one + two(1, 2);
 }
 
 @include two();
