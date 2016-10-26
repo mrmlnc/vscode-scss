@@ -95,7 +95,7 @@ describe('Providers/SignatureHelp', () => {
 	});
 
 	it('doSignatureHelp - Mixin with named argument', () => {
-		const doc = makeDocument('@include two(@a: 1,');
+		const doc = makeDocument('@include two($a: 1,');
 		assert.equal(doSignatureHelp(doc, 19, cache, settings).signatures.length, 1);
 	});
 
