@@ -13,7 +13,7 @@ const settings = <ISettings>{
 	scannerExclude: [],
 	scannerDepth: 20,
 	showErrors: false,
-	showImplicitlyLabel: true,
+	implicitlyLabel: '(implicitly)',
 	suggestMixins: true,
 	suggestVariables: true,
 	suggestFunctions: true
@@ -67,14 +67,20 @@ describe('Providers/Completion', () => {
 		assert.equal(doCompletion(doc, 4, settings, cache).items.length, 0);
 	});
 
-	it('doCompletion - Show implicitly label', () => {
+	it('doCompletion - Show default implicitly label', () => {
 		const doc = makeDocument('$');
 		assert.equal(doCompletion(doc, 1, settings, cache).items[0].detail, '(implicitly) one.scss');
 	});
 
+	it('doCompletion - Show custom implicitly label', () => {
+		const doc = makeDocument('$');
+		settings.implicitlyLabel = '👻';
+		assert.equal(doCompletion(doc, 1, settings, cache).items[0].detail, '👻 one.scss');
+	});
+
 	it('doCompletion - Hide implicitly label', () => {
 		const doc = makeDocument('$');
-		settings.showImplicitlyLabel = false;
+		settings.implicitlyLabel = null;
 		assert.equal(doCompletion(doc, 1, settings, cache).items[0].detail, 'one.scss');
 	});
 

@@ -7,9 +7,11 @@ export interface ISettings {
 	scanImportedFiles: boolean;
 	scanImportedFilesDepth: number;
 
+	// Label
+	implicitlyLabel: string;
+
 	// Display
 	showErrors: boolean;
-	showImplicitlyLabel: boolean;
 
 	// Suggestions
 	suggestVariables: boolean;

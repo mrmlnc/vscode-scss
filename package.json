@@ -54,15 +54,15 @@
           "default": 50,
           "description": "The maximum number of imported files to scan."
         },
+        "scss.implicitlyLabel": {
+          "type": ["string", "null"],
+          "default": "(implicitly)",
+          "description": "The text of a label that the file imported implicitly. If `null` then label not displayed."
+        },
         "scss.showErrors": {
           "type": "boolean",
           "default": false,
           "description": "Allows to display errors."
-        },
-        "scss.showImplicitlyLabel": {
-          "type": "boolean",
-          "default": true,
-          "description": "Display a label if the file imported implicitly."
         },
         "scss.suggestVariables": {
           "type": "boolean",

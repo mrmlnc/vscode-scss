@@ -95,8 +95,8 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 
 				// Add 'implicitly' prefix for Path if the file imported implicitly
 				let detailPath = fsPath;
-				if (isImplicitlyImport && settings.showImplicitlyLabel) {
-					detailPath = `(implicitly) ${detailPath}`;
+				if (isImplicitlyImport && settings.implicitlyLabel) {
+					detailPath = settings.implicitlyLabel + ' ' + detailPath;
 				}
 
 				// Add 'argument from MIXIN_NAME' suffix if Variable is Mixin argument
@@ -129,8 +129,8 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 
 				// Add 'implicitly' prefix for Path if the file imported implicitly
 				let detailPath = fsPath;
-				if (isImplicitlyImport && settings.showImplicitlyLabel) {
-					detailPath = `(implicitly) ${detailPath}`;
+				if (isImplicitlyImport && settings.implicitlyLabel) {
+					detailPath = settings.implicitlyLabel + ' ' + detailPath;
 				}
 
 				completions.items.push({
@@ -153,8 +153,8 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 			symbols.functions.forEach((func) => {
 				// Add 'implicitly' prefix for Path if the file imported implicitly
 				let detailPath = fsPath;
-				if (isImplicitlyImport && settings.showImplicitlyLabel) {
-					detailPath = `(implicitly) ${detailPath}`;
+				if (isImplicitlyImport && settings.implicitlyLabel) {
+					detailPath = settings.implicitlyLabel + ' ' + detailPath;
 				}
 
 				completions.items.push({

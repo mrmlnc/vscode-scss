@@ -60,19 +60,19 @@ Allows scan imported files.
 
 The maximum number of imported files to scan. Prevent an infinite recursion and very deep `@import`.
 
+#### scss.implicitlyLabel
+
+  * Type: `string|null`
+  * Default: `true`
+
+The text of a label that the file imported implicitly. If `null` then label not displayed.
+
 #### scss.showErrors
 
   * Type: `boolean`
   * Default: `false`
 
 Allows to display errors.
-
-#### scss.showImplicitlyLabel
-
-  * Type: `boolean`
-  * Default: `true`
-
-Display a label if the file imported implicitly.
 
 #### scss.suggestVariables
 
