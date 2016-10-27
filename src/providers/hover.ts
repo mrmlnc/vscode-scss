@@ -109,8 +109,6 @@ export function doHover(document: TextDocument, offset: number, cache: ICache, s
 		return;
 	}
 
-	const symbolsList = getSymbolsCollection(cache).concat(resource.symbols);
-
 	let identifier: { type: string; name: string; } = null;
 	if (hoverNode.type === NodeType.VariableName) {
 		const parent = hoverNode.getParent();
@@ -151,9 +149,10 @@ export function doHover(document: TextDocument, offset: number, cache: ICache, s
 		return;
 	}
 
+	// Symbols from Cache
+	const symbolsList = getSymbolsCollection(cache).concat(resource.symbols);
 	// Imports for current document
 	const documentImports = getCurrentDocumentImportPaths(symbolsList, documentPath);
-
 	// All symbols
 	const symbol = getSymbol(symbolsList, identifier, documentPath);
 
