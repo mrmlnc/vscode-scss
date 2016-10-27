@@ -33,16 +33,13 @@ describe('Providers/Hover', () => {
 	it('doHover - Variables', () => {
 		const doc = makeDocument([
 			'$one: 1;',
-			'$two: 2;',
 			'.a { content: $one; }'
 		]);
 
 		// $o|
-		assert.equal((<IHover>doHover(doc, 2, cache, settings).contents).value, '$one: 1;');
-		// $t|
-		assert.equal((<IHover>doHover(doc, 12, cache, settings).contents).value, '$two: 2;');
+		assert.equal(<any>doHover(doc, 2, cache, settings), null);
 		// .a { content: $o|
-		assert.equal((<IHover>doHover(doc, 34, cache, settings).contents).value, '$one: 1;');
+		assert.equal((<IHover>doHover(doc, 25, cache, settings).contents).value, '$one: 1;');
 	});
 
 	it('doHover - Mixins', () => {
@@ -52,11 +49,11 @@ describe('Providers/Hover', () => {
 		]);
 
 		// @m|
-		assert.equal((<IHover>doHover(doc, 2, cache, settings).contents).value, '@mixin one($a: null) {…}');
+		assert.equal(<any>doHover(doc, 2, cache, settings), null);
 		// @mixin on|
-		assert.equal((<IHover>doHover(doc, 9, cache, settings).contents).value, '@mixin one($a: null) {…}');
+		assert.equal(<any>doHover(doc, 9, cache, settings), null);
 		// @mixin one($|
-		assert.equal((<IHover>doHover(doc, 12, cache, settings).contents).value, '$a: null;');
+		assert.equal(<any>doHover(doc, 12, cache, settings), null);
 		// @mixin one($a) { con|
 		assert.equal(<any>doHover(doc, 20, cache, settings), null);
 		// @mixin one($a) { content: "no|
@@ -74,9 +71,9 @@ describe('Providers/Hover', () => {
 		]);
 
 		// @f|
-		assert.equal((<IHover>doHover(doc, 2, cache, settings).contents).value, '@function make($a: null) {…}');
+		assert.equal(<any>doHover(doc, 2, cache, settings), null);
 		// @function ma|
-		assert.equal((<IHover>doHover(doc, 12, cache, settings).contents).value, '@function make($a: null) {…}');
+		assert.equal(<any>doHover(doc, 12, cache, settings), null);
 		// @function make($a) { @re|
 		assert.equal(<any>doHover(doc, 24, cache, settings), null);
 		// @function make($a) { @return $|

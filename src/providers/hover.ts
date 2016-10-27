@@ -113,19 +113,23 @@ export function doHover(document: TextDocument, offset: number, cache: ICache, s
 
 	let identifier: { type: string; name: string; } = null;
 	if (hoverNode.type === NodeType.VariableName) {
-		identifier = {
-			name: hoverNode.getName(),
-			type: 'variables'
-		};
+		const parent = hoverNode.getParent();
+
+		if (parent.type !== NodeType.VariableDeclaration && parent.type !== NodeType.FunctionParameter) {
+			identifier = {
+				name: hoverNode.getName(),
+				type: 'variables'
+			};
+		}
 	} else if (hoverNode.type === NodeType.Identifier) {
 		let node;
 		let type;
 
 		const parent = hoverNode.getParent();
-		if (parent.type === NodeType.FunctionDeclaration || parent.type === NodeType.Function) {
+		if (parent.type === NodeType.Function) {
 			node = parent;
 			type = 'functions';
-		} else if (parent.type === NodeType.MixinReference || parent.type === NodeType.MixinDeclaration) {
+		} else if (parent.type === NodeType.MixinReference) {
 			node = parent;
 			type = 'mixins';
 		}
@@ -136,15 +140,10 @@ export function doHover(document: TextDocument, offset: number, cache: ICache, s
 				type
 			};
 		}
-	} else if (hoverNode.type === NodeType.MixinDeclaration || hoverNode.type === NodeType.MixinReference) {
+	} else if (hoverNode.type === NodeType.MixinReference) {
 		identifier = {
 			name: hoverNode.getName(),
 			type: 'mixins'
-		};
-	} else if (hoverNode.type === NodeType.FunctionDeclaration) {
-		identifier = {
-			name: hoverNode.getName(),
-			type: 'functions'
 		};
 	}
 
