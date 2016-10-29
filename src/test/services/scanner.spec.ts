@@ -10,6 +10,10 @@ const cache = getCacheStorage();
 
 describe('Services/Scanner', () => {
 
+	beforeEach(() => {
+		cache.dispose();
+	});
+
 	it('Scan', () => {
 		const options = <ISettings>{
 			scannerDepth: 10,
@@ -18,6 +22,7 @@ describe('Services/Scanner', () => {
 
 		return doScanner('./fixtures', cache, options).then((symbols) => {
 			assert.equal(symbols.length, 7);
+			assert.equal(Object.keys(cache.storage()).length, 7);
 		});
 	});
 
@@ -29,6 +34,7 @@ describe('Services/Scanner', () => {
 
 		return doScanner('./fixtures', cache, options).then((symbols) => {
 			assert.equal(symbols.length, 1);
+			assert.equal(Object.keys(cache.storage()).length, 1);
 		});
 	});
 
@@ -41,6 +47,7 @@ describe('Services/Scanner', () => {
 
 		return doScanner('./fixtures', cache, options).then((symbols) => {
 			assert.equal(symbols.length, 8);
+			assert.equal(Object.keys(cache.storage()).length, 7);
 		});
 	});
 
