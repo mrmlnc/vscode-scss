@@ -23,7 +23,12 @@ export function searchWorkspaceSymbol(query: string, cache: ICache, root: string
 		}
 
 		['variables', 'mixins', 'functions'].forEach((type) => {
-			const kind = type === 'variables' ? SymbolKind.Variable : SymbolKind.Function;
+			let kind = SymbolKind.Variable;
+			if (type === 'mixins') {
+				kind = SymbolKind.Function;
+			} else if (type === 'functions') {
+				kind = SymbolKind.Interface;
+			}
 
 			symbols[type].forEach((symbol) => {
 				if (!symbol.name.includes(query)) {

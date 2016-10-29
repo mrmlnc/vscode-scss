@@ -160,7 +160,7 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 
 				completions.items.push({
 					label: func.name,
-					kind: CompletionItemKind.Function,
+					kind: CompletionItemKind.Interface,
 					detail: detailPath,
 					documentation: makeMixinDocumentation(func),
 					insertText: func.name
