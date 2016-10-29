@@ -65,7 +65,7 @@ The maximum number of imported files to scan. Prevent an infinite recursion and 
 #### scss.implicitlyLabel
 
   * Type: `string|null`
-  * Default: `true`
+  * Default: `(implicitly)`
 
 The text of a label that the file imported implicitly. If `null` then label not displayed.
 
