@@ -57,11 +57,12 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 		return null;
 	}
 
-	// Drop cache for current document
-	cache.drop(documentPath);
-
 	const resource = parseDocument(document, offset, settings);
-	const symbolsList = getSymbolsCollection(cache).concat(resource.symbols);
+
+	// Update Cache for current document
+	cache.set(documentPath, resource.symbols);
+
+	const symbolsList = getSymbolsCollection(cache);
 	const documentImports = getCurrentDocumentImportPaths(symbolsList, documentPath);
 	const currentWord = getCurrentWord(document.getText(), offset);
 	const textBeforeWord = getTextBeforePosition(document.getText(), offset);

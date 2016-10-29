@@ -26,6 +26,7 @@ let cache = getCacheStorage();
 // Common variables
 let workspaceRoot: string;
 let settings: ISettings;
+let activeDocumentUri: string;
 
 // Create a connection for the server
 const connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -46,6 +47,7 @@ documents.listen(connection);
 connection.onInitialize((params: InitializeParams): Promise<InitializeResult> => {
 	workspaceRoot = params.rootPath;
 	settings = params.initializationOptions.settings;
+	activeDocumentUri = params.initializationOptions.activeEditorUri;
 
 	return doScanner(workspaceRoot, cache, settings).then(() => {
 		return <InitializeResult>{
@@ -72,10 +74,19 @@ connection.onDidChangeConfiguration((params) => {
 });
 
 // Update cache
-connection.onDidChangeWatchedFiles((x) => {
+connection.onDidChangeWatchedFiles((event) => {
+	// We do not need to update the Cache if the current document has been updated
+	if (event.changes.length === 1 && activeDocumentUri === event.changes[0].uri) {
+		return;
+	}
+
 	return doScanner(workspaceRoot, cache, settings).then((symbols) => {
 		return invalidateCacheStorage(cache, symbols);
 	});
+});
+
+connection.onRequest({ method: 'changeActiveDocument' }, (data: any) => {
+	activeDocumentUri = data.uri;
 });
 
 connection.onCompletion((textDocumentPosition) => {

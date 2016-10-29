@@ -29,6 +29,8 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	};
 
+	const activeEditor = vscode.window.activeTextEditor;
+
 	const clientOptions: LanguageClientOptions = {
 		documentSelector: ['scss'],
 		synchronize: {
@@ -36,12 +38,20 @@ export function activate(context: vscode.ExtensionContext) {
 			fileEvents: vscode.workspace.createFileSystemWatcher('**/*.scss')
 		},
 		initializationOptions: {
-			settings: vscode.workspace.getConfiguration('scss')
+			settings: vscode.workspace.getConfiguration('scss'),
+			activeEditorUri: activeEditor ? activeEditor.document.uri.toString() : null
 		}
 	};
 
 	const client = new LanguageClient('scss-intellisense', 'SCSS IntelliSense', serverOptions, clientOptions);
-	const disposable = client.start();
 
-	context.subscriptions.push(disposable);
+	const disposable: vscode.Disposable[] = [];
+	disposable[0] = client.start();
+	disposable[1] = vscode.window.onDidChangeActiveTextEditor((event) => {
+		if (event.document.uri.scheme === 'file') {
+			client.sendRequest({ method: 'changeActiveDocument' }, { uri: event.document.uri.toString() });
+		}
+	});
+
+	context.subscriptions.push(...disposable);
 }

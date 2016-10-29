@@ -149,8 +149,10 @@ export function doHover(document: TextDocument, offset: number, cache: ICache, s
 		return;
 	}
 
+	// Update Cache for current document
+	cache.set(documentPath, resource.symbols);
 	// Symbols from Cache
-	const symbolsList = getSymbolsCollection(cache).concat(resource.symbols);
+	const symbolsList = getSymbolsCollection(cache);
 	// Imports for current document
 	const documentImports = getCurrentDocumentImportPaths(symbolsList, documentPath);
 	// All symbols
