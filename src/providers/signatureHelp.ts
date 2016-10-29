@@ -3,7 +3,8 @@
 import {
 	SignatureHelp,
 	SignatureInformation,
-	TextDocument
+	TextDocument,
+	Files
 } from 'vscode-languageserver';
 import { tokenizer } from 'scss-symbols-parser';
 
@@ -17,7 +18,7 @@ import { getTextBeforePosition } from '../utils/string';
 
 interface IMixinEntry {
 	name: string;
-	parameters: string[];
+	parameters: number;
 }
 
 /**
@@ -29,31 +30,53 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 		text = text.slice(text.indexOf('{') + 1, text.length).trim();
 	}
 
-	const name = text.match(/\s(([\w-]+))\(/);
-	const paramsString = text.slice(text.indexOf('(') + 1, text.length);
+	const name = text.match(/.*(?:^|\s+)([^\(]+)(?=\()/);
 
-	let parameters = [];
-	if (paramsString.length !== 0) {
+	let paramsString = '';
+	if (name) {
+		const start = text.lastIndexOf(name[1] + '(') + name[1].length;
+		paramsString = text.slice(start, text.length);
+	}
+
+	let parameters = 0;
+	if (paramsString.substr(1).length !== 0) {
 		const tokens = tokenizer(paramsString);
+
+		if (tokens.length === 1 && tokens[0][0] === 'brackets') {
+			return {
+				name: null,
+				parameters
+			};
+		}
 
 		let pos = 0;
 		let token;
-		let param = '';
+		let parenthesis = -1;
+
 		while (pos < tokens.length) {
 			token = tokens[pos];
-			if (token[1] === ',') {
-				parameters.push(param);
-				param = '';
-			} else if (token[1].endsWith(',')) {
-				token[1] = token[1].slice(0, -1);
-				tokens.splice(pos + 1, 0, ['word', ',', 0]);
-				pos--;
-			} else {
-				param += token[1];
+
+			if (token[1] === ',' || token[1] === ';') {
+				parameters++;
+			} else if (token[0] === 'word' && token[1] !== ',' && token[1].includes(',') && parenthesis === 0) {
+				const words: string[] = token[1].split(/(,)/);
+
+				let index = pos;
+				words.forEach((word) => {
+					if (word === '') {
+						return;
+					}
+
+					tokens.splice(index, 1, word === ',' ? [',', ',', 0] : ['word', word, 0]);
+					index++;
+				});
+			} else if (token[0] === '(') {
+				parenthesis++;
+			} else if (token[0] === ')') {
+				parenthesis--;
 			}
 			pos++;
 		}
-		parameters.push('');
 	}
 
 	return {
@@ -74,6 +97,11 @@ export function doSignatureHelp(document: TextDocument, offset: number, cache: I
 		signatures: []
 	};
 
+	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
+	if (!documentPath) {
+		return ret;
+	}
+
 	// Skip suggestions if the text not include `(` or include `);`
 	const textBeforeWord = getTextBeforePosition(document.getText(), offset);
 	if (textBeforeWord.endsWith(');') || !textBeforeWord.includes('(')) {
@@ -88,11 +116,13 @@ export function doSignatureHelp(document: TextDocument, offset: number, cache: I
 	const symbolType = /@include/.test(textBeforeWord) ? 'mixins' : 'functions';
 
 	const resource = parseDocument(document, offset, settings);
-	const symbolsList = getSymbolsCollection(cache).concat(resource.symbols);
 
-	symbolsList.forEach((symbols) => {
+	// Update Cache for current document
+	cache.set(documentPath, resource.symbols);
+
+	getSymbolsCollection(cache).forEach((symbols) => {
 		symbols[symbolType].forEach((symbol) => {
-			if (entry.name === symbol.name && symbol.parameters.length >= entry.parameters.length) {
+			if (entry.name === symbol.name && symbol.parameters.length >= entry.parameters) {
 				suggestions.push({
 					name: symbol.name,
 					parameters: symbol.parameters
@@ -105,7 +135,7 @@ export function doSignatureHelp(document: TextDocument, offset: number, cache: I
 		return ret;
 	}
 
-	ret.activeParameter = Math.max(0, entry.parameters.length - 1);
+	ret.activeParameter = Math.max(0, entry.parameters);
 
 	suggestions.forEach((mixin) => {
 		const paramsString = mixin.parameters.map((x) => `${x.name}: ${x.value}`).join(', ');
