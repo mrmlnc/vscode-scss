@@ -48,9 +48,12 @@ export function activate(context: vscode.ExtensionContext) {
 	const disposable: vscode.Disposable[] = [];
 	disposable[0] = client.start();
 	disposable[1] = vscode.window.onDidChangeActiveTextEditor((event) => {
-		if (event.document.uri.scheme === 'file') {
-			client.sendRequest({ method: 'changeActiveDocument' }, { uri: event.document.uri.toString() });
+		let uri = null;
+		if (event && event.document.uri.scheme === 'file') {
+			uri = event.document.uri.toString();
 		}
+
+		client.sendRequest({ method: 'changeActiveDocument' }, { uri });
 	});
 
 	context.subscriptions.push(...disposable);
