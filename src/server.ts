@@ -19,6 +19,7 @@ import { doCompletion } from './providers/completion';
 import { doHover } from './providers/hover';
 import { doSignatureHelp } from './providers/signatureHelp';
 import { goDefinition } from './providers/goDefinition';
+import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
 
 // Cache Storage
 let cache = getCacheStorage();
@@ -58,7 +59,8 @@ connection.onInitialize((params: InitializeParams): Promise<InitializeResult> =>
 					triggerCharacters: ['(', ',', ';']
 				},
 				hoverProvider: true,
-				definitionProvider: true
+				definitionProvider: true,
+				workspaceSymbolProvider: true
 			}
 		};
 	}).catch((err) => {
@@ -111,6 +113,10 @@ connection.onDefinition((textDocumentPosition) => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
 	return goDefinition(document, offset, cache, settings);
+});
+
+connection.onWorkspaceSymbol((workspaceSymbolParams) => {
+	return searchWorkspaceSymbol(workspaceSymbolParams.query, cache, workspaceRoot);
 });
 
 // Dispose cache
