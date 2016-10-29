@@ -104,7 +104,7 @@ export function doHover(document: TextDocument, offset: number, cache: ICache, s
 	}
 
 	const resource = parseDocument(document, offset, settings);
-	const hoverNode = resource.ast;
+	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
 		return;
 	}

@@ -89,6 +89,6 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 
 	return {
 		symbols,
-		ast: offset ? getNodeAtOffset(ast, offset) : null
+		node: offset ? getNodeAtOffset(ast, offset) : null
 	};
 }

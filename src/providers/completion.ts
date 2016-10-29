@@ -124,7 +124,7 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 			const isImplicitlyImport = symbols.document !== documentPath && documentImports.indexOf(symbols.document) === -1;
 
 			symbols.mixins.forEach((mixin) => {
-				if (mixinSuggestionsFilter(mixin, resource.ast)) {
+				if (mixinSuggestionsFilter(mixin, resource.node)) {
 					return;
 				}
 
