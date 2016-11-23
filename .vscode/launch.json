@@ -10,8 +10,7 @@
 				"--extensionDevelopmentPath=${workspaceRoot}"
 			],
 			"stopOnEntry": false,
-			"outDir": "${workspaceRoot}/out",
-			"preLaunchTask": "npm"
+			"outDir": "${workspaceRoot}/out"
 		}
 	]
 }
