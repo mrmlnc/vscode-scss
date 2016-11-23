@@ -68,7 +68,7 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 	const textBeforeWord = getTextBeforePosition(document.getText(), offset);
 
 	// Is .#{$NAME}-test { ... }
-	const isInterpolationVariable = currentWord.indexOf('#{$') !== -1;
+	const isInterpolationVariable = currentWord.includes('#{$');
 
 	// Is mixin reference
 	const isMixinReference = /.*@include\s+(.*)/.test(textBeforeWord);
@@ -82,7 +82,7 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 	}
 
 	// Variables
-	if (settings.suggestVariables && (currentWord.startsWith('$') || isInterpolationVariable || isPropertyValue)) {
+	if (settings.suggestVariables && (currentWord[0] === '$' || isInterpolationVariable || isPropertyValue)) {
 		symbolsList.forEach((symbols) => {
 			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = symbols.document !== documentPath && documentImports.indexOf(symbols.document) === -1;
@@ -90,7 +90,7 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 			symbols.variables.forEach((variable) => {
 				// Drop Variable if its value is RuleSet in interpolation
 				// .test-#{$|cursor}
-				if (isInterpolationVariable && variable.value && variable.value.indexOf('{') !== -1) {
+				if (isInterpolationVariable && variable.value && variable.value[0] === '{') {
 					return;
 				}
 

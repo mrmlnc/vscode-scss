@@ -5,7 +5,7 @@
  */
 export function getCurrentWord(text: string, offset: number) {
 	let i = offset - 1;
-	while (i >= 0 && ' \t\n\r":[()]},'.indexOf(text.charAt(i)) === -1) {
+	while (i >= 0 && !' \t\n\r":[()]},'.includes(text.charAt(i))) {
 		i--;
 	}
 	return text.substring(i + 1, offset);
@@ -16,7 +16,7 @@ export function getCurrentWord(text: string, offset: number) {
  */
 export function getTextBeforePosition(text: string, offset: number) {
 	let i = offset - 1;
-	while ('\n\r'.indexOf(text.charAt(i)) === -1) {
+	while (!'\n\r'.includes(text.charAt(i))) {
 		i--;
 	}
 	return text.substring(i + 1, offset);
@@ -27,7 +27,7 @@ export function getTextBeforePosition(text: string, offset: number) {
  */
 export function getTextAfterPosition(text: string, offset: number) {
 	let i = offset + 1;
-	while ('\n\r'.indexOf(text.charAt(i)) === -1) {
+	while (!'\n\r'.includes(text.charAt(i))) {
 		i++;
 	}
 	return text.substring(i + 1, offset);

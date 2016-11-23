@@ -43,10 +43,10 @@ export function findSymbolsAtOffset(parsedDocument: INode, offset: number): ISym
 
 	while (node && node.type !== NodeType.Stylesheet) {
 		if (node.type === NodeType.MixinDeclaration || node.type === NodeType.FunctionDeclaration) {
-			variables.push(...makeMixin(node).parameters);
+			variables = variables.concat(makeMixin(node).parameters);
 		} else if (node.type === NodeType.Ruleset || node.type === NodeType.Declarations) {
-			variables.push(...makeVariableCollection(node));
-			mixins.push(...makeMixinCollection(node));
+			variables = variables.concat(makeVariableCollection(node));
+			mixins = mixins.concat(makeMixinCollection(node));
 		}
 
 		node = node.getParent();

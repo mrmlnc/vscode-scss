@@ -28,17 +28,7 @@ export function makeVariable(node: INode, fromMixin: string = null): IVariable {
  * Returns information about set of Variable Declarations.
  */
 export function makeVariableCollection(node: INode): IVariable[] {
-	const variableNodes = getChildByType(node, NodeType.VariableDeclaration);
-	if (!variableNodes) {
-		return [];
-	}
-
-	const variables: IVariable[] = [];
-	for (let i = 0; i < variableNodes.length; i++) {
-		if (variableNodes[i].getValue()) {
-			variables.push(makeVariable(variableNodes[i]));
-		}
-	}
-
-	return variables;
+	return getChildByType(node, NodeType.VariableDeclaration).map((child) => {
+		return makeVariable(child, null);
+	});
 }

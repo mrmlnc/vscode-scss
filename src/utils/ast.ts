@@ -31,11 +31,9 @@ export function getNodeAtOffset(parsedDocument: INode, posOffset: number): INode
 export function getParentNodeByType(node: INode, type: NodeType): INode {
 	node = node.getParent();
 
-	while (true) {
+	while (node.type !== type) {
 		if (node.type === NodeType.Stylesheet) {
 			return null;
-		} else if (node.type === type) {
-			break;
 		}
 
 		node = node.getParent();
@@ -50,22 +48,20 @@ export function getParentNodeByType(node: INode, type: NodeType): INode {
 export function hasParentsByType(node: INode, types: NodeType[]): boolean {
 	node = node.getParent();
 
-	while (true) {
-		if (node.type === NodeType.Stylesheet) {
-			return false;
-		} else if (types.indexOf(node.type) !== -1) {
+	while (node.type !== NodeType.Stylesheet) {
+		if (types.indexOf(node.type) !== -1) {
 			return true;
 		}
 
 		node = node.getParent();
 	}
+
+	return false;
 }
 
 /**
  * Returns the child Node of the specified type.
  */
 export function getChildByType(parent: INode, type: NodeType): INode[] {
-	let childs = parent.getChildren().filter((node) => node.type === type);
-
-	return childs.length ? childs : null;
+	return parent.getChildren().filter((node) => node.type === type);
 }

@@ -30,15 +30,5 @@ export function makeMixin(node: INode): IMixin {
  * Returns information about set of Variable Declarations.
  */
 export function makeMixinCollection(node: INode): IMixin[] {
-	const mixinNodes = getChildByType(node, NodeType.MixinDeclaration);
-	if (!mixinNodes) {
-		return [];
-	}
-
-	const variables: IMixin[] = [];
-	for (let i = 0; i < mixinNodes.length; i++) {
-		variables.push(makeMixin(mixinNodes[i]));
-	}
-
-	return variables;
+	return getChildByType(node, NodeType.MixinDeclaration).map(makeMixin);
 }
