@@ -100,9 +100,9 @@ Allows prompt Functions.
 #### scss.suggestFunctionsInStringContextAfterSymbols
 
   * Type: `boolean`
-  * Default: `" (+-*%"`
+  * Default: ` (+-*%`
 
-Allows prompt Functions in String context after specified symbols (e.g. `background: url(images/he|)` will be suggest `hello()` function if it is defined).
+Allows prompt Functions in String context after specified symbols. For example, if you add the `/` symbol, then `background: url(images/he|)` will be suggest `hello()` function if it is defined.
 
 ## Questions
 
