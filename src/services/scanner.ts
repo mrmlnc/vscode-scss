@@ -14,6 +14,9 @@ import { ISettings } from '../types/settings';
 import { parseDocument } from './parser';
 import { readFile, statFile } from '../utils/fs';
 
+// RegExp's
+const reGlobBaseName = /^\*\*\/([\w\.-]+)\/?$/;
+
 interface IFile {
 	filepath: string;
 	dir: string;
@@ -114,7 +117,7 @@ function scannerFilter(stat: readdir.IEntry, excludePatterns: string[]): boolean
 	if (excludePatterns && micromatch(stat.path, excludePatterns).length !== 0) {
 		return false;
 	} else if (stat.isFile()) {
-		return stat.path.slice(-4) === 'scss';
+		return stat.path.slice(-5) === '.scss';
 	}
 
 	return true;
@@ -130,7 +133,7 @@ export function doScanner(root: string, cache: ICache, settings: ISettings): Pro
 	const excludePatterns = settings.scannerExclude;
 	if (settings.scannerExclude) {
 		settings.scannerExclude.forEach((pattern) => {
-			if (/^\*\*\/([\w\.-]+)\/?$/.test(pattern)) {
+			if (reGlobBaseName.test(pattern)) {
 				excludePatterns.push(pattern + '/**');
 			}
 		});

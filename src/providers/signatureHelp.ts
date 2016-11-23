@@ -16,6 +16,9 @@ import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getTextBeforePosition } from '../utils/string';
 
+// RegExp's
+const reReferenceName = /.*(?:^|\s+)([^\(]+)(?=\()/;
+
 interface IMixinEntry {
 	name: string;
 	parameters: number;
@@ -30,7 +33,7 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 		text = text.slice(text.indexOf('{') + 1, text.length).trim();
 	}
 
-	const name = text.match(/.*(?:^|\s+)([^\(]+)(?=\()/);
+	const name = text.match(reReferenceName);
 
 	let paramsString = '';
 	if (name) {
@@ -113,7 +116,7 @@ export function doSignatureHelp(document: TextDocument, offset: number, cache: I
 		return ret;
 	}
 
-	const symbolType = /@include/.test(textBeforeWord) ? 'mixins' : 'functions';
+	const symbolType = textBeforeWord.indexOf('@include') !== -1 ? 'mixins' : 'functions';
 
 	const resource = parseDocument(document, offset, settings);
 

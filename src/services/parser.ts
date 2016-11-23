@@ -12,6 +12,11 @@ import { ISettings } from '../types/settings';
 import { findSymbols, findSymbolsAtOffset } from '../parser/symbols';
 import { getNodeAtOffset } from '../utils/ast';
 
+// RegExp's
+const reReferenceCommentGlobal = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/g;
+const reReferenceComment = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/;
+const reDynamicPath = /#{}\*/;
+
 // SCSS Language Service
 const ls = getSCSSLanguageService();
 
@@ -44,13 +49,14 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 	symbols.document = Files.uriToFilePath(document.uri) || document.uri;
 
 	// Get `<reference *> comments from document
-	const references = document.getText().match(/\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/g);
+	const references = document.getText().match(reReferenceCommentGlobal);
 	if (references) {
 		references.forEach((x) => {
+			const filepath = reReferenceComment.exec(x)[1];
 			symbols.imports.push({
-				css: false,
-				dynamic: false,
-				filepath: /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/.exec(x)[1],
+				css: filepath.substr(-4) === '.css',
+				dynamic: reDynamicPath.test(filepath),
+				filepath: filepath,
 				reference: true
 			});
 		});
@@ -68,7 +74,7 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 
 	symbols.imports = symbols.imports.map((x) => {
 		x.filepath = path.join(path.dirname(symbols.document), x.filepath);
-		if (!x.css && !/\.scss$/.test(x.filepath)) {
+		if (!x.css && x.filepath.substr(-5) !== '.scss') {
 			x.filepath += '.scss';
 		}
 		return x;

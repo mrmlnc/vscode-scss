@@ -23,6 +23,7 @@ const reEmptyPropertyValue = /.*:\s*$/;
 const reQuotedValueInString = /['"](?:[^'"\\]|\\.)*['"]/g;
 const reMixinReference = /.*@include\s+(.*)/;
 const reComment = /^(\/(\/|\*)|\*)/;
+const reQuotes = /['"]/;
 
 /**
  * Returns `true` if the path is not present in the document.
@@ -126,7 +127,7 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 	// Information about current position
 	const isPropertyValue = rePropertyValue.test(textBeforeWord);
 	const isEmptyValue = reEmptyPropertyValue.test(textBeforeWord);
-	const isQuotes = /['"]/.test(textBeforeWord.replace(reQuotedValueInString, ''));
+	const isQuotes = reQuotes.test(textBeforeWord.replace(reQuotedValueInString, ''));
 
 	// Check contexts
 	const isVariableContext = checkVariableContext(currentWord, isInterpolation, isPropertyValue, isEmptyValue, isQuotes);
