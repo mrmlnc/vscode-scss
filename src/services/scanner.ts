@@ -88,13 +88,12 @@ function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: 
 		}
 
 		return Promise.all(importedFiles.map((filepath) => {
-			const cached = cache.get(filepath);
-			if (cached) {
-				return cached;
-			}
-
 			return statFile(filepath).then((stat) => {
 				const entry = makeEntryFile(filepath, stat.ctime);
+				const cached = cache.get(filepath);
+				if (cached && cached.ctime.getTime() >= entry.ctime.getTime()) {
+					return cached;
+				}
 
 				return makeSymbolsForDocument(cache, entry, settings);
 			});
