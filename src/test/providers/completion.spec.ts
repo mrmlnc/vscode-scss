@@ -16,7 +16,8 @@ const settings = <ISettings>{
 	implicitlyLabel: '(implicitly)',
 	suggestMixins: true,
 	suggestVariables: true,
-	suggestFunctions: true
+	suggestFunctions: true,
+	suggestFunctionsInStringContextAfterSymbols: ' (+-*%'
 };
 
 function makeDocument(lines: string | string[]) {
@@ -58,7 +59,25 @@ describe('Providers/Completion - Context', () => {
 
 	it('Empty property value', () => {
 		const doc = makeDocument('.a { content:  }');
-		assert.equal(doCompletion(doc, 14, settings, cache).items.length, 3);
+		assert.equal(doCompletion(doc, 14, settings, cache).items.length, 2);
+	});
+
+	it('Non-empty property value without suggestions', () => {
+		const doc = makeDocument('.a { background: url(../images/one.png); }');
+		assert.equal(doCompletion(doc, 34, settings, cache).items.length, 0);
+	});
+
+	it('Non-empty property value with Variables', () => {
+		const doc = makeDocument('.a { background: url(../images/#{$one}/one.png); }');
+		assert.equal(doCompletion(doc, 37, settings, cache).items.length, 2, 'True');
+		assert.equal(doCompletion(doc, 42, settings, cache).items.length, 0, 'False');
+	});
+
+	it('Discard suggestions inside quotes', () => {
+		const doc = makeDocument('.a { background: url("../images/#{$one}/$one.png"); @include test("test", $one); }');
+		assert.equal(doCompletion(doc, 44, settings, cache).items.length, 0, 'Hide');
+		assert.equal(doCompletion(doc, 38, settings, cache).items.length, 3, 'True');
+		assert.equal(doCompletion(doc, 78, settings, cache).items.length, 2, 'Mixin');
 	});
 
 	it('Discard suggestions inside single-line comments', () => {

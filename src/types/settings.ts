@@ -17,4 +17,5 @@ export interface ISettings {
 	suggestVariables: boolean;
 	suggestMixins: boolean;
 	suggestFunctions: boolean;
+	suggestFunctionsInStringContextAfterSymbols: string;
 }

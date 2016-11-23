@@ -17,6 +17,20 @@ import { getSymbolsCollection } from '../utils/symbols';
 import { getCurrentDocumentImportPaths, getDocumentPath } from '../utils/document';
 import { getCurrentWord, getLimitedString, getTextBeforePosition } from '../utils/string';
 
+// RegExp's
+const rePropertyValue = /.*:\s*/;
+const reEmptyPropertyValue = /.*:\s*$/;
+const reQuotedValueInString = /['"](?:[^'"\\]|\\.)*['"]/g;
+const reMixinReference = /.*@include\s+(.*)/;
+const reComment = /^(\/(\/|\*)|\*)/;
+
+/**
+ * Returns `true` if the path is not present in the document.
+ */
+function isImplicitly(symbolsDocument: string, documentPath: string, documentImports: string[]): boolean {
+	return symbolsDocument !== documentPath && documentImports.indexOf(symbolsDocument) === -1;
+}
+
 /**
  * Return Mixin as string.
  */
@@ -47,6 +61,40 @@ function mixinSuggestionsFilter(mixin: IMixin, node: INode): boolean {
 }
 
 /**
+ * Check context for Variables suggestions.
+ */
+function checkVariableContext(word: string, isInterpolation: boolean, isPropertyValue: boolean, isEmptyValue: boolean, isQuotes: boolean): boolean {
+	if (isPropertyValue && !isEmptyValue && !isQuotes) {
+		return word.includes('$');
+	} else if (isQuotes) {
+		return isInterpolation;
+	}
+
+	return word[0] === '$' || isInterpolation || isEmptyValue;
+}
+
+/**
+  * Check context for Mixins suggestions.
+  */
+function checkMixinContext(textBeforeWord: string, isPropertyValue: boolean): boolean {
+	return !isPropertyValue && reMixinReference.test(textBeforeWord);
+}
+
+/**
+  * Check context for Function suggestions.
+  */
+function checkFunctionContext(textBeforeWord: string, isInterpolation: boolean, isPropertyValue: boolean, isEmptyValue: boolean, isQuotes: boolean, settings: ISettings): boolean {
+	if (isPropertyValue && !isEmptyValue && !isQuotes) {
+		const lastChar = textBeforeWord.substr(-2, 1);
+		return settings.suggestFunctionsInStringContextAfterSymbols.indexOf(lastChar) !== -1;
+	} else if (isQuotes) {
+		return isInterpolation;
+	}
+
+	return false;
+}
+
+/**
  * Do Completion :)
  */
 export function doCompletion(document: TextDocument, offset: number, settings: ISettings, cache: ICache): CompletionList {
@@ -67,33 +115,31 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 	const currentWord = getCurrentWord(document.getText(), offset);
 	const textBeforeWord = getTextBeforePosition(document.getText(), offset);
 
-	// Is .#{$NAME}-test { ... }
-	const isInterpolationVariable = currentWord.includes('#{$');
-
-	// Is mixin reference
-	const isMixinReference = /.*@include\s+(.*)/.test(textBeforeWord);
-
-	// Is function reference
-	const isPropertyValue = /.*:\s*/.test(textBeforeWord);
-
-	// Bad idea: Drop suggestions inside `//` and `/* */` comments
-	if (/^(\/(\/|\*)|\*)/.test(textBeforeWord.trim())) {
+	// Drop suggestions inside `//` and `/* */` comments
+	if (reComment.test(textBeforeWord.trim())) {
 		return completions;
 	}
 
+	// Is "#{INTERPOLATION}"
+	const isInterpolation = currentWord.includes('#{');
+
+	// Information about current position
+	const isPropertyValue = rePropertyValue.test(textBeforeWord);
+	const isEmptyValue = reEmptyPropertyValue.test(textBeforeWord);
+	const isQuotes = /['"]/.test(textBeforeWord.replace(reQuotedValueInString, ''));
+
+	// Check contexts
+	const isVariableContext = checkVariableContext(currentWord, isInterpolation, isPropertyValue, isEmptyValue, isQuotes);
+	const isFunctionContext = checkFunctionContext(textBeforeWord, isInterpolation, isPropertyValue, isEmptyValue, isQuotes, settings);
+	const isMixinContext = checkMixinContext(textBeforeWord, isPropertyValue);
+
 	// Variables
-	if (settings.suggestVariables && (currentWord[0] === '$' || isInterpolationVariable || isPropertyValue)) {
+	if (settings.suggestVariables && isVariableContext) {
 		symbolsList.forEach((symbols) => {
 			const fsPath = getDocumentPath(documentPath, symbols.document);
-			const isImplicitlyImport = symbols.document !== documentPath && documentImports.indexOf(symbols.document) === -1;
+			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
 
 			symbols.variables.forEach((variable) => {
-				// Drop Variable if its value is RuleSet in interpolation
-				// .test-#{$|cursor}
-				if (isInterpolationVariable && variable.value && variable.value[0] === '{') {
-					return;
-				}
-
 				// Add 'implicitly' prefix for Path if the file imported implicitly
 				let detailPath = fsPath;
 				if (isImplicitlyImport && settings.implicitlyLabel) {
@@ -107,8 +153,7 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 				}
 
 				completions.items.push({
-					// If variable interpolation, then remove the $ character from label
-					label: isInterpolationVariable ? variable.name.substr(1) : variable.name,
+					label: variable.name,
 					kind: CompletionItemKind.Variable,
 					detail: detailText,
 					documentation: getLimitedString(variable.value)
@@ -118,10 +163,10 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 	}
 
 	// Mixins
-	if (settings.suggestMixins && isMixinReference) {
+	if (settings.suggestMixins && isMixinContext) {
 		symbolsList.forEach((symbols) => {
 			const fsPath = getDocumentPath(documentPath, symbols.document);
-			const isImplicitlyImport = symbols.document !== documentPath && documentImports.indexOf(symbols.document) === -1;
+			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
 
 			symbols.mixins.forEach((mixin) => {
 				if (mixinSuggestionsFilter(mixin, resource.node)) {
@@ -146,10 +191,10 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 	}
 
 	// Functions
-	if (settings.suggestFunctions && isPropertyValue) {
+	if (settings.suggestFunctions && isFunctionContext) {
 		symbolsList.forEach((symbols) => {
 			const fsPath = getDocumentPath(documentPath, symbols.document);
-			const isImplicitlyImport = symbols.document !== documentPath && documentImports.indexOf(symbols.document) === -1;
+			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
 
 			symbols.functions.forEach((func) => {
 				// Add 'implicitly' prefix for Path if the file imported implicitly

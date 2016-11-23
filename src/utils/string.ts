@@ -5,7 +5,7 @@
  */
 export function getCurrentWord(text: string, offset: number) {
 	let i = offset - 1;
-	while (i >= 0 && !' \t\n\r":[()]},'.includes(text.charAt(i))) {
+	while (i >= 0 && !' \t\n\r":[()]}\/,'.includes(text.charAt(i))) {
 		i--;
 	}
 	return text.substring(i + 1, offset);

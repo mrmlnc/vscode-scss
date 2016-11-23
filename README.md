@@ -97,6 +97,13 @@ Allows prompt Mixins.
 
 Allows prompt Functions.
 
+#### scss.suggestFunctionsInStringContextAfterSymbols
+
+  * Type: `boolean`
+  * Default: `" (+-*%"`
+
+Allows prompt Functions in String context after specified symbols (e.g. `background: url(images/he|)` will be suggest `hello()` function if it is defined).
+
 ## Questions
 
 **I don't see suggestions in the SCSS files.**

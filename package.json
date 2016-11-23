@@ -78,6 +78,11 @@
           "type": "boolean",
           "default": true,
           "description": "Allows prompt Functions."
+        },
+        "scss.suggestFunctionsInStringContextAfterSymbols": {
+          "type": "string",
+          "default": " (+-*%",
+          "description": "Allows prompt Functions in String context after specified symbols."
         }
       }
     }
