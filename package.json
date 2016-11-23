@@ -90,11 +90,11 @@
     "rimraf": "^2.5.4"
   },
   "dependencies": {
-    "vscode-languageclient": "2.6.0",
-    "vscode-languageserver": "2.6.0",
+    "vscode-languageclient": "2.6.3",
+    "vscode-languageserver": "2.6.2",
     "vscode-css-languageservice": "1.1.0",
     "vscode-uri": "1.0.0",
-    "readdir-enhanced": "1.4.4",
+    "readdir-enhanced": "1.4.5",
     "micromatch": "2.3.11",
     "scss-symbols-parser": "1.1.1"
   },
