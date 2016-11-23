@@ -40,45 +40,53 @@ cache.set('one.scss', {
 	imports: []
 });
 
-describe('Providers/Completion', () => {
+describe('Providers/Completion - Basic', () => {
 
-	it('doCompletion - Variables suggestions', () => {
+	it('Variables', () => {
 		const doc = makeDocument('$');
 		assert.equal(doCompletion(doc, 1, settings, cache).items.length, 2);
 	});
 
-	it('doCompletion - Mixins suggestions', () => {
+	it('Mixins', () => {
 		const doc = makeDocument('@include ');
 		assert.equal(doCompletion(doc, 9, settings, cache).items.length, 1);
 	});
 
-	it('doCompletion - Property value suggestions', () => {
+});
+
+describe('Providers/Completion - Context', () => {
+
+	it('Empty property value', () => {
 		const doc = makeDocument('.a { content:  }');
 		assert.equal(doCompletion(doc, 14, settings, cache).items.length, 3);
 	});
 
-	it('doCompletion - discard suggestions inside single-line comments', () => {
+	it('Discard suggestions inside single-line comments', () => {
 		const doc = makeDocument('// $');
 		assert.equal(doCompletion(doc, 4, settings, cache).items.length, 0);
 	});
 
-	it('doCompletion - discard suggestions inside block comments', () => {
+	it('Discard suggestions inside block comments', () => {
 		const doc = makeDocument('/* $ */');
 		assert.equal(doCompletion(doc, 4, settings, cache).items.length, 0);
 	});
 
-	it('doCompletion - Show default implicitly label', () => {
+});
+
+describe('Providers/Completion - Implicitly', () => {
+
+	it('Show default implicitly label', () => {
 		const doc = makeDocument('$');
 		assert.equal(doCompletion(doc, 1, settings, cache).items[0].detail, '(implicitly) one.scss');
 	});
 
-	it('doCompletion - Show custom implicitly label', () => {
+	it('Show custom implicitly label', () => {
 		const doc = makeDocument('$');
 		settings.implicitlyLabel = '👻';
 		assert.equal(doCompletion(doc, 1, settings, cache).items[0].detail, '👻 one.scss');
 	});
 
-	it('doCompletion - Hide implicitly label', () => {
+	it('Hide implicitly label', () => {
 		const doc = makeDocument('$');
 		settings.implicitlyLabel = null;
 		assert.equal(doCompletion(doc, 1, settings, cache).items[0].detail, 'one.scss');
