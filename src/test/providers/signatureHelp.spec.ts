@@ -48,7 +48,26 @@ cache.set('one.scss', {
 		}
 	],
 	functions: [
-		{ name: 'make', parameters: [], offset: 0, position: null }
+		{ name: 'make', parameters: [], offset: 0, position: null },
+		{
+			name: 'one',
+			parameters: [
+				{ name: '$a', value: null, offset: 0 },
+				{ name: '$b', value: null, offset: 0 },
+				{ name: '$c', value: null, offset: 0 }
+			],
+			offset: 0,
+			position: null
+		},
+		{
+			name: 'two',
+			parameters: [
+				{ name: '$a', value: null, offset: 0 },
+				{ name: '$b', value: null, offset: 0 }
+			],
+			offset: 0,
+			position: null
+		},
 	],
 	imports: []
 });
@@ -157,12 +176,34 @@ describe('Providers/SignatureHelp - parseArgumentsAtLine for Functions', () => {
 
 	it('Empty', () => {
 		const doc = makeDocument('content: make(');
-		assert.equal(doSignatureHelp(doc, 14, cache, settings).signatures.length, 1);
+		const signatures = doSignatureHelp(doc, 14, cache, settings).signatures;
+
+		assert.equal(signatures.length, 1, 'length');
+		assert.ok(signatures[0].label.startsWith('make'), 'name');
 	});
 
-	it('Inside another function', () => {
+	it('Inside another uncompleted function', () => {
 		const doc = makeDocument('content: attr(make(');
-		assert.equal(doSignatureHelp(doc, 19, cache, settings).signatures.length, 1);
+		const signatures = doSignatureHelp(doc, 19, cache, settings).signatures;
+
+		assert.equal(signatures.length, 1, 'length');
+		assert.ok(signatures[0].label.startsWith('make'), 'name');
+	});
+
+	it('Inside another completed function', () => {
+		const doc = makeDocument('content: attr(one(1, two(1, two(1, 2)),');
+		const signatures = doSignatureHelp(doc, 39, cache, settings).signatures;
+
+		assert.equal(signatures.length, 1, 'length');
+		assert.ok(signatures[0].label.startsWith('one'), 'name');
+	});
+
+	it('Inside several completed functions', () => {
+		const doc = makeDocument('background: url(one(1, one(1, 2, two(1, 2)),');
+		const signatures = doSignatureHelp(doc, 44, cache, settings).signatures;
+
+		assert.equal(signatures.length, 1, 'length');
+		assert.ok(signatures[0].label.startsWith('one'), 'name');
 	});
 
 	it('Inside another function with CSS function', () => {

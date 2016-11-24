@@ -17,6 +17,9 @@ import { getSymbolsCollection } from '../utils/symbols';
 import { getTextBeforePosition } from '../utils/string';
 import { hasInFacts } from '../utils/facts';
 
+// RegExp's
+const reNestedParenthesis = /\(([\w-]+)\(/;
+
 interface IMixinEntry {
 	name: string;
 	parameters: number;
@@ -29,6 +32,7 @@ function getSymbolName(text: string): string {
 	const tokens = tokenizer(text);
 	let pos = tokens.length;
 	let token;
+	let parenthesisCount = 0;
 
 	while (pos !== 0) {
 		pos--;
@@ -36,6 +40,12 @@ function getSymbolName(text: string): string {
 
 		// Return first `word` token before `(` because it's Symbols name
 		if (token[0] === '(') {
+			// Skip nested parenthesis
+			parenthesisCount--;
+			if (parenthesisCount > -1) {
+				continue;
+			}
+
 			// String can be contains built-in Functions such as `rgba` or `map`
 			while (pos !== 0) {
 				pos--;
@@ -45,6 +55,21 @@ function getSymbolName(text: string): string {
 					return token[1] || null;
 				}
 			}
+		} else if (token[0] === ')') {
+			parenthesisCount++;
+		} else if (token[0] === 'brackets' && reNestedParenthesis.test(token[1])) {
+			// Tokens for nested string with correct positions
+			const nestedTokens = tokenizer(token[1]).map((x) => {
+				if (x.length === 3) {
+					x[2] = x[2] + token[2];
+				}
+				return x;
+			});
+
+			// Replace the current token on a new collection
+			tokens.splice(pos, 1, ...nestedTokens);
+			// Revert position back on length of nested tokens
+			pos = pos + nestedTokens.length;
 		}
 	}
 
