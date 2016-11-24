@@ -80,6 +80,14 @@ describe('Providers/Completion - Context', () => {
 		assert.equal(doCompletion(doc, 78, settings, cache).items.length, 2, 'Mixin');
 	});
 
+	it('Custom value for `suggestFunctionsInStringContextAfterSymbols` option', () => {
+		const doc = makeDocument('.a { background: url(../images/m');
+		const options = Object.assign(settings, <ISettings>{
+			suggestFunctionsInStringContextAfterSymbols: '/'
+		});
+		assert.equal(doCompletion(doc, 32, options, cache).items.length, 1);
+	});
+
 	it('Discard suggestions inside single-line comments', () => {
 		const doc = makeDocument('// $');
 		assert.equal(doCompletion(doc, 4, settings, cache).items.length, 0);
