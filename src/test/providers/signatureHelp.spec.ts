@@ -208,17 +208,34 @@ describe('Providers/SignatureHelp - parseArgumentsAtLine for Functions', () => {
 
 	it('Inside another function with CSS function', () => {
 		const doc = makeDocument('background-color: make(rgba(');
-		assert.equal(doSignatureHelp(doc, 28, cache, settings).signatures.length, 1);
+		const signatures = doSignatureHelp(doc, 28, cache, settings).signatures;
+
+		assert.equal(signatures.length, 1, 'length');
+		assert.ok(signatures[0].label.startsWith('make'), 'name');
 	});
 
 	it('Inside another function with uncompleted CSS function', () => {
 		const doc = makeDocument('background-color: make(rgba(1, 1,2,');
-		assert.equal(doSignatureHelp(doc, 35, cache, settings).signatures.length, 1);
+		const signatures = doSignatureHelp(doc, 35, cache, settings).signatures;
+
+		assert.equal(signatures.length, 1, 'length');
+		assert.ok(signatures[0].label.startsWith('make'), 'name');
 	});
 
 	it('Inside another function with completed CSS function', () => {
 		const doc = makeDocument('background-color: make(rgba(1,2, 3,.5)');
-		assert.equal(doSignatureHelp(doc, 38, cache, settings).signatures.length, 1);
+		const signatures = doSignatureHelp(doc, 38, cache, settings).signatures;
+
+		assert.equal(signatures.length, 1, 'length');
+		assert.ok(signatures[0].label.startsWith('make'), 'name');
+	});
+
+	it('Interpolation', () => {
+		const doc = makeDocument('background-color: "#{make(}"');
+		const signatures = doSignatureHelp(doc, 26, cache, settings).signatures;
+
+		assert.equal(signatures.length, 1, 'length');
+		assert.ok(signatures[0].label.startsWith('make'), 'name');
 	});
 
 });
