@@ -19,6 +19,7 @@ import { hasInFacts } from '../utils/facts';
 
 // RegExp's
 const reNestedParenthesis = /\(([\w-]+)\(/;
+const reSymbolName = /[\w-]+$/;
 
 interface IMixinEntry {
 	name: string;
@@ -52,7 +53,8 @@ function getSymbolName(text: string): string {
 				token = tokens[pos];
 
 				if (token[0] === 'word' && !hasInFacts(token[1])) {
-					return token[1] || null;
+					const match = reSymbolName.exec(token[1]);
+					return match ? match[0] : null;
 				}
 			}
 		} else if (token[0] === ')') {

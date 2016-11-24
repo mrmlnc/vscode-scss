@@ -182,6 +182,14 @@ describe('Providers/SignatureHelp - parseArgumentsAtLine for Functions', () => {
 		assert.ok(signatures[0].label.startsWith('make'), 'name');
 	});
 
+	it('Single-line Function reference', () => {
+		const doc = makeDocument('content: make()+make(');
+		const signatures = doSignatureHelp(doc, 21, cache, settings).signatures;
+
+		assert.equal(signatures.length, 1, 'length');
+		assert.ok(signatures[0].label.startsWith('make'), 'name');
+	});
+
 	it('Inside another uncompleted function', () => {
 		const doc = makeDocument('content: attr(make(');
 		const signatures = doSignatureHelp(doc, 19, cache, settings).signatures;
