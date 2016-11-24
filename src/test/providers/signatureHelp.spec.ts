@@ -47,7 +47,9 @@ cache.set('one.scss', {
 			position: null
 		}
 	],
-	functions: [],
+	functions: [
+		{ name: 'make', parameters: [], offset: 0, position: null }
+	],
 	imports: []
 });
 
@@ -103,7 +105,7 @@ describe('Providers/SignatureHelp - Two parameters', () => {
 
 });
 
-describe('Providers/SignatureHelp - parseArgumentsAtLine', () => {
+describe('Providers/SignatureHelp - parseArgumentsAtLine for Mixins', () => {
 
 	it('RGBA', () => {
 		const doc = makeDocument('@include two(rgba(0,0,0,.0001),');
@@ -147,6 +149,35 @@ describe('Providers/SignatureHelp - parseArgumentsAtLine', () => {
 	it('Mixin with named argument', () => {
 		const doc = makeDocument('@include two($a: 1,');
 		assert.equal(doSignatureHelp(doc, 19, cache, settings).signatures.length, 2);
+	});
+
+});
+
+describe('Providers/SignatureHelp - parseArgumentsAtLine for Functions', () => {
+
+	it('Empty', () => {
+		const doc = makeDocument('content: make(');
+		assert.equal(doSignatureHelp(doc, 14, cache, settings).signatures.length, 1);
+	});
+
+	it('Inside another function', () => {
+		const doc = makeDocument('content: attr(make(');
+		assert.equal(doSignatureHelp(doc, 19, cache, settings).signatures.length, 1);
+	});
+
+	it('Inside another function with CSS function', () => {
+		const doc = makeDocument('background-color: make(rgba(');
+		assert.equal(doSignatureHelp(doc, 28, cache, settings).signatures.length, 1);
+	});
+
+	it('Inside another function with uncompleted CSS function', () => {
+		const doc = makeDocument('background-color: make(rgba(1, 1,2,');
+		assert.equal(doSignatureHelp(doc, 35, cache, settings).signatures.length, 1);
+	});
+
+	it('Inside another function with completed CSS function', () => {
+		const doc = makeDocument('background-color: make(rgba(1,2, 3,.5)');
+		assert.equal(doSignatureHelp(doc, 38, cache, settings).signatures.length, 1);
 	});
 
 });

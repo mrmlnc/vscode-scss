@@ -15,13 +15,40 @@ import { ICache } from '../services/cache';
 import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getTextBeforePosition } from '../utils/string';
-
-// RegExp's
-const reReferenceName = /.*(?:^|\s+)([^\(]+)(?=\()/;
+import { hasInFacts } from '../utils/facts';
 
 interface IMixinEntry {
 	name: string;
 	parameters: number;
+}
+
+/**
+ * Returns name of last Mixin or Function in the string.
+ */
+function getSymbolName(text: string): string {
+	const tokens = tokenizer(text);
+	let pos = tokens.length;
+	let token;
+
+	while (pos !== 0) {
+		pos--;
+		token = tokens[pos];
+
+		// Return first `word` token before `(` because it's Symbols name
+		if (token[0] === '(') {
+			// String can be contains built-in Functions such as `rgba` or `map`
+			while (pos !== 0) {
+				pos--;
+				token = tokens[pos];
+
+				if (token[0] === 'word' && !hasInFacts(token[1])) {
+					return token[1] || null;
+				}
+			}
+		}
+	}
+
+	return null;
 }
 
 /**
@@ -33,11 +60,12 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 		text = text.slice(text.indexOf('{') + 1, text.length).trim();
 	}
 
-	const name = text.match(reReferenceName);
+	// Try to find name of Mixin or Function
+	const name = getSymbolName(text);
 
 	let paramsString = '';
 	if (name) {
-		const start = text.lastIndexOf(name[1] + '(') + name[1].length;
+		const start = text.lastIndexOf(name + '(') + name.length;
 		paramsString = text.slice(start, text.length);
 	}
 
@@ -83,7 +111,7 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 	}
 
 	return {
-		name: name ? name[1] : null,
+		name: name ? name : null,
 		parameters
 	};
 }
