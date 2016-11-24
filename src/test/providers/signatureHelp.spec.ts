@@ -51,23 +51,27 @@ cache.set('one.scss', {
 	imports: []
 });
 
-describe('Providers/SignatureHelp', () => {
+describe('Providers/SignatureHelp - Empty', () => {
 
-	it('doSignatureHelp - Empty', () => {
+	it('Empty', () => {
 		const doc = makeDocument('@include one(');
 		assert.equal(doSignatureHelp(doc, 13, cache, settings).signatures.length, 1);
 	});
-	it('doSignatureHelp - Closed without parameters', () => {
+	it('Closed without parameters', () => {
 		const doc = makeDocument('@include two()');
 		assert.equal(doSignatureHelp(doc, 13, cache, settings).signatures.length, 3);
 	});
 
-	it('doSignatureHelp - Closed with parameters', () => {
+	it('Closed with parameters', () => {
 		const doc = makeDocument('@include two(1);');
 		assert.equal(doSignatureHelp(doc, 16, cache, settings).signatures.length, 0);
 	});
 
-	it('doSignatureHelp - 1/2', () => {
+});
+
+describe('Providers/SignatureHelp - Two parameters', () => {
+
+	it('Passed one parameter of two', () => {
 		const doc = makeDocument('@include two(1,');
 		const signature = doSignatureHelp(doc, 15, cache, settings);
 
@@ -75,7 +79,7 @@ describe('Providers/SignatureHelp', () => {
 		assert.equal(signature.signatures.length, 2, 'signatures.length');
 	});
 
-	it('doSignatureHelp - 2/2', () => {
+	it('Passed two parameter of two', () => {
 		const doc = makeDocument('@include two(1, 2,');
 		const signature = doSignatureHelp(doc, 18, cache, settings);
 
@@ -83,21 +87,25 @@ describe('Providers/SignatureHelp', () => {
 		assert.equal(signature.signatures.length, 1, 'signatures.length');
 	});
 
-	it('doSignatureHelp - 3/2', () => {
+	it('Passed three parameters of two', () => {
 		const doc = makeDocument('@include two(1, 2, 3,');
 		const signature = doSignatureHelp(doc, 21, cache, settings);
 
 		assert.equal(signature.signatures.length, 0);
 	});
 
-	it('doSignatureHelp - 2/2 with parenthesis', () => {
+	it('Passed two parameter of two with parenthesis', () => {
 		const doc = makeDocument('@include two(1, 2)');
 		const signature = doSignatureHelp(doc, 18, cache, settings);
 
 		assert.equal(signature.signatures.length, 0);
 	});
 
-	it('doSignatureHelp - RGBA', () => {
+});
+
+describe('Providers/SignatureHelp - parseArgumentsAtLine', () => {
+
+	it('RGBA', () => {
 		const doc = makeDocument('@include two(rgba(0,0,0,.0001),');
 		const signature = doSignatureHelp(doc, 31, cache, settings);
 
@@ -105,7 +113,7 @@ describe('Providers/SignatureHelp', () => {
 		assert.equal(signature.signatures.length, 2, 'signatures.length');
 	});
 
-	it('doSignatureHelp - RGBA when typing', () => {
+	it('RGBA when typing', () => {
 		const doc = makeDocument('@include two(rgba(0,0,0,');
 		const signature = doSignatureHelp(doc, 24, cache, settings);
 
@@ -113,7 +121,7 @@ describe('Providers/SignatureHelp', () => {
 		assert.equal(signature.signatures.length, 3, 'signatures.length');
 	});
 
-	it('doSignatureHelp - Quotes', () => {
+	it('Quotes', () => {
 		const doc = makeDocument('@include two("\\",;",');
 		const signature = doSignatureHelp(doc, 20, cache, settings);
 
@@ -121,22 +129,22 @@ describe('Providers/SignatureHelp', () => {
 		assert.equal(signature.signatures.length, 2, 'signatures.length');
 	});
 
-	it('doSignatureHelp - With overload', () => {
+	it('With overload', () => {
 		const doc = makeDocument('@include two(');
 		assert.equal(doSignatureHelp(doc, 13, cache, settings).signatures.length, 3);
 	});
 
-	it('doSignatureHelp - Single-line selector', () => {
+	it('Single-line selector', () => {
 		const doc = makeDocument('h1 { @include two(1, }');
 		assert.equal(doSignatureHelp(doc, 20, cache, settings).signatures.length, 2);
 	});
 
-	it('doSignatureHelp - Single-line Mixin reference', () => {
+	it('Single-line Mixin reference', () => {
 		const doc = makeDocument('h1 { @include two(1, 2); @include two(1,) }');
 		assert.equal(doSignatureHelp(doc, 40, cache, settings).signatures.length, 2);
 	});
 
-	it('doSignatureHelp - Mixin with named argument', () => {
+	it('Mixin with named argument', () => {
 		const doc = makeDocument('@include two($a: 1,');
 		assert.equal(doSignatureHelp(doc, 19, cache, settings).signatures.length, 2);
 	});
