@@ -41,7 +41,11 @@
           "items": {
             "type": "string"
           },
-          "default": ["**/.git", "**/node_modules", "**/bower_components"],
+          "default": [
+            "**/.git",
+            "**/node_modules",
+            "**/bower_components"
+          ],
           "description": "List of Glob-patterns for directories that are excluded when scanning."
         },
         "scss.scanImportedFiles": {
@@ -55,7 +59,10 @@
           "description": "The maximum number of imported files to scan."
         },
         "scss.implicitlyLabel": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "default": "(implicitly)",
           "description": "The text of a label that the file imported implicitly. If `null` then label not displayed."
         },
@@ -88,16 +95,17 @@
     }
   },
   "devDependencies": {
-    "vscode": "^1.0.1",
-    "typescript": "^2.0.3",
-    "tslint": "^3.15.1",
-    "mocha": "^3.1.2",
-    "rimraf": "^2.5.4"
+    "mocha": "^3.2.0",
+    "rimraf": "^2.5.4",
+    "tslint": "^4.4.2",
+    "tslint-config-xo": "^1.1.0",
+    "typescript": "^2.1.5",
+    "vscode": "^1.0.3"
   },
   "dependencies": {
-    "vscode-languageclient": "2.6.3",
-    "vscode-languageserver": "2.6.2",
-    "vscode-css-languageservice": "1.1.0",
+    "vscode-languageclient": "3.0.3",
+    "vscode-languageserver": "3.0.4",
+    "vscode-css-languageservice": "2.0.0-next.9",
     "vscode-uri": "1.0.0",
     "readdir-enhanced": "1.4.5",
     "micromatch": "2.3.11",
