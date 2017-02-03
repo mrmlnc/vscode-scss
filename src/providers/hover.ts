@@ -80,12 +80,12 @@ function getSymbol(symbolList: ISymbols[], identifier: any, currentPath: string)
 
 		const fsPath = getDocumentPath(currentPath, symbols.document);
 
-		for (let i = 0; i < symbolsByType.length; i++) {
-			if (symbolsByType[i].name === identifier.name) {
+		for (let j = 0; j < symbolsByType.length; j++) {
+			if (symbolsByType[j].name === identifier.name) {
 				return {
 					document: symbols.document,
 					path: fsPath,
-					info: symbolsByType[i]
+					info: symbolsByType[j]
 				};
 			}
 		}

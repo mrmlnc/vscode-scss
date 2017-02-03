@@ -53,7 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
 			uri = event.document.uri.toString();
 		}
 
-		client.sendRequest({ method: 'changeActiveDocument' }, { uri });
+		client.sendRequest('changeActiveDocument', { uri });
 	});
 
 	context.subscriptions.push(...disposable);

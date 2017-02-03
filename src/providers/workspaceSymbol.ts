@@ -25,9 +25,9 @@ export function searchWorkspaceSymbol(query: string, cache: ICache, root: string
 		['variables', 'mixins', 'functions'].forEach((type) => {
 			let kind = SymbolKind.Variable;
 			if (type === 'mixins') {
-				kind = SymbolKind.Function;
+				kind = <any>SymbolKind.Function;
 			} else if (type === 'functions') {
-				kind = SymbolKind.Interface;
+				kind = <any>SymbolKind.Interface;
 			}
 
 			symbols[type].forEach((symbol) => {

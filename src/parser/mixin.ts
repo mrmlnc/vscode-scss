@@ -11,7 +11,7 @@ import { getChildByType } from '../utils/ast';
  */
 export function makeMixin(node: INode): IMixin {
 	const name = node.getName();
-	let params: IVariable[] = [];
+	const params: IVariable[] = [];
 
 	node.getParameters().getChildren().forEach((child) => {
 		if (child.getName()) {

@@ -22,7 +22,7 @@ import { goDefinition } from './providers/goDefinition';
 import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
 
 // Cache Storage
-let cache = getCacheStorage();
+const cache = getCacheStorage();
 
 // Common variables
 let workspaceRoot: string;
@@ -36,15 +36,15 @@ console.log = connection.console.log.bind(connection.console);
 console.error = connection.console.error.bind(connection.console);
 
 // Create a simple text document manager. The text document manager
-// supports full document sync only
+// _supports full document sync only
 const documents: TextDocuments = new TextDocuments();
 
 // Make the text document manager listen on the connection
-// for open, change and close text document events
+// _for open, change and close text document events
 documents.listen(connection);
 
 // After the server has started the client sends an initilize request. The server receives
-// in the passed params the rootPath of the workspace plus the client capabilites
+// _in the passed params the rootPath of the workspace plus the client capabilites
 connection.onInitialize((params: InitializeParams): Promise<InitializeResult> => {
 	workspaceRoot = params.rootPath;
 	settings = params.initializationOptions.settings;
@@ -87,7 +87,7 @@ connection.onDidChangeWatchedFiles((event) => {
 	});
 });
 
-connection.onRequest({ method: 'changeActiveDocument' }, (data: any) => {
+connection.onRequest('changeActiveDocument', (data: any) => {
 	activeDocumentUri = data.uri;
 });
 

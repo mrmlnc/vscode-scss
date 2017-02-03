@@ -23,12 +23,6 @@ interface IFile {
 	ctime: Date;
 }
 
-interface IDocument {
-	path: string;
-	textDocument: TextDocument;
-	offset: number;
-}
-
 /**
  * Returns Symbols for specified document.
  */
@@ -62,7 +56,7 @@ function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: 
 	let nesting = 0;
 
 	function recurse(accum: ISymbols[], list: ISymbols[]): any {
-		let importedFiles: string[] = [];
+		const importedFiles: string[] = [];
 
 		// Prevent an infinite recursion and very deep `@import`
 		if (list.length === 0 || (nesting === settings.scanImportedFilesDepth)) {
@@ -148,7 +142,7 @@ export function doScanner(root: string, cache: ICache, settings: ISettings): Pro
 		});
 
 		stream.on('data', () => {
-			// silence
+			// Silence
 		});
 
 		stream.on('file', (stat: readdir.IEntry) => {
