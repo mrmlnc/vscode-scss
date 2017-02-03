@@ -7,7 +7,7 @@
   "publisher": "mrmlnc",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.5.0"
+    "vscode": "^1.8.0"
   },
   "icon": "icon.png",
   "homepage": "https://github.com/mrmlnc/vscode-scss/blob/master/README.md",
@@ -112,6 +112,7 @@
     "scss-symbols-parser": "1.1.1"
   },
   "scripts": {
+    "postinstall": "node ./node_modules/vscode/bin/install",
     "clean": "rimraf out",
     "lint": "tslint src/**/*.ts",
     "compile": "tsc",
