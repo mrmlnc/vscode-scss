@@ -51,7 +51,7 @@ describe('Services/Parser', () => {
 			'@function func($a) { @return $a }',
 			'@mixin mixin($a: 1, $b) {',
 			'  content: ',
-			'}',
+			'}'
 		]);
 
 		const { symbols } = parseDocument(doc, 87, <ISettings>{

@@ -67,7 +67,7 @@ cache.set('one.scss', {
 			],
 			offset: 0,
 			position: null
-		},
+		}
 	],
 	imports: []
 });
