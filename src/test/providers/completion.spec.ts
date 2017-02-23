@@ -45,12 +45,12 @@ describe('Providers/Completion - Basic', () => {
 
 	it('Variables', () => {
 		const doc = makeDocument('$');
-		assert.equal(doCompletion(doc, 1, settings, cache).items.length, 2);
+		assert.equal(doCompletion('./fixtures', doc, 1, settings, cache).items.length, 2);
 	});
 
 	it('Mixins', () => {
 		const doc = makeDocument('@include ');
-		assert.equal(doCompletion(doc, 9, settings, cache).items.length, 1);
+		assert.equal(doCompletion('./fixtures', doc, 9, settings, cache).items.length, 1);
 	});
 
 });
@@ -59,25 +59,25 @@ describe('Providers/Completion - Context', () => {
 
 	it('Empty property value', () => {
 		const doc = makeDocument('.a { content:  }');
-		assert.equal(doCompletion(doc, 14, settings, cache).items.length, 2);
+		assert.equal(doCompletion('./fixtures', doc, 14, settings, cache).items.length, 2);
 	});
 
 	it('Non-empty property value without suggestions', () => {
 		const doc = makeDocument('.a { background: url(../images/one.png); }');
-		assert.equal(doCompletion(doc, 34, settings, cache).items.length, 0);
+		assert.equal(doCompletion('./fixtures', doc, 34, settings, cache).items.length, 0);
 	});
 
 	it('Non-empty property value with Variables', () => {
 		const doc = makeDocument('.a { background: url(../images/#{$one}/one.png); }');
-		assert.equal(doCompletion(doc, 37, settings, cache).items.length, 2, 'True');
-		assert.equal(doCompletion(doc, 42, settings, cache).items.length, 0, 'False');
+		assert.equal(doCompletion('./fixtures', doc, 37, settings, cache).items.length, 2, 'True');
+		assert.equal(doCompletion('./fixtures', doc, 42, settings, cache).items.length, 0, 'False');
 	});
 
 	it('Discard suggestions inside quotes', () => {
 		const doc = makeDocument('.a { background: url("../images/#{$one}/$one.png"); @include test("test", $one); }');
-		assert.equal(doCompletion(doc, 44, settings, cache).items.length, 0, 'Hide');
-		assert.equal(doCompletion(doc, 38, settings, cache).items.length, 3, 'True');
-		assert.equal(doCompletion(doc, 78, settings, cache).items.length, 2, 'Mixin');
+		assert.equal(doCompletion('./fixtures', doc, 44, settings, cache).items.length, 0, 'Hide');
+		assert.equal(doCompletion('./fixtures', doc, 38, settings, cache).items.length, 3, 'True');
+		assert.equal(doCompletion('./fixtures', doc, 78, settings, cache).items.length, 2, 'Mixin');
 	});
 
 	it('Custom value for `suggestFunctionsInStringContextAfterSymbols` option', () => {
@@ -85,17 +85,17 @@ describe('Providers/Completion - Context', () => {
 		const options = Object.assign(settings, <ISettings>{
 			suggestFunctionsInStringContextAfterSymbols: '/'
 		});
-		assert.equal(doCompletion(doc, 32, options, cache).items.length, 1);
+		assert.equal(doCompletion('./fixtures', doc, 32, options, cache).items.length, 1);
 	});
 
 	it('Discard suggestions inside single-line comments', () => {
 		const doc = makeDocument('// $');
-		assert.equal(doCompletion(doc, 4, settings, cache).items.length, 0);
+		assert.equal(doCompletion('./fixtures', doc, 4, settings, cache).items.length, 0);
 	});
 
 	it('Discard suggestions inside block comments', () => {
 		const doc = makeDocument('/* $ */');
-		assert.equal(doCompletion(doc, 4, settings, cache).items.length, 0);
+		assert.equal(doCompletion('./fixtures', doc, 4, settings, cache).items.length, 0);
 	});
 
 });
@@ -104,19 +104,19 @@ describe('Providers/Completion - Implicitly', () => {
 
 	it('Show default implicitly label', () => {
 		const doc = makeDocument('$');
-		assert.equal(doCompletion(doc, 1, settings, cache).items[0].detail, '(implicitly) one.scss');
+		assert.equal(doCompletion('./fixtures', doc, 1, settings, cache).items[0].detail, '(implicitly) one.scss');
 	});
 
 	it('Show custom implicitly label', () => {
 		const doc = makeDocument('$');
 		settings.implicitlyLabel = '👻';
-		assert.equal(doCompletion(doc, 1, settings, cache).items[0].detail, '👻 one.scss');
+		assert.equal(doCompletion('./fixtures', doc, 1, settings, cache).items[0].detail, '👻 one.scss');
 	});
 
 	it('Hide implicitly label', () => {
 		const doc = makeDocument('$');
 		settings.implicitlyLabel = null;
-		assert.equal(doCompletion(doc, 1, settings, cache).items[0].detail, 'one.scss');
+		assert.equal(doCompletion('./fixtures', doc, 1, settings, cache).items[0].detail, 'one.scss');
 	});
 
 });

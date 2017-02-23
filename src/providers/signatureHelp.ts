@@ -146,7 +146,7 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 /**
  * Do Signature Help :)
  */
-export function doSignatureHelp(document: TextDocument, offset: number, cache: ICache, settings: ISettings): SignatureHelp {
+export function doSignatureHelp(root: string, document: TextDocument, offset: number, cache: ICache, settings: ISettings): SignatureHelp {
 	const suggestions: { name: string; parameters: IVariable[]; }[] = [];
 
 	const ret: SignatureHelp = {
@@ -173,7 +173,7 @@ export function doSignatureHelp(document: TextDocument, offset: number, cache: I
 
 	const symbolType = textBeforeWord.indexOf('@include') !== -1 ? 'mixins' : 'functions';
 
-	const resource = parseDocument(document, offset, settings);
+	const resource = parseDocument(root, document, offset, settings);
 
 	// Update Cache for current document
 	cache.set(documentPath, resource.symbols);

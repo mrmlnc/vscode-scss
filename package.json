@@ -90,6 +90,14 @@
           "type": "string",
           "default": " (+-*%",
           "description": "Allows prompt Functions in String context after specified symbols."
+        },
+        "scss.includePaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Define include paths to use."
         }
       }
     }
@@ -107,13 +115,14 @@
     "vscode": "^1.0.3"
   },
   "dependencies": {
+    "locate-path": "^2.0.0",
+    "micromatch": "2.3.11",
+    "readdir-enhanced": "1.4.5",
+    "scss-symbols-parser": "1.1.1",
+    "vscode-css-languageservice": "2.0.0-next.9",
     "vscode-languageclient": "3.0.3",
     "vscode-languageserver": "3.0.4",
-    "vscode-css-languageservice": "2.0.0-next.9",
-    "vscode-uri": "1.0.0",
-    "readdir-enhanced": "1.4.5",
-    "micromatch": "2.3.11",
-    "scss-symbols-parser": "1.1.1"
+    "vscode-uri": "1.0.0"
   },
   "scripts": {
     "postinstall": "node ./node_modules/vscode/bin/install",

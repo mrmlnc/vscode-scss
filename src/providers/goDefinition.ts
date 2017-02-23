@@ -48,13 +48,13 @@ function getSymbols(symbolList: ISymbols[], identifier: any, currentPath: string
 /**
  * Do Go Definition :)
  */
-export function goDefinition(document: TextDocument, offset: number, cache: ICache, settings: ISettings): Location[] {
+export function goDefinition(root: string, document: TextDocument, offset: number, cache: ICache, settings: ISettings): Location[] {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
 		return [];
 	}
 
-	const resource = parseDocument(document, offset, settings);
+	const resource = parseDocument(root, document, offset, settings);
 	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
 		return [];

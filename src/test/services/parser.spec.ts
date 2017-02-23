@@ -19,7 +19,7 @@ describe('Services/Parser', () => {
 			'@mixin mixin($a: 1, $b) {}'
 		]);
 
-		const { symbols } = parseDocument(doc, null, <ISettings>{
+		const { symbols } = parseDocument('./fixtures', doc, null, <ISettings>{
 			showErrors: false
 		});
 
@@ -54,7 +54,7 @@ describe('Services/Parser', () => {
 			'}'
 		]);
 
-		const { symbols } = parseDocument(doc, 87, <ISettings>{
+		const { symbols } = parseDocument('./fixtures', doc, 87, <ISettings>{
 			showErrors: false
 		});
 

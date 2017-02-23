@@ -12,6 +12,13 @@ import { ISettings } from '../types/settings';
 import { findSymbols, findSymbolsAtOffset } from '../parser/symbols';
 import { getNodeAtOffset } from '../utils/ast';
 
+interface LocatePath {
+	(files: string[], options?: Partial<{ concurrency: number; preserveOrder: boolean; cwd: string; }>): Promise<string | undefined>;
+	sync(files:string[], options?: Partial<{ cwd: string; }>): string | undefined;
+}
+
+const locatePath: LocatePath = require('locate-path');
+
 // RegExp's
 const reReferenceCommentGlobal = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/g;
 const reReferenceComment = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/;
@@ -28,7 +35,7 @@ ls.configure({
 /**
  * Returns all Symbols in a single document.
  */
-export function parseDocument(document: TextDocument, offset: number = null, settings: ISettings): IDocument {
+export function parseDocument(root: string, document: TextDocument, offset: number = null, settings: ISettings): IDocument {
 	let symbols: ISymbols;
 	try {
 		symbols = findSymbols(document.getText());
@@ -73,10 +80,12 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 	}
 
 	symbols.imports = symbols.imports.map((x) => {
-		x.filepath = path.join(path.dirname(symbols.document), x.filepath);
-		if (!x.css && x.filepath.substr(-5) !== '.scss') {
-			x.filepath += '.scss';
+		let relativePath = x.filepath;
+		if (!x.css && relativePath.substr(-5) !== '.scss') {
+			relativePath += '.scss';
 		}
+
+		x.filepath = findFirstScssFile(relativePath, { root, settings, documentPath: path.dirname(symbols.document) });
 		return x;
 	});
 
@@ -97,4 +106,25 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 		symbols,
 		node: offset ? getNodeAtOffset(ast, offset) : null
 	};
+}
+
+export function getPossiblePaths(filepath: string) {
+	const targets = [filepath];
+
+	const basename = path.basename(filepath);
+	if (!basename.startsWith('_')) {
+		targets.push(path.resolve(path.dirname(filepath), '_' + basename));
+	}
+
+	return targets;
+}
+
+export function findFirstScssFile(relativePath: string, {root, settings, documentPath}: { root: string; settings: ISettings; documentPath: string }) {
+	const targets = getPossiblePaths(path.resolve(documentPath, relativePath));
+
+	for (const includePath of settings.includePaths || []) {
+		targets.push(...getPossiblePaths(path.resolve(root, includePath, relativePath)));
+	}
+
+	return locatePath.sync(targets);
 }

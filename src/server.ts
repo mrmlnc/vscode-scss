@@ -94,25 +94,25 @@ connection.onRequest('changeActiveDocument', (data: any) => {
 connection.onCompletion((textDocumentPosition) => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return doCompletion(document, offset, settings, cache);
+	return doCompletion(workspaceRoot, document, offset, settings, cache);
 });
 
 connection.onHover((textDocumentPosition) => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return doHover(document, offset, cache, settings);
+	return doHover(workspaceRoot, document, offset, cache, settings);
 });
 
 connection.onSignatureHelp((textDocumentPosition) => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return doSignatureHelp(document, offset, cache, settings);
+	return doSignatureHelp(workspaceRoot, document, offset, cache, settings);
 });
 
 connection.onDefinition((textDocumentPosition) => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return goDefinition(document, offset, cache, settings);
+	return goDefinition(workspaceRoot, document, offset, cache, settings);
 });
 
 connection.onWorkspaceSymbol((workspaceSymbolParams) => {

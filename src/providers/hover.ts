@@ -97,13 +97,13 @@ function getSymbol(symbolList: ISymbols[], identifier: any, currentPath: string)
 /**
  * Do Hover :)
  */
-export function doHover(document: TextDocument, offset: number, cache: ICache, settings: ISettings): Hover {
+export function doHover(root: string, document: TextDocument, offset: number, cache: ICache, settings: ISettings): Hover {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
 		return null;
 	}
 
-	const resource = parseDocument(document, offset, settings);
+	const resource = parseDocument(root, document, offset, settings);
 	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
 		return;

@@ -98,7 +98,7 @@ function checkFunctionContext(textBeforeWord: string, isInterpolation: boolean, 
 /**
  * Do Completion :)
  */
-export function doCompletion(document: TextDocument, offset: number, settings: ISettings, cache: ICache): CompletionList {
+export function doCompletion(root: string, document: TextDocument, offset: number, settings: ISettings, cache: ICache): CompletionList {
 	const completions = CompletionList.create([], false);
 
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
@@ -106,7 +106,7 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 		return null;
 	}
 
-	const resource = parseDocument(document, offset, settings);
+	const resource = parseDocument(root, document, offset, settings);
 
 	// Update Cache for current document
 	cache.set(documentPath, resource.symbols);

@@ -6,6 +6,7 @@ export interface ISettings {
 	scannerExclude: string[];
 	scanImportedFiles: boolean;
 	scanImportedFilesDepth: number;
+	includePaths: string[];
 
 	// Label
 	implicitlyLabel: string;

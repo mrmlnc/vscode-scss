@@ -41,7 +41,7 @@ describe('Providers/GoDefinition', () => {
 
 	it('doGoDefinition - Variables', () => {
 		const doc = makeDocument('.a { content: $a; }');
-		const result = goDefinition(doc, 15, cache, settings);
+		const result = goDefinition('./fixtures', doc, 15, cache, settings);
 
 		assert.equal(result.length, 1);
 		assert.ok(Files.uriToFilePath(result[0].uri), 'one.scss');
@@ -53,14 +53,14 @@ describe('Providers/GoDefinition', () => {
 
 	it('doGoDefinition - Variable definition', () => {
 		const doc = makeDocument('$a: 1;');
-		const result = goDefinition(doc, 2, cache, settings);
+		const result = goDefinition('./fixtures', doc, 2, cache, settings);
 
 		assert.equal(result.length, 0);
 	});
 
 	it('doGoDefinition - Mixins', () => {
 		const doc = makeDocument('.a { @include mixin(); }');
-		const result = goDefinition(doc, 16, cache, settings);
+		const result = goDefinition('./fixtures', doc, 16, cache, settings);
 
 		assert.equal(result.length, 1);
 		assert.ok(Files.uriToFilePath(result[0].uri), 'one.scss');
@@ -72,21 +72,21 @@ describe('Providers/GoDefinition', () => {
 
 	it('doGoDefinition - Mixin definition', () => {
 		const doc = makeDocument('@mixin mixin($a) {}');
-		const result = goDefinition(doc, 8, cache, settings);
+		const result = goDefinition('./fixtures', doc, 8, cache, settings);
 
 		assert.equal(result.length, 0);
 	});
 
 	it('doGoDefinition - Mixin Arguments', () => {
 		const doc = makeDocument('@mixin mixin($a) {}');
-		const result = goDefinition(doc, 10, cache, settings);
+		const result = goDefinition('./fixtures', doc, 10, cache, settings);
 
 		assert.equal(result.length, 0);
 	});
 
 	it('doGoDefinition - Functions', () => {
 		const doc = makeDocument('.a { content: make(1); }');
-		const result = goDefinition(doc, 16, cache, settings);
+		const result = goDefinition('./fixtures', doc, 16, cache, settings);
 
 		assert.equal(result.length, 1);
 		assert.ok(Files.uriToFilePath(result[0].uri), 'one.scss');
@@ -98,14 +98,14 @@ describe('Providers/GoDefinition', () => {
 
 	it('doGoDefinition - Function definition', () => {
 		const doc = makeDocument('@function make($a) {}');
-		const result = goDefinition(doc, 8, cache, settings);
+		const result = goDefinition('./fixtures', doc, 8, cache, settings);
 
 		assert.equal(result.length, 0);
 	});
 
 	it('doGoDefinition - Function Arguments', () => {
 		const doc = makeDocument('@function make($a) {}');
-		const result = goDefinition(doc, 13, cache, settings);
+		const result = goDefinition('./fixtures', doc, 13, cache, settings);
 
 		assert.equal(result.length, 0);
 	});

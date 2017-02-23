@@ -26,10 +26,10 @@ interface IFile {
 /**
  * Returns Symbols for specified document.
  */
-function makeSymbolsForDocument(cache: ICache, entry: IFile, settings: ISettings): Promise<ISymbols> {
+function makeSymbolsForDocument(root: string, cache: ICache, entry: IFile, settings: ISettings): Promise<ISymbols> {
 	return readFile(entry.filepath).then((data) => {
 		const doc = TextDocument.create(entry.filepath, 'scss', 1, data);
-		const { symbols } = parseDocument(doc, null, settings);
+		const { symbols } = parseDocument(root, doc, null, settings);
 
 		symbols.ctime = entry.ctime;
 		cache.set(entry.filepath, symbols);
@@ -52,7 +52,7 @@ function makeEntryFile(filepath: string, ctime: Date): IFile {
 /**
  * Returns Symbols from Imported files.
  */
-function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: ISettings): Promise<ISymbols[]> {
+function scannerImportedFiles(root: string, cache: ICache, symbolsList: ISymbols[], settings: ISettings): Promise<ISymbols[]> {
 	let nesting = 0;
 
 	function recurse(accum: ISymbols[], list: ISymbols[]): any {
@@ -92,7 +92,7 @@ function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: 
 					return cached;
 				}
 
-				return makeSymbolsForDocument(cache, entry, settings);
+				return makeSymbolsForDocument(root, cache, entry, settings);
 			});
 		})).then((resultList) => {
 			nesting++;
@@ -155,7 +155,7 @@ export function doScanner(root: string, cache: ICache, settings: ISettings): Pro
 				return;
 			}
 
-			listOfPromises.push(makeSymbolsForDocument(cache, entry, settings));
+			listOfPromises.push(makeSymbolsForDocument(root, cache, entry, settings));
 		});
 
 		stream.on('error', (err) => {
@@ -172,7 +172,7 @@ export function doScanner(root: string, cache: ICache, settings: ISettings): Pro
 				projectSymbols = await Promise.all(listOfPromises);
 
 				if (settings.scanImportedFiles) {
-					importedSymbols = await scannerImportedFiles(cache, projectSymbols, settings);
+					importedSymbols = await scannerImportedFiles(root, cache, projectSymbols, settings);
 				}
 			} catch (err) {
 				if (settings.showErrors) {
