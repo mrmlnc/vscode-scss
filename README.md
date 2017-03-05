@@ -8,6 +8,14 @@
 >
 > Please read this README file.
 
+## Donate
+
+If you want to thank me, or promote your Issue.
+
+[![Gratipay User](https://img.shields.io/gratipay/user/mrmlnc.svg?style=flat-square)](https://gratipay.com/~mrmlnc)
+
+> Sorry, but I have work and support for plugins requires some time after work. I will be glad of your support.
+
 ## Install
 
 Plugin installation is performed in several stages:
