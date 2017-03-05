@@ -41,73 +41,78 @@ describe('Providers/GoDefinition', () => {
 
 	it('doGoDefinition - Variables', () => {
 		const doc = makeDocument('.a { content: $a; }');
-		const result = goDefinition(doc, 15, cache, settings);
 
-		assert.equal(result.length, 1);
-		assert.ok(Files.uriToFilePath(result[0].uri), 'one.scss');
-		assert.deepEqual(result[0].range, {
-			start: { line: 1, character: 1 },
-			end: { line: 1, character: 3 }
+		return goDefinition(doc, 15, cache, settings).then((result) => {
+			assert.ok(Files.uriToFilePath(result.uri), 'one.scss');
+			assert.deepEqual(result.range, {
+				start: { line: 1, character: 1 },
+				end: { line: 1, character: 3 }
+			});
 		});
 	});
 
 	it('doGoDefinition - Variable definition', () => {
 		const doc = makeDocument('$a: 1;');
-		const result = goDefinition(doc, 2, cache, settings);
 
-		assert.equal(result.length, 0);
+		return goDefinition(doc, 2, cache, settings).then((result) => {
+			assert.equal(result, null);
+		});
 	});
 
 	it('doGoDefinition - Mixins', () => {
 		const doc = makeDocument('.a { @include mixin(); }');
-		const result = goDefinition(doc, 16, cache, settings);
 
-		assert.equal(result.length, 1);
-		assert.ok(Files.uriToFilePath(result[0].uri), 'one.scss');
-		assert.deepEqual(result[0].range, {
-			start: { line: 1, character: 1 },
-			end: { line: 1, character: 6 }
+		return goDefinition(doc, 16, cache, settings).then((result) => {
+			assert.ok(Files.uriToFilePath(result.uri), 'one.scss');
+			assert.deepEqual(result.range, {
+				start: { line: 1, character: 1 },
+				end: { line: 1, character: 6 }
+			});
 		});
 	});
 
 	it('doGoDefinition - Mixin definition', () => {
 		const doc = makeDocument('@mixin mixin($a) {}');
-		const result = goDefinition(doc, 8, cache, settings);
 
-		assert.equal(result.length, 0);
+		return goDefinition(doc, 8, cache, settings).then((result) => {
+			assert.equal(result, null);
+		});
 	});
 
 	it('doGoDefinition - Mixin Arguments', () => {
 		const doc = makeDocument('@mixin mixin($a) {}');
-		const result = goDefinition(doc, 10, cache, settings);
 
-		assert.equal(result.length, 0);
+		return goDefinition(doc, 10, cache, settings).then((result) => {
+			assert.equal(result, null);
+		});
 	});
 
 	it('doGoDefinition - Functions', () => {
 		const doc = makeDocument('.a { content: make(1); }');
-		const result = goDefinition(doc, 16, cache, settings);
 
-		assert.equal(result.length, 1);
-		assert.ok(Files.uriToFilePath(result[0].uri), 'one.scss');
-		assert.deepEqual(result[0].range, {
-			start: { line: 1, character: 1 },
-			end: { line: 1, character: 5 }
+		return goDefinition(doc, 16, cache, settings).then((result) => {
+			assert.ok(Files.uriToFilePath(result.uri), 'one.scss');
+			assert.deepEqual(result.range, {
+				start: { line: 1, character: 1 },
+				end: { line: 1, character: 5 }
+			});
 		});
 	});
 
 	it('doGoDefinition - Function definition', () => {
 		const doc = makeDocument('@function make($a) {}');
-		const result = goDefinition(doc, 8, cache, settings);
 
-		assert.equal(result.length, 0);
+		return goDefinition(doc, 8, cache, settings).then((result) => {
+			assert.equal(result, null);
+		});
 	});
 
 	it('doGoDefinition - Function Arguments', () => {
 		const doc = makeDocument('@function make($a) {}');
-		const result = goDefinition(doc, 13, cache, settings);
 
-		assert.equal(result.length, 0);
+		return goDefinition(doc, 13, cache, settings).then((result) => {
+			assert.equal(result, null);
+		});
 	});
 
 });
