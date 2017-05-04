@@ -101,17 +101,17 @@
     "@types/parse-glob": "^3.0.29",
     "mocha": "^3.2.0",
     "rimraf": "^2.6.1",
-    "tslint": "^4.5.1",
+    "tslint": "^5.2.0",
     "tslint-config-xo": "^1.1.0",
     "typescript": "^2.2.1",
     "vscode": "^1.0.5"
   },
   "dependencies": {
-    "vscode-languageclient": "3.1.0",
-    "vscode-languageserver": "3.1.0",
-    "vscode-css-languageservice": "2.0.0",
+    "vscode-languageclient": "3.2.1",
+    "vscode-languageserver": "3.2.1",
+    "vscode-css-languageservice": "2.0.3",
     "vscode-uri": "1.0.0",
-    "readdir-enhanced": "1.4.5",
+    "readdir-enhanced": "1.5.2",
     "micromatch": "2.3.11",
     "scss-symbols-parser": "1.1.1"
   },
