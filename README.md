@@ -1,5 +1,7 @@
 # vscode-scss
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/mrmlnc/vscode-scss.svg)](https://greenkeeper.io/)
+
 > SCSS IntelliSense (Variables, Mixins and Functions) for all files in the workspace.
 
 > **Disclaimer**
