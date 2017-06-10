@@ -12,6 +12,7 @@ export enum NodeType {
 	SelectorCombinatorParent,
 	SelectorCombinatorSibling,
 	SelectorCombinatorAllSiblings,
+	SelectorCombinatorShadowPiercingDescendant,
 	Page,
 	PageBoxMarginBox,
 	ClassSelector,
@@ -62,7 +63,11 @@ export enum NodeType {
 	FunctionArgument,
 	KeyframeSelector,
 	ViewPort,
-	Document
+	Document,
+	AtApplyRule,
+	CustomPropertyDeclaration,
+	CustomPropertySet,
+	ListEntry
 }
 
 export interface INode {
