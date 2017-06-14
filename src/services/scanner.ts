@@ -93,8 +93,10 @@ function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: 
 				}
 
 				return makeSymbolsForDocument(cache, entry, settings);
-			});
+			}).catch(() => null);
 		})).then((resultList) => {
+			resultList = resultList.filter((item) => Boolean(item));
+
 			nesting++;
 
 			return recurse(accum.concat(resultList), resultList);
@@ -133,7 +135,7 @@ export function doScanner(root: string, cache: ICache, settings: ISettings): Pro
 		});
 	}
 
-	// Update Cahce for all files
+	// Update Cache for all files
 	return new Promise((resolve, reject) => {
 		const stream = readdir.readdirStreamStat(root, {
 			basePath: path.resolve(root),
