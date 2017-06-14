@@ -77,8 +77,13 @@ connection.onDidChangeConfiguration((params) => {
 
 // Update cache
 connection.onDidChangeWatchedFiles((event) => {
+	const firstEvent = event.changes[0];
+	const isSameDocumentPath = activeDocumentUri === firstEvent.uri;
+	const isRenameAction = firstEvent.type === 1;
+
 	// We do not need to update the Cache if the current document has been updated
-	if (event.changes.length === 1 && activeDocumentUri === event.changes[0].uri) {
+	// But we should warm up Cache if is rename action
+	if (event.changes.length === 1 && isSameDocumentPath && !isRenameAction) {
 		return;
 	}
 
