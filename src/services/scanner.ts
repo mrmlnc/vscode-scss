@@ -76,7 +76,13 @@ function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: 
 					}
 				}
 
-				importedFiles.push(x.filepath);
+				// We should support Sass partial files that started with _ prefix
+				const original = path.parse(x.filepath);
+				const partial = path.format(Object.assign(original, <path.ParsedPath>{
+					base: '_' + original.base
+				}));
+
+				importedFiles.push(x.filepath, partial);
 			});
 		});
 
