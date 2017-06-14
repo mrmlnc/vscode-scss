@@ -28,6 +28,13 @@ interface IFile {
  */
 function makeSymbolsForDocument(cache: ICache, entry: IFile, settings: ISettings): Promise<ISymbols> {
 	return readFile(entry.filepath).then((data) => {
+		const parsed = path.parse(entry.filepath);
+		if (parsed.base.startsWith('_')) {
+			entry.filepath = path.format(Object.assign(parsed, <path.ParsedPath>{
+				base: parsed.base.replace(/^_/, '')
+			}));
+		}
+
 		const doc = TextDocument.create(entry.filepath, 'scss', 1, data);
 		const { symbols } = parseDocument(doc, null, settings);
 
