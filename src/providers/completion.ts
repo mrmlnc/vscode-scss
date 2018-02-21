@@ -16,6 +16,7 @@ import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getCurrentDocumentImportPaths, getDocumentPath } from '../utils/document';
 import { getCurrentWord, getLimitedString, getTextBeforePosition } from '../utils/string';
+import { getVariableColor } from '../utils/color';
 
 // RegExp's
 const rePropertyValue = /.*:\s*/;
@@ -141,6 +142,9 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
 
 			symbols.variables.forEach((variable) => {
+				const color = getVariableColor(variable.value);
+				const completionKind = color ? CompletionItemKind.Color : CompletionItemKind.Variable;
+
 				// Add 'implicitly' prefix for Path if the file imported implicitly
 				let detailPath = fsPath;
 				if (isImplicitlyImport && settings.implicitlyLabel) {
@@ -155,9 +159,9 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 
 				completions.items.push({
 					label: variable.name,
-					kind: CompletionItemKind.Variable,
+					kind: completionKind,
 					detail: detailText,
-					documentation: getLimitedString(variable.value)
+					documentation: getLimitedString(color ? color.toString() : variable.value)
 				});
 			});
 		});
