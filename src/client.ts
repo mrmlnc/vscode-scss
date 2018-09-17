@@ -7,7 +7,8 @@ import {
 	LanguageClient,
 	LanguageClientOptions,
 	ServerOptions,
-	TransportKind
+	TransportKind,
+	RevealOutputChannelOn
 } from 'vscode-languageclient';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -40,7 +41,11 @@ export function activate(context: vscode.ExtensionContext) {
 		initializationOptions: {
 			settings: vscode.workspace.getConfiguration('scss'),
 			activeEditorUri: activeEditor ? activeEditor.document.uri.toString() : null
-		}
+		},
+
+		// Don't open the output console
+		// automatically because of us
+		revealOutputChannelOn: RevealOutputChannelOn.Never,
 	};
 
 	const client = new LanguageClient('scss-intellisense', 'SCSS IntelliSense', serverOptions, clientOptions);
