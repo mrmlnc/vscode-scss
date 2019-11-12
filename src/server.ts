@@ -67,6 +67,8 @@ connection.onInitialize((params: InitializeParams): Promise<InitializeResult> =>
 		if (settings.showErrors) {
 			connection.window.showErrorMessage(err);
 		}
+
+		return <InitializeResult>{};
 	});
 });
 
