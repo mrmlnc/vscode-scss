@@ -1,5 +1,11 @@
 # vscode-scss
 
+<p>
+  <a href="https://travis-ci.org/mrmlnc/vscode-scss">
+    <img src="https://img.shields.io/travis/mrmlnc/vscode-scss.svg?label=Travis&logo=Travis&style=flat-square">
+  </a>
+</p>
+
 > SCSS IntelliSense (Variables, Mixins and Functions) for all files in the workspace.
 
 > **Disclaimer**
