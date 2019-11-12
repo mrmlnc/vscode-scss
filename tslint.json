@@ -1,7 +1,5 @@
 {
-	"extends": [
-		"tslint-config-xo/esnext"
-	],
+	"extends": ["tslint-config-xo/esnext"],
 	"rules": {
 		"object-curly-spacing": false,
 		"ter-arrow-parens": true,
@@ -9,14 +7,11 @@
 		"member-access": true,
 		"member-ordering": [
 			true,
-			"public-before-private",
-			"static-before-instance",
-			"variables-before-functions"
+			{
+				"order": ["public-before-private", "static-before-instance", "variables-before-functions"]
+			}
 		],
-		"no-inferrable-types": [
-			true,
-			"ignore-params"
-		],
+		"no-inferrable-types": [true, "ignore-params"],
 		"typedef-whitespace": [
 			true,
 			{
@@ -26,6 +21,12 @@
 				"property-declaration": "nospace",
 				"variable-declaration": "nospace"
 			}
-		]
+		],
+		"no-sparse-arrays": false,
+		"no-invalid-template-strings": false,
+		"number-literal-format": false,
+		"no-return-await": false,
+		"space-within-parens": false,
+		"no-irregular-whitespace": false
 	}
 }
