@@ -124,6 +124,6 @@
     "compile": "tsc",
     "test": "mocha out/**/*.spec.js",
     "build": "npm run clean && npm run lint && npm run compile && npm test",
-    "watch": "npm run clean && npm run lint && npm run compile -- --watch"
+    "watch": "npm run clean && npm run lint && tsc --watch"
   }
 }
