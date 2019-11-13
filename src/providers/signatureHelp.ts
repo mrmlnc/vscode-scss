@@ -1,11 +1,6 @@
 'use strict';
 
-import {
-	SignatureHelp,
-	SignatureInformation,
-	TextDocument,
-	Files
-} from 'vscode-languageserver';
+import { SignatureHelp, SignatureInformation, TextDocument, Files } from 'vscode-languageserver';
 import { tokenizer } from 'scss-symbols-parser';
 
 import { IVariable } from '../types/symbols';
@@ -61,7 +56,7 @@ function getSymbolName(text: string): string {
 			parenthesisCount++;
 		} else if (token[0] === 'brackets' && reNestedParenthesis.test(token[1])) {
 			// Tokens for nested string with correct positions
-			const nestedTokens = tokenizer(token[1]).map((x) => {
+			const nestedTokens = tokenizer(token[1]).map(x => {
 				if (x.length === 3) {
 					x[2] = x[2] + token[2];
 				}
@@ -120,7 +115,7 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 				const words: string[] = token[1].split(/(,)/);
 
 				let index = pos;
-				words.forEach((word) => {
+				words.forEach(word => {
 					if (word === '') {
 						return;
 					}
@@ -146,8 +141,13 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 /**
  * Do Signature Help :)
  */
-export function doSignatureHelp(document: TextDocument, offset: number, cache: ICache, settings: ISettings): SignatureHelp {
-	const suggestions: { name: string; parameters: IVariable[]; }[] = [];
+export function doSignatureHelp(
+	document: TextDocument,
+	offset: number,
+	cache: ICache,
+	settings: ISettings
+): SignatureHelp {
+	const suggestions: { name: string; parameters: IVariable[] }[] = [];
 
 	const ret: SignatureHelp = {
 		activeSignature: 0,
@@ -178,8 +178,8 @@ export function doSignatureHelp(document: TextDocument, offset: number, cache: I
 	// Update Cache for current document
 	cache.set(documentPath, resource.symbols);
 
-	getSymbolsCollection(cache).forEach((symbols) => {
-		symbols[symbolType].forEach((symbol) => {
+	getSymbolsCollection(cache).forEach(symbols => {
+		symbols[symbolType].forEach(symbol => {
 			if (entry.name === symbol.name && symbol.parameters.length >= entry.parameters) {
 				suggestions.push({
 					name: symbol.name,
@@ -195,11 +195,11 @@ export function doSignatureHelp(document: TextDocument, offset: number, cache: I
 
 	ret.activeParameter = Math.max(0, entry.parameters);
 
-	suggestions.forEach((mixin) => {
-		const paramsString = mixin.parameters.map((x) => `${x.name}: ${x.value}`).join(', ');
+	suggestions.forEach(mixin => {
+		const paramsString = mixin.parameters.map(x => `${x.name}: ${x.value}`).join(', ');
 		const signatureInfo = SignatureInformation.create(`${mixin.name} (${paramsString})`);
 
-		mixin.parameters.forEach((param) => {
+		mixin.parameters.forEach(param => {
 			signatureInfo.parameters.push({
 				label: param.name,
 				documentation: ''

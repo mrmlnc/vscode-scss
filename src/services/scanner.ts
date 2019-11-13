@@ -27,12 +27,15 @@ interface IFile {
  * Returns Symbols for specified document.
  */
 function makeSymbolsForDocument(cache: ICache, entry: IFile, settings: ISettings): Promise<ISymbols> {
-	return readFile(entry.filepath).then((data) => {
+	return readFile(entry.filepath).then(data => {
 		const parsed = path.parse(entry.filepath);
 		if (parsed.base.startsWith('_')) {
-			entry.filepath = path.format(Object.assign(parsed, <path.ParsedPath>{
-				base: parsed.base.replace(/^_/, '')
-			}));
+			entry.filepath = path.format({
+				...parsed,
+				...({
+					base: parsed.base.replace(/^_/, '')
+				} as path.ParsedPath)
+			});
 		}
 
 		const doc = TextDocument.create(entry.filepath, 'scss', 1, data);
@@ -66,12 +69,12 @@ function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: 
 		const importedFiles: string[] = [];
 
 		// Prevent an infinite recursion and very deep `@import`
-		if (list.length === 0 || (nesting === settings.scanImportedFilesDepth)) {
+		if (list.length === 0 || nesting === settings.scanImportedFilesDepth) {
 			return Promise.resolve(accum);
 		}
 
-		list.forEach((item) => {
-			item.imports.forEach((x) => {
+		list.forEach(item => {
+			item.imports.forEach(x => {
 				// Not include dynamic paths
 				if (x.dynamic || x.css) {
 					return;
@@ -85,9 +88,12 @@ function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: 
 
 				// We should support Sass partial files that started with _ prefix
 				const original = path.parse(x.filepath);
-				const partial = path.format(Object.assign(original, <path.ParsedPath>{
-					base: '_' + original.base
-				}));
+				const partial = path.format({
+					...original,
+					...({
+						base: '_' + original.base
+					} as path.ParsedPath)
+				});
 
 				importedFiles.push(x.filepath, partial);
 			});
@@ -97,18 +103,22 @@ function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: 
 			return Promise.resolve(accum);
 		}
 
-		return Promise.all(importedFiles.map((filepath) => {
-			return statFile(filepath).then((stat) => {
-				const entry = makeEntryFile(filepath, stat.ctime);
-				const cached = cache.get(filepath);
-				if (cached && cached.ctime.getTime() >= entry.ctime.getTime()) {
-					return cached;
-				}
+		return Promise.all(
+			importedFiles.map(filepath => {
+				return statFile(filepath)
+					.then(stat => {
+						const entry = makeEntryFile(filepath, stat.ctime);
+						const cached = cache.get(filepath);
+						if (cached && cached.ctime.getTime() >= entry.ctime.getTime()) {
+							return cached;
+						}
 
-				return makeSymbolsForDocument(cache, entry, settings);
-			}).catch(() => null);
-		})).then((resultList) => {
-			resultList = resultList.filter((item) => Boolean(item));
+						return makeSymbolsForDocument(cache, entry, settings);
+					})
+					.catch(() => null);
+			})
+		).then(resultList => {
+			resultList = resultList.filter(Boolean);
 
 			nesting++;
 
@@ -141,7 +151,7 @@ export function doScanner(root: string, cache: ICache, settings: ISettings): Pro
 	// Expand **/name to  **/name + **/name/** like VS Code
 	const excludePatterns = settings.scannerExclude;
 	if (settings.scannerExclude) {
-		settings.scannerExclude.forEach((pattern) => {
+		settings.scannerExclude.forEach(pattern => {
 			if (reGlobBaseName.test(pattern)) {
 				excludePatterns.push(pattern + '/**');
 			}
@@ -152,7 +162,7 @@ export function doScanner(root: string, cache: ICache, settings: ISettings): Pro
 	return new Promise((resolve, reject) => {
 		const stream = readdir.readdirStreamStat(root, {
 			basePath: path.resolve(root),
-			filter: (stat) => scannerFilter(stat, excludePatterns),
+			filter: stat => scannerFilter(stat, excludePatterns),
 			deep: settings.scannerDepth
 		});
 
@@ -173,7 +183,7 @@ export function doScanner(root: string, cache: ICache, settings: ISettings): Pro
 			listOfPromises.push(makeSymbolsForDocument(cache, entry, settings));
 		});
 
-		stream.on('error', (err) => {
+		stream.on('error', err => {
 			if (settings.showErrors) {
 				reject(err);
 			}

@@ -1,11 +1,6 @@
 'use strict';
 
-import {
-	CompletionList,
-	CompletionItemKind,
-	TextDocument,
-	Files
-} from 'vscode-languageserver';
+import { CompletionList, CompletionItemKind, TextDocument, Files } from 'vscode-languageserver';
 
 import { INode, NodeType } from '../types/nodes';
 import { ICache } from '../services/cache';
@@ -37,7 +32,7 @@ function isImplicitly(symbolsDocument: string, documentPath: string, documentImp
  * Return Mixin as string.
  */
 function makeMixinDocumentation(symbol: IMixin): string {
-	const args = symbol.parameters.map((item) => `${item.name}: ${item.value}`).join(', ');
+	const args = symbol.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
 	return `${symbol.name}(${args}) {\u2026}`;
 }
 
@@ -65,7 +60,13 @@ function mixinSuggestionsFilter(mixin: IMixin, node: INode): boolean {
 /**
  * Check context for Variables suggestions.
  */
-function checkVariableContext(word: string, isInterpolation: boolean, isPropertyValue: boolean, isEmptyValue: boolean, isQuotes: boolean): boolean {
+function checkVariableContext(
+	word: string,
+	isInterpolation: boolean,
+	isPropertyValue: boolean,
+	isEmptyValue: boolean,
+	isQuotes: boolean
+): boolean {
 	if (isPropertyValue && !isEmptyValue && !isQuotes) {
 		return word.includes('$');
 	} else if (isQuotes) {
@@ -76,16 +77,23 @@ function checkVariableContext(word: string, isInterpolation: boolean, isProperty
 }
 
 /**
-  * Check context for Mixins suggestions.
-  */
+ * Check context for Mixins suggestions.
+ */
 function checkMixinContext(textBeforeWord: string, isPropertyValue: boolean): boolean {
 	return !isPropertyValue && reMixinReference.test(textBeforeWord);
 }
 
 /**
-  * Check context for Function suggestions.
-  */
-function checkFunctionContext(textBeforeWord: string, isInterpolation: boolean, isPropertyValue: boolean, isEmptyValue: boolean, isQuotes: boolean, settings: ISettings): boolean {
+ * Check context for Function suggestions.
+ */
+function checkFunctionContext(
+	textBeforeWord: string,
+	isInterpolation: boolean,
+	isPropertyValue: boolean,
+	isEmptyValue: boolean,
+	isQuotes: boolean,
+	settings: ISettings
+): boolean {
 	if (isPropertyValue && !isEmptyValue && !isQuotes) {
 		const lastChar = textBeforeWord.substr(-2, 1);
 		return settings.suggestFunctionsInStringContextAfterSymbols.indexOf(lastChar) !== -1;
@@ -99,7 +107,12 @@ function checkFunctionContext(textBeforeWord: string, isInterpolation: boolean, 
 /**
  * Do Completion :)
  */
-export function doCompletion(document: TextDocument, offset: number, settings: ISettings, cache: ICache): CompletionList {
+export function doCompletion(
+	document: TextDocument,
+	offset: number,
+	settings: ISettings,
+	cache: ICache
+): CompletionList {
 	const completions = CompletionList.create([], false);
 
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
@@ -131,17 +144,30 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 	const isQuotes = reQuotes.test(textBeforeWord.replace(reQuotedValueInString, ''));
 
 	// Check contexts
-	const isVariableContext = checkVariableContext(currentWord, isInterpolation, isPropertyValue, isEmptyValue, isQuotes);
-	const isFunctionContext = checkFunctionContext(textBeforeWord, isInterpolation, isPropertyValue, isEmptyValue, isQuotes, settings);
+	const isVariableContext = checkVariableContext(
+		currentWord,
+		isInterpolation,
+		isPropertyValue,
+		isEmptyValue,
+		isQuotes
+	);
+	const isFunctionContext = checkFunctionContext(
+		textBeforeWord,
+		isInterpolation,
+		isPropertyValue,
+		isEmptyValue,
+		isQuotes,
+		settings
+	);
 	const isMixinContext = checkMixinContext(textBeforeWord, isPropertyValue);
 
 	// Variables
 	if (settings.suggestVariables && isVariableContext) {
-		symbolsList.forEach((symbols) => {
+		symbolsList.forEach(symbols => {
 			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
 
-			symbols.variables.forEach((variable) => {
+			symbols.variables.forEach(variable => {
 				const color = getVariableColor(variable.value);
 				const completionKind = color ? CompletionItemKind.Color : CompletionItemKind.Variable;
 
@@ -169,11 +195,11 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 
 	// Mixins
 	if (settings.suggestMixins && isMixinContext) {
-		symbolsList.forEach((symbols) => {
+		symbolsList.forEach(symbols => {
 			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
 
-			symbols.mixins.forEach((mixin) => {
+			symbols.mixins.forEach(mixin => {
 				if (mixinSuggestionsFilter(mixin, resource.node)) {
 					return;
 				}
@@ -197,11 +223,11 @@ export function doCompletion(document: TextDocument, offset: number, settings: I
 
 	// Functions
 	if (settings.suggestFunctions && isFunctionContext) {
-		symbolsList.forEach((symbols) => {
+		symbolsList.forEach(symbols => {
 			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
 
-			symbols.functions.forEach((func) => {
+			symbols.functions.forEach(func => {
 				// Add 'implicitly' prefix for Path if the file imported implicitly
 				let detailPath = fsPath;
 				if (isImplicitlyImport && settings.implicitlyLabel) {

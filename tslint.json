@@ -2,7 +2,6 @@
 	"extends": ["tslint-config-xo/esnext"],
 	"rules": {
 		"object-curly-spacing": false,
-		"ter-arrow-parens": true,
 		"class-name": true,
 		"member-access": true,
 		"member-ordering": [
@@ -29,6 +28,8 @@
 		"space-within-parens": false,
 		"no-irregular-whitespace": false,
 		"no-unused-variable": false,
-		"no-use-before-declare": false
+		"no-use-before-declare": false,
+		"valid-jsdoc": false,
+		"max-params": false
 	}
 }

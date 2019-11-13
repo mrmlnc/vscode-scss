@@ -1,11 +1,6 @@
 'use strict';
 
-import {
-	Hover,
-	MarkedString,
-	TextDocument,
-	Files
-} from 'vscode-languageserver';
+import { Hover, MarkedString, TextDocument, Files } from 'vscode-languageserver';
 
 import { NodeType } from '../types/nodes';
 import { ISymbols, IVariable, IMixin, IFunction } from '../types/symbols';
@@ -36,7 +31,7 @@ function makeVariableAsMarkedString(symbol: IVariable, fsPath: string, suffix: s
  * Returns a colored (marked) line for Mixin.
  */
 function makeMixinAsMarkedString(symbol: IMixin, fsPath: string, suffix: string): MarkedString {
-	const args = symbol.parameters.map((item) => `${item.name}: ${item.value}`).join(', ');
+	const args = symbol.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
 
 	if (fsPath !== 'current') {
 		suffix = `\n@import "${fsPath}"` + suffix;
@@ -52,7 +47,7 @@ function makeMixinAsMarkedString(symbol: IMixin, fsPath: string, suffix: string)
  * Returns a colored (marked) line for Function.
  */
 function makeFunctionAsMarkedString(symbol: IFunction, fsPath: string, suffix: string): MarkedString {
-	const args = symbol.parameters.map((item) => `${item.name}: ${item.value}`).join(', ');
+	const args = symbol.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
 
 	if (fsPath !== 'current') {
 		suffix = `\n@import "${fsPath}"` + suffix;
@@ -109,7 +104,7 @@ export function doHover(document: TextDocument, offset: number, cache: ICache, s
 		return;
 	}
 
-	let identifier: { type: string; name: string; } = null;
+	let identifier: { type: string; name: string } = null;
 	if (hoverNode.type === NodeType.VariableName) {
 		const parent = hoverNode.getParent();
 

@@ -77,17 +77,17 @@ export interface INode {
 	length: number;
 
 	// Methods
-	accept: (node: any) => boolean;
+	accept(node: any): boolean;
 
-	getName: () => string;
-	getValue: () => INode;
-	getDefaultValue: () => INode;
-	getText: () => string;
-	getParameters: () => INode;
-	getIdentifier: () => INode;
+	getName(): string;
+	getValue(): INode;
+	getDefaultValue(): INode;
+	getText(): string;
+	getParameters(): INode;
+	getIdentifier(): INode;
 
-	getParent: () => INode;
-	getChildren: () => INode[];
-	getChild: (index: number) => INode;
-	getSelectors: () => INode;
+	getParent(): INode;
+	getChildren(): INode[];
+	getChild(index: number): INode;
+	getSelectors(): INode;
 }

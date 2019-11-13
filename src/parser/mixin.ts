@@ -13,11 +13,13 @@ export function makeMixin(node: INode): IMixin {
 	const name = node.getName();
 	const params: IVariable[] = [];
 
-	node.getParameters().getChildren().forEach((child) => {
-		if (child.getName()) {
-			params.push(makeVariable(child, name));
-		}
-	});
+	node.getParameters()
+		.getChildren()
+		.forEach(child => {
+			if (child.getName()) {
+				params.push(makeVariable(child, name));
+			}
+		});
 
 	return {
 		name,

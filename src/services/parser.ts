@@ -51,7 +51,7 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 	// Get `<reference *> comments from document
 	const references = document.getText().match(reReferenceCommentGlobal);
 	if (references) {
-		references.forEach((x) => {
+		references.forEach(x => {
 			const filepath = reReferenceComment.exec(x)[1];
 			symbols.imports.push({
 				css: filepath.substr(-4) === '.css',
@@ -64,7 +64,7 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 
 	let ast: INode = null;
 	if (offset) {
-		ast = <INode>ls.parseStylesheet(document);
+		ast = ls.parseStylesheet(document) as INode;
 
 		const scopedSymbols = findSymbolsAtOffset(ast, offset);
 
@@ -72,7 +72,7 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 		symbols.mixins = symbols.mixins.concat(scopedSymbols.mixins);
 	}
 
-	symbols.imports = symbols.imports.map((x) => {
+	symbols.imports = symbols.imports.map(x => {
 		x.filepath = path.join(path.dirname(symbols.document), x.filepath);
 		if (!x.css && x.filepath.substr(-5) !== '.scss') {
 			x.filepath += '.scss';
@@ -80,15 +80,15 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 		return x;
 	});
 
-	symbols.variables = symbols.variables.map((x) => {
+	symbols.variables = symbols.variables.map(x => {
 		x.position = document.positionAt(x.offset);
 		return x;
 	});
-	symbols.mixins = symbols.mixins.map((x) => {
+	symbols.mixins = symbols.mixins.map(x => {
 		x.position = document.positionAt(x.offset);
 		return x;
 	});
-	symbols.functions = symbols.functions.map((x) => {
+	symbols.functions = symbols.functions.map(x => {
 		x.position = document.positionAt(x.offset);
 		return x;
 	});

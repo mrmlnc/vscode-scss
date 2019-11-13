@@ -1,11 +1,6 @@
 'use strict';
 
-import {
-	TextDocument,
-	Location,
-	Position,
-	Files
-} from 'vscode-languageserver';
+import { TextDocument, Location, Position, Files } from 'vscode-languageserver';
 import Uri from 'vscode-uri';
 
 import { NodeType } from '../types/nodes';
@@ -39,10 +34,10 @@ function samePosition(a: Position, b: Position) {
 function getSymbols(symbolList: ISymbols[], identifier: IIdentifier, currentPath: string): ISymbol[] {
 	const list: ISymbol[] = [];
 
-	symbolList.forEach((symbols) => {
+	symbolList.forEach(symbols => {
 		const fsPath = getDocumentPath(currentPath, symbols.document);
 
-		symbols[identifier.type].forEach((item) => {
+		symbols[identifier.type].forEach(item => {
 			if (item.name === identifier.name && !samePosition(item.position, identifier.position)) {
 				list.push({
 					document: symbols.document,
@@ -59,7 +54,12 @@ function getSymbols(symbolList: ISymbols[], identifier: IIdentifier, currentPath
 /**
  * Do Go Definition :)
  */
-export function goDefinition(document: TextDocument, offset: number, cache: ICache, settings: ISettings): Promise<Location> {
+export function goDefinition(
+	document: TextDocument,
+	offset: number,
+	cache: ICache,
+	settings: ISettings
+): Promise<Location> {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
 		return Promise.resolve(null);

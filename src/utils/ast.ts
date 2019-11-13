@@ -8,7 +8,7 @@ import { INode, NodeType } from '../types/nodes';
 export function getNodeAtOffset(parsedDocument: INode, posOffset: number): INode {
 	let candidate: INode = null;
 
-	parsedDocument.accept((node) => {
+	parsedDocument.accept(node => {
 		if (node.offset === -1 && node.length === -1) {
 			return true;
 		} else if (node.offset <= posOffset && node.end >= posOffset) {
@@ -63,5 +63,5 @@ export function hasParentsByType(node: INode, types: NodeType[]): boolean {
  * Returns the child Node of the specified type.
  */
 export function getChildByType(parent: INode, type: NodeType): INode[] {
-	return parent.getChildren().filter((node) => node.type === type);
+	return parent.getChildren().filter(node => node.type === type);
 }

@@ -7,7 +7,9 @@ import * as webColors from 'color-name';
 const colorHex = /.?(\#([a-f0-9]{6}([a-f0-9]{2})?|[a-f0-9]{3}([a-f0-9]{1})?))\b/gi;
 const colorFunctions = /((rgb|hsl)a?\([\d]{1,3}%?,\s*[\d]{1,3}%?,\s*[\d]{1,3}%?(,\s*\d?\.?\d+)?\))/gi;
 
-const preparedRePart = Object.keys(webColors).map((color) => `\\b${color}\\b`).join('|');
+const preparedRePart = Object.keys(webColors)
+	.map(color => `\\b${color}\\b`)
+	.join('|');
 
 const colorWeb = new RegExp('.?(' + preparedRePart + ')(?!-)', 'g');
 

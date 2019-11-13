@@ -10,7 +10,7 @@ import { ISymbols } from '../types/symbols';
 export function getCurrentDocumentImportPaths(symbolsList: ISymbols[], currentPath: string): string[] {
 	for (let i = 0; i < symbolsList.length; i++) {
 		if (symbolsList[i].document === currentPath) {
-			return symbolsList[i].imports.map((x) => x.filepath);
+			return symbolsList[i].imports.map(x => x.filepath);
 		}
 	}
 

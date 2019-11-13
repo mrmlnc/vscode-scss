@@ -1,9 +1,6 @@
 'use strict';
 
-import {
-	SymbolInformation,
-	SymbolKind
-} from 'vscode-languageserver';
+import { SymbolInformation, SymbolKind } from 'vscode-languageserver';
 import Uri from 'vscode-uri';
 
 import { ICache } from '../services/cache';
@@ -16,21 +13,21 @@ import { getSymbolsCollection } from '../utils/symbols';
 export function searchWorkspaceSymbol(query: string, cache: ICache, root: string): SymbolInformation[] {
 	const workspaceSymbols: SymbolInformation[] = [];
 
-	getSymbolsCollection(cache).forEach((symbols) => {
+	getSymbolsCollection(cache).forEach(symbols => {
 		const documentUri = Uri.file(symbols.document);
 		if (!documentUri.fsPath.includes(root)) {
 			return;
 		}
 
-		['variables', 'mixins', 'functions'].forEach((type) => {
+		['variables', 'mixins', 'functions'].forEach(type => {
 			let kind = SymbolKind.Variable;
 			if (type === 'mixins') {
-				kind = <any>SymbolKind.Function;
+				kind = SymbolKind.Function as any;
 			} else if (type === 'functions') {
-				kind = <any>SymbolKind.Interface;
+				kind = SymbolKind.Interface as any;
 			}
 
-			symbols[type].forEach((symbol) => {
+			symbols[type].forEach(symbol => {
 				if (!symbol.name.includes(query)) {
 					return;
 				}

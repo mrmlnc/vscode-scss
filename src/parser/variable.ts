@@ -9,11 +9,14 @@ import { getChildByType } from '../utils/ast';
  * Returns information about Variable Declaration.
  */
 export function makeVariable(node: INode, fromMixin: string = null): IVariable {
-	const valueNode: INode = fromMixin ? node.getDefaultValue() : node.getValue();
+	const valueNode = fromMixin ? node.getDefaultValue() : node.getValue();
 
 	let value: string = null;
 	if (valueNode) {
-		value = valueNode.getText().replace(/\n/g, ' ').replace(/\s\s+/g, ' ');
+		value = valueNode
+			.getText()
+			.replace(/\n/g, ' ')
+			.replace(/\s\s+/g, ' ');
 	}
 
 	return {
@@ -28,7 +31,7 @@ export function makeVariable(node: INode, fromMixin: string = null): IVariable {
  * Returns information about set of Variable Declarations.
  */
 export function makeVariableCollection(node: INode): IVariable[] {
-	return getChildByType(node, NodeType.VariableDeclaration).map((child) => {
+	return getChildByType(node, NodeType.VariableDeclaration).map(child => {
 		return makeVariable(child, null);
 	});
 }

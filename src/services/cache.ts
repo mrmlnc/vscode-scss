@@ -3,13 +3,13 @@
 import { ISymbols } from '../types/symbols';
 
 export interface ICache {
-	has: (uri: string) => boolean;
-	get: (uri: string) => ISymbols;
-	set: (uri: string, symbols: ISymbols) => void;
-	drop: (uri: string) => void;
-	dispose: () => void;
-	storage: () => any;
-	keys: () => string[];
+	has(uri: string): boolean;
+	get(uri: string): ISymbols;
+	set(uri: string, symbols: ISymbols): void;
+	drop(uri: string): void;
+	dispose(): void;
+	storage(): any;
+	keys(): string[];
 }
 
 /**
@@ -19,16 +19,16 @@ export function getCacheStorage(): ICache {
 	let storage: any = {};
 
 	return {
-		has: (uri: string) => {
+		has: uri => {
 			return storage.hasOwnProperty(uri);
 		},
-		get: (uri: string) => {
+		get: uri => {
 			return storage[uri] || null;
 		},
-		set: (uri: string, symbols: ISymbols) => {
+		set: (uri, symbols) => {
 			storage[uri] = symbols;
 		},
-		drop: (uri: string) => {
+		drop: uri => {
 			if (storage.hasOwnProperty(uri)) {
 				delete storage[uri];
 			}
@@ -45,7 +45,7 @@ export function getCacheStorage(): ICache {
  * Cache invalidation. Removes items from the Cache when they are no longer available.
  */
 export function invalidateCacheStorage(cache: ICache, symbolsList: ISymbols[]): void {
-	Object.keys(cache.storage()).forEach((item) => {
+	Object.keys(cache.storage()).forEach(item => {
 		for (let i = 0; i < symbolsList.length; i++) {
 			if (item === symbolsList[i].document) {
 				return;
