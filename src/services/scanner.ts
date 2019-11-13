@@ -133,7 +133,7 @@ function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: 
  * Filter for files that are found by the scanner.
  */
 function scannerFilter(stat: readdir.IEntry, excludePatterns: string[]): boolean {
-	if (excludePatterns && micromatch(stat.path, excludePatterns).length !== 0) {
+	if (excludePatterns && micromatch([stat.path], excludePatterns).length !== 0) {
 		return false;
 	} else if (stat.isFile()) {
 		return stat.path.slice(-5) === '.scss';
