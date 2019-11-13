@@ -14,13 +14,11 @@
 >
 > Please read this README file.
 
-## Donate
+## Donation
 
-If you want to thank me, or promote your Issue.
+Do you like this project? Support it by donating, creating an issue or pull request.
 
-[![Gratipay User](https://img.shields.io/gratipay/user/mrmlnc.svg?style=flat-square)](https://gratipay.com/~mrmlnc)
-
-> Sorry, but I have work and support for plugins requires some time after work. I will be glad of your support.
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/mrmlnc)
 
 ## Install
 
