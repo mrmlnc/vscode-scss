@@ -8,7 +8,7 @@
 		"member-ordering": [
 			true,
 			{
-				"order": ["public-before-private", "static-before-instance", "variables-before-functions"]
+				"order": "fields-first"
 			}
 		],
 		"no-inferrable-types": [true, "ignore-params"],
@@ -27,6 +27,8 @@
 		"number-literal-format": false,
 		"no-return-await": false,
 		"space-within-parens": false,
-		"no-irregular-whitespace": false
+		"no-irregular-whitespace": false,
+		"no-unused-variable": false,
+		"no-use-before-declare": false
 	}
 }
