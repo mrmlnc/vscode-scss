@@ -48,17 +48,18 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 
 	const client = new LanguageClient('scss-intellisense', 'SCSS IntelliSense', serverOptions, clientOptions);
+	context.subscriptions.push(client.start());
+	
+	client.onReady().then(() => {
+		const disposable = vscode.window.onDidChangeActiveTextEditor((event) => {
+			let uri = null;
+			if (event && event.document.uri.scheme === 'file') {
+				uri = event.document.uri.toString();
+			}
 
-	const disposable: vscode.Disposable[] = [];
-	disposable[0] = client.start();
-	disposable[1] = vscode.window.onDidChangeActiveTextEditor((event) => {
-		let uri = null;
-		if (event && event.document.uri.scheme === 'file') {
-			uri = event.document.uri.toString();
-		}
+			client.sendRequest('changeActiveDocument', { uri });
+		});
 
-		client.sendRequest('changeActiveDocument', { uri });
-	});
-
-	context.subscriptions.push(...disposable);
+		context.subscriptions.push(disposable);
+	})
 }
