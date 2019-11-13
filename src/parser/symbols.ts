@@ -1,12 +1,6 @@
 'use strict';
 
-import {
-	IVariable,
-	IMixin,
-	IFunction,
-	IImport,
-	parseSymbols
-} from 'scss-symbols-parser';
+import { IVariable, IMixin, IFunction, IImport, parseSymbols } from 'scss-symbols-parser';
 
 import { INode, NodeType } from '../types/nodes';
 import { ISymbols } from '../types/symbols';

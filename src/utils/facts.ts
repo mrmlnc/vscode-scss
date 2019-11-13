@@ -85,7 +85,9 @@ export const builtInFunctions = [
 ];
 
 export function hasInFacts(word: string): boolean {
-	return colorProposals.indexOf(word) !== -1
-		|| selectorFunctions.indexOf(word) !== -1
-		|| builtInFunctions.indexOf(word) !== -1;
+	return (
+		colorProposals.indexOf(word) !== -1 ||
+		selectorFunctions.indexOf(word) !== -1 ||
+		builtInFunctions.indexOf(word) !== -1
+	);
 }

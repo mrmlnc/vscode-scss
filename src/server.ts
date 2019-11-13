@@ -45,40 +45,44 @@ documents.listen(connection);
 
 // After the server has started the client sends an initilize request. The server receives
 // _in the passed params the rootPath of the workspace plus the client capabilites
-connection.onInitialize((params: InitializeParams): Promise<InitializeResult> => {
-	workspaceRoot = params.rootPath;
-	settings = params.initializationOptions.settings;
-	activeDocumentUri = params.initializationOptions.activeEditorUri;
+connection.onInitialize(
+	(params: InitializeParams): Promise<InitializeResult> => {
+		workspaceRoot = params.rootPath;
+		settings = params.initializationOptions.settings;
+		activeDocumentUri = params.initializationOptions.activeEditorUri;
 
-	return <Promise<InitializeResult>>doScanner(workspaceRoot, cache, settings).then(() => {
-		return <InitializeResult>{
-			capabilities: {
-				textDocumentSync: documents.syncKind,
-				completionProvider: { resolveProvider: false },
-				signatureHelpProvider: {
-					triggerCharacters: ['(', ',', ';']
-				},
-				hoverProvider: true,
-				definitionProvider: true,
-				workspaceSymbolProvider: true
-			}
-		};
-	}).catch((err) => {
-		if (settings.showErrors) {
-			connection.window.showErrorMessage(err);
-		}
+		return <Promise<InitializeResult>>doScanner(workspaceRoot, cache, settings)
+			.then(() => {
+				return <InitializeResult>{
+					capabilities: {
+						textDocumentSync: documents.syncKind,
+						completionProvider: { resolveProvider: false },
+						signatureHelpProvider: {
+							triggerCharacters: ['(', ',', ';']
+						},
+						hoverProvider: true,
+						definitionProvider: true,
+						workspaceSymbolProvider: true
+					}
+				};
+			})
+			.catch(err => {
+				if (settings.showErrors) {
+					connection.window.showErrorMessage(err);
+				}
 
-		return <InitializeResult>{};
-	});
-});
+				return <InitializeResult>{};
+			});
+	}
+);
 
 // Update settings
-connection.onDidChangeConfiguration((params) => {
+connection.onDidChangeConfiguration(params => {
 	settings = params.settings.scss;
 });
 
 // Update cache
-connection.onDidChangeWatchedFiles((event) => {
+connection.onDidChangeWatchedFiles(event => {
 	const firstEvent = event.changes[0];
 	const isSameDocumentPath = activeDocumentUri === firstEvent.uri;
 	const isRenameAction = firstEvent.type === 1;
@@ -89,7 +93,7 @@ connection.onDidChangeWatchedFiles((event) => {
 		return;
 	}
 
-	return doScanner(workspaceRoot, cache, settings).then((symbols) => {
+	return doScanner(workspaceRoot, cache, settings).then(symbols => {
 		return invalidateCacheStorage(cache, symbols);
 	});
 });
@@ -98,31 +102,31 @@ connection.onRequest('changeActiveDocument', (data: any) => {
 	activeDocumentUri = data.uri;
 });
 
-connection.onCompletion((textDocumentPosition) => {
+connection.onCompletion(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
 	return doCompletion(document, offset, settings, cache);
 });
 
-connection.onHover((textDocumentPosition) => {
+connection.onHover(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
 	return doHover(document, offset, cache, settings);
 });
 
-connection.onSignatureHelp((textDocumentPosition) => {
+connection.onSignatureHelp(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
 	return doSignatureHelp(document, offset, cache, settings);
 });
 
-connection.onDefinition((textDocumentPosition) => {
+connection.onDefinition(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
 	return goDefinition(document, offset, cache, settings);
 });
 
-connection.onWorkspaceSymbol((workspaceSymbolParams) => {
+connection.onWorkspaceSymbol(workspaceSymbolParams => {
 	return searchWorkspaceSymbol(workspaceSymbolParams.query, cache, workspaceRoot);
 });
 
