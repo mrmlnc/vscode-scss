@@ -138,9 +138,6 @@
   "lint-staged": {
     "*.ts": [
       "tslint --fix",
-      "git add"
-    ],
-    "*.{js,ts,yaml}": [
       "prettier --write",
       "git add"
     ]
