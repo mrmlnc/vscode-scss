@@ -44,12 +44,12 @@ export function activate(context: vscode.ExtensionContext) {
 		},
 
 		// Don't open the output console (very annoying) in case of error
-		revealOutputChannelOn: RevealOutputChannelOn.Never,
+		revealOutputChannelOn: RevealOutputChannelOn.Never
 	};
 
 	const client = new LanguageClient('scss-intellisense', 'SCSS IntelliSense', serverOptions, clientOptions);
 	context.subscriptions.push(client.start());
-	
+
 	client.onReady().then(() => {
 		const disposable = vscode.window.onDidChangeActiveTextEditor((event) => {
 			let uri = null;
@@ -61,5 +61,5 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 
 		context.subscriptions.push(disposable);
-	})
+	});
 }
