@@ -1,5 +1,11 @@
 {
 	"version": "0.2.0",
+	"compounds": [
+		{
+			"name": "all",
+			"configurations": ["Launch Extension", "Attach Server"]
+		}
+	],
 	"configurations": [
 		{
 			"name": "Launch Extension",
@@ -9,6 +15,18 @@
 			"args": ["--extensionDevelopmentPath=${workspaceRoot}"],
 			"stopOnEntry": false,
 			"outFiles": ["${workspaceRoot}/out"]
+		},
+		{
+			"name": "Attach Server",
+			"type": "node",
+			"request": "attach",
+			"port": 6006,
+			"sourceMaps": true,
+			"outFiles": ["${workspaceFolder}/out"],
+			"protocol": "inspector",
+			"restart": true,
+			"smartStep": true,
+			"skipFiles": ["<node_internals>/**"]
 		},
 		{
 			"name": "E2E Test",

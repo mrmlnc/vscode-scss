@@ -15,13 +15,16 @@ export function activate(context: vscode.ExtensionContext) {
 	const serverModule = path.join(__dirname, 'server.js');
 
 	const debugOptions = {
-		execArgv: ['--nolazy', '--debug=6004']
+		execArgv: ['--nolazy', '--inspect=6006']
 	};
 
 	const serverOptions: ServerOptions = {
 		run: {
 			module: serverModule,
-			transport: TransportKind.ipc
+			transport: TransportKind.ipc,
+			// TODO: Update Language Client to 3.4X and remove this
+			// Https://github.com/Microsoft/vscode/issues/33951
+			options: debugOptions
 		},
 		debug: {
 			module: serverModule,

@@ -17,4 +17,7 @@ script:
   - yarn build
   - yarn test:e2e
 
-cache: yarn
+cache:
+  yarn: true
+  directories:
+  - .vscode-test
