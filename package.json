@@ -95,11 +95,13 @@
     }
   },
   "devDependencies": {
+    "@types/glob": "^7.1.1",
     "@types/micromatch": "^3.1.0",
     "@types/mocha": "^5.2.7",
     "@types/node": "^7.0.31",
     "@types/parse-glob": "^3.0.29",
     "@types/vscode": "1.14.0",
+    "glob": "^7.1.6",
     "husky": "^3.0.9",
     "lint-staged": "^9.4.2",
     "mocha": "^6.2.2",
@@ -126,6 +128,7 @@
     "lint": "tslint src/**/*.ts --project ./tsconfig.json",
     "compile": "tsc",
     "test": "mocha out/**/*.spec.js",
+    "test:e2e": "node ./out/test/e2e/runTest.js",
     "build": "npm run clean && npm run lint && npm run compile && npm test",
     "watch": "npm run clean && npm run lint && tsc --watch"
   },
