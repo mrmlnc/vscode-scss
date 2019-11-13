@@ -43,8 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
 			activeEditorUri: activeEditor ? activeEditor.document.uri.toString() : null
 		},
 
-		// Don't open the output console
-		// automatically because of us
+		// Don't open the output console (very annoying) in case of error
 		revealOutputChannelOn: RevealOutputChannelOn.Never,
 	};
 
