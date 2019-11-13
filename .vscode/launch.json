@@ -17,14 +17,14 @@
 			"runtimeExecutable": "${execPath}",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceRoot}",
-        "--extensionTestsPath=${workspaceFolder}/out/test/e2e/suite",
-        "${workspaceFolder}/fixtures/e2e"
+				"--extensionTestsPath=${workspaceFolder}/out/test/e2e/suite",
+				"${workspaceFolder}/fixtures/e2e"
 			],
-      "stopOnEntry": false,
-      "sourceMaps": true,
+			"stopOnEntry": false,
+			"sourceMaps": true,
 			"outFiles": ["${workspaceRoot}/out"],
-      "smartStep": true,
-      "skipFiles": ["<node_internals>/**"]
+			"smartStep": true,
+			"skipFiles": ["<node_internals>/**"]
 		}
 	]
 }
