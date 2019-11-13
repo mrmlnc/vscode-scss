@@ -73,6 +73,9 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 	}
 
 	symbols.imports = symbols.imports.map(x => {
+		if (x.filepath[0] === '~') {
+			x.filepath = 'node_modules/' + x.filepath.slice(1);
+		}
 		x.filepath = path.join(path.dirname(symbols.document), x.filepath);
 		if (!x.css && x.filepath.substr(-5) !== '.scss') {
 			x.filepath += '.scss';
