@@ -1,148 +1,152 @@
 {
-  "name": "vscode-scss",
-  "displayName": "SCSS IntelliSense",
-  "description": "Advanced autocompletion and refactoring support for SCSS",
-  "version": "0.6.2",
-  "preview": true,
-  "publisher": "mrmlnc",
-  "license": "MIT",
-  "engines": {
-    "vscode": "^1.14.0"
-  },
-  "icon": "icon.png",
-  "homepage": "https://github.com/mrmlnc/vscode-scss/blob/master/README.md",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mrmlnc/vscode-scss"
-  },
-  "keywords": [
-    "scss",
-    "autocompletion",
-    "intellisense",
-    "refactor"
-  ],
-  "categories": [
-    "Languages"
-  ],
-  "activationEvents": [
-    "onLanguage:scss"
-  ],
-  "main": "./out/client.js",
-  "contributes": {
-    "configuration": {
-      "properties": {
-        "scss.scannerDepth": {
-          "type": "number",
-          "default": 30,
-          "description": "The maximum number of nested directories to scan."
-        },
-        "scss.scannerExclude": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            "**/.git",
-            "**/node_modules",
-            "**/bower_components"
-          ],
-          "description": "List of Glob-patterns for directories that are excluded when scanning."
-        },
-        "scss.scanImportedFiles": {
-          "type": "boolean",
-          "default": true,
-          "description": "Allows scan imported files."
-        },
-        "scss.scanImportedFilesDepth": {
-          "type": "number",
-          "default": 50,
-          "description": "The maximum number of imported files to scan."
-        },
-        "scss.implicitlyLabel": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "default": "(implicitly)",
-          "description": "The text of a label that the file imported implicitly. If `null` then label not displayed."
-        },
-        "scss.showErrors": {
-          "type": "boolean",
-          "default": false,
-          "description": "Allows to display errors."
-        },
-        "scss.suggestVariables": {
-          "type": "boolean",
-          "default": true,
-          "description": "Allows prompt Variables."
-        },
-        "scss.suggestMixins": {
-          "type": "boolean",
-          "default": true,
-          "description": "Allows prompt Mixins."
-        },
-        "scss.suggestFunctions": {
-          "type": "boolean",
-          "default": true,
-          "description": "Allows prompt Functions."
-        },
-        "scss.suggestFunctionsInStringContextAfterSymbols": {
-          "type": "string",
-          "default": " (+-*%",
-          "description": "Allows prompt Functions in String context after specified symbols."
-        }
-      }
-    }
-  },
-  "devDependencies": {
-    "@types/glob": "^7.1.1",
-    "@types/micromatch": "^3.1.0",
-    "@types/mocha": "^5.2.7",
-    "@types/node": "^7.0.31",
-    "@types/parse-glob": "^3.0.29",
-    "@types/vscode": "1.14.0",
-    "glob": "^7.1.6",
-    "husky": "^3.0.9",
-    "lint-staged": "^9.4.2",
-    "mocha": "^6.2.2",
-    "prettier": "^1.19.1",
-    "rimraf": "^2.6.1",
-    "tslint": "^5.4.3",
-    "tslint-config-xo": "^2.0.0",
-    "typescript": "^3.7.2",
-    "vscode-test": "^1.2.3"
-  },
-  "dependencies": {
-    "color": "3.0.0",
-    "color-name": "1.1.3",
-    "micromatch": "4.0.2",
-    "readdir-enhanced": "1.5.2",
-    "scss-symbols-parser": "1.1.3",
-    "vscode-css-languageservice": "2.1.0",
-    "vscode-languageclient": "3.3.0",
-    "vscode-languageserver": "3.3.0",
-    "vscode-uri": "1.0.0"
-  },
-  "scripts": {
-    "clean": "rimraf out",
-    "lint": "tslint src/**/*.ts --project ./tsconfig.json",
-    "compile": "tsc",
-    "test": "mocha out/**/*.spec.js",
-    "test:e2e": "node ./out/test/e2e/runTest.js",
-    "build": "npm run clean && npm run lint && npm run compile && npm test",
-    "watch": "npm run clean && npm run lint && tsc --watch"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "yarn test"
-    }
-  },
-  "lint-staged": {
-    "*.ts": [
-      "prettier --write",
-      "tslint --fix",
-      "git add"
-    ]
-  }
+	"name": "vscode-scss",
+	"displayName": "SCSS IntelliSense",
+	"description": "Advanced autocompletion and refactoring support for SCSS",
+	"version": "0.6.2",
+	"preview": true,
+	"publisher": "mrmlnc",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.14.0"
+	},
+	"icon": "icon.png",
+	"homepage": "https://github.com/mrmlnc/vscode-scss/blob/master/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mrmlnc/vscode-scss"
+	},
+	"keywords": [
+		"scss",
+		"autocompletion",
+		"intellisense",
+		"refactor"
+	],
+	"categories": [
+		"Languages"
+	],
+	"activationEvents": [
+		"onLanguage:scss"
+	],
+	"main": "./out/client.js",
+	"contributes": {
+		"configuration": {
+			"properties": {
+				"scss.scannerDepth": {
+					"type": "number",
+					"default": 30,
+					"description": "The maximum number of nested directories to scan."
+				},
+				"scss.scannerExclude": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": [
+						"**/.git",
+						"**/node_modules",
+						"**/bower_components"
+					],
+					"description": "List of Glob-patterns for directories that are excluded when scanning."
+				},
+				"scss.scanImportedFiles": {
+					"type": "boolean",
+					"default": true,
+					"description": "Allows scan imported files."
+				},
+				"scss.scanImportedFilesDepth": {
+					"type": "number",
+					"default": 50,
+					"description": "The maximum number of imported files to scan."
+				},
+				"scss.implicitlyLabel": {
+					"type": [
+						"string",
+						"null"
+					],
+					"default": "(implicitly)",
+					"description": "The text of a label that the file imported implicitly. If `null` then label not displayed."
+				},
+				"scss.showErrors": {
+					"type": "boolean",
+					"default": false,
+					"description": "Allows to display errors."
+				},
+				"scss.suggestVariables": {
+					"type": "boolean",
+					"default": true,
+					"description": "Allows prompt Variables."
+				},
+				"scss.suggestMixins": {
+					"type": "boolean",
+					"default": true,
+					"description": "Allows prompt Mixins."
+				},
+				"scss.suggestFunctions": {
+					"type": "boolean",
+					"default": true,
+					"description": "Allows prompt Functions."
+				},
+				"scss.suggestFunctionsInStringContextAfterSymbols": {
+					"type": "string",
+					"default": " (+-*%",
+					"description": "Allows prompt Functions in String context after specified symbols."
+				}
+			}
+		}
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/micromatch": "^3.1.0",
+		"@types/mocha": "^5.2.7",
+		"@types/node": "^7.0.31",
+		"@types/parse-glob": "^3.0.29",
+		"@types/vscode": "1.14.0",
+		"glob": "^7.1.6",
+		"husky": "^3.0.9",
+		"lint-staged": "^9.4.2",
+		"mocha": "^6.2.2",
+		"prettier": "^1.19.1",
+		"rimraf": "^2.6.1",
+		"tslint": "^5.4.3",
+		"tslint-config-xo": "^2.0.0",
+		"typescript": "^3.7.2",
+		"vscode-test": "^1.2.3"
+	},
+	"dependencies": {
+		"color": "3.0.0",
+		"color-name": "1.1.3",
+		"micromatch": "4.0.2",
+		"readdir-enhanced": "1.5.2",
+		"scss-symbols-parser": "1.1.3",
+		"vscode-css-languageservice": "2.1.0",
+		"vscode-languageclient": "3.3.0",
+		"vscode-languageserver": "3.3.0",
+		"vscode-uri": "1.0.0"
+	},
+	"scripts": {
+		"clean": "rimraf out",
+		"lint": "tslint src/**/*.ts --project ./tsconfig.json",
+		"compile": "tsc",
+		"test": "mocha out/**/*.spec.js",
+		"test:e2e": "node ./out/test/e2e/runTest.js",
+		"build": "npm run clean && npm run lint && npm run compile && npm test",
+		"watch": "npm run clean && npm run lint && tsc --watch"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged",
+			"pre-push": "yarn test"
+		}
+	},
+	"lint-staged": {
+		"*.ts": [
+			"prettier --write",
+			"tslint --fix",
+			"git add"
+		],
+		"*.json": [
+			"prettier --write",
+			"git add"
+		]
+	}
 }
