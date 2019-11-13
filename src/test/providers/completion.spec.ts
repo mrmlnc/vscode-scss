@@ -2,7 +2,7 @@
 
 import * as assert from 'assert';
 
-import { TextDocument } from 'vscode-languageserver';
+import { TextDocument, CompletionItemKind } from 'vscode-languageserver';
 
 import { ISettings } from '../../types/settings';
 
@@ -30,7 +30,10 @@ cache.set('one.scss', {
 	document: 'one.scss',
 	variables: [
 		{ name: '$one', value: '1', offset: 0, position: null },
-		{ name: '$two', value: null, offset: 0, position: null }
+		{ name: '$two', value: null, offset: 0, position: null },
+		{ name: '$hex', value: '#fff', offset: 0, position: null },
+		{ name: '$rgb', value: 'rgb(0,0,0)', offset: 0, position: null },
+		{ name: '$word', value: 'red', offset: 0, position: null }
 	],
 	mixins: [
 		{ name: 'test', parameters: [], offset: 0, position: null }
@@ -45,7 +48,7 @@ describe('Providers/Completion - Basic', () => {
 
 	it('Variables', () => {
 		const doc = makeDocument('$');
-		assert.equal(doCompletion(doc, 1, settings, cache).items.length, 2);
+		assert.equal(doCompletion(doc, 1, settings, cache).items.length, 5);
 	});
 
 	it('Mixins', () => {
@@ -59,7 +62,7 @@ describe('Providers/Completion - Context', () => {
 
 	it('Empty property value', () => {
 		const doc = makeDocument('.a { content:  }');
-		assert.equal(doCompletion(doc, 14, settings, cache).items.length, 2);
+		assert.equal(doCompletion(doc, 14, settings, cache).items.length, 5);
 	});
 
 	it('Non-empty property value without suggestions', () => {
@@ -69,15 +72,15 @@ describe('Providers/Completion - Context', () => {
 
 	it('Non-empty property value with Variables', () => {
 		const doc = makeDocument('.a { background: url(../images/#{$one}/one.png); }');
-		assert.equal(doCompletion(doc, 37, settings, cache).items.length, 2, 'True');
+		assert.equal(doCompletion(doc, 37, settings, cache).items.length, 5, 'True');
 		assert.equal(doCompletion(doc, 42, settings, cache).items.length, 0, 'False');
 	});
 
 	it('Discard suggestions inside quotes', () => {
 		const doc = makeDocument('.a { background: url("../images/#{$one}/$one.png"); @include test("test", $one); }');
 		assert.equal(doCompletion(doc, 44, settings, cache).items.length, 0, 'Hide');
-		assert.equal(doCompletion(doc, 38, settings, cache).items.length, 3, 'True');
-		assert.equal(doCompletion(doc, 78, settings, cache).items.length, 2, 'Mixin');
+		assert.equal(doCompletion(doc, 38, settings, cache).items.length, 6, 'True');
+		assert.equal(doCompletion(doc, 78, settings, cache).items.length, 5, 'Mixin');
 	});
 
 	it('Custom value for `suggestFunctionsInStringContextAfterSymbols` option', () => {
@@ -98,6 +101,16 @@ describe('Providers/Completion - Context', () => {
 		assert.equal(doCompletion(doc, 4, settings, cache).items.length, 0);
 	});
 
+	it('Identify color variables', () => {
+		const doc = makeDocument('$');
+		const completion = doCompletion(doc, 1, settings, cache);
+
+		assert.equal(completion.items[0].kind, CompletionItemKind.Variable);
+		assert.equal(completion.items[1].kind, CompletionItemKind.Variable);
+		assert.equal(completion.items[2].kind, CompletionItemKind.Color);
+		assert.equal(completion.items[3].kind, CompletionItemKind.Color);
+		assert.equal(completion.items[4].kind, CompletionItemKind.Color);
+	});
 });
 
 describe('Providers/Completion - Implicitly', () => {

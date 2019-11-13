@@ -50,7 +50,7 @@ connection.onInitialize((params: InitializeParams): Promise<InitializeResult> =>
 	settings = params.initializationOptions.settings;
 	activeDocumentUri = params.initializationOptions.activeEditorUri;
 
-	return doScanner(workspaceRoot, cache, settings).then(() => {
+	return <Promise<InitializeResult>>doScanner(workspaceRoot, cache, settings).then(() => {
 		return <InitializeResult>{
 			capabilities: {
 				textDocumentSync: documents.syncKind,
