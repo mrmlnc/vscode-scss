@@ -50,7 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const client = new LanguageClient('scss-intellisense', 'SCSS IntelliSense', serverOptions, clientOptions);
 	context.subscriptions.push(client.start());
 
-	client
+	const promise = client
 		.onReady()
 		.then(() => {
 			const disposable = vscode.window.onDidChangeActiveTextEditor(event => {
@@ -68,4 +68,12 @@ export function activate(context: vscode.ExtensionContext) {
 			console.log('Client initialization failed');
 			console.error(e);
 		});
+
+	return vscode.window.withProgress(
+		{
+			title: 'SCSS IntelliSense initialization',
+			location: vscode.ProgressLocation.Window
+		},
+		() => promise
+	);
 }
