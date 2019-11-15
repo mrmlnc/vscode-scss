@@ -5,6 +5,7 @@ src/**
 out/**/*.spec.*
 .editorconfig
 .gitignore
+.prettierignore
 .travis.yml
 tsconfig.json
 tslint.json
