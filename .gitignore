@@ -5,6 +5,8 @@ npm-debug.log*
 
 # Dependency directory
 node_modules/
+# Fixture dependencies
+!fixtures/e2e/node_modules
 
 # Build directory
 out/
