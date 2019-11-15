@@ -1,7 +1,17 @@
-@import '~foo/bar.scss';
-
 $color: blue;
 $fonts: -apple-system;
+
+.foo {
+  color: $;
+}
+
+@import '~foo/bar.scss';
+
+.foo {
+  color: $;
+}
+
+@import './partial';
 
 .foo {
   color: $;

@@ -12,10 +12,14 @@ describe('SCSS Completion Test', () => {
 	});
 
 	it('Offers variable completions', async () => {
-		await testCompletion(docUri, position(7, 11), ['$color', '$fonts']);
+		await testCompletion(docUri, position(5, 11), ['$color', '$fonts']);
 	});
 
 	it('Offers completions from tilde imports', async () => {
-		await testCompletion(docUri, position(7, 11), ['$tilde-var']);
+		await testCompletion(docUri, position(11, 11), ['$tilde']);
+	});
+
+	it('Offers completions from tilde imports', async () => {
+		await testCompletion(docUri, position(17, 11), ['$partial']);
 	});
 });
