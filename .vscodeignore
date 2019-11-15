@@ -8,3 +8,4 @@ out/**/*.spec.*
 .travis.yml
 tsconfig.json
 tslint.json
+*.vsix

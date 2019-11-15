@@ -13,3 +13,5 @@ out/
 
 # VS Code binary
 .vscode-test
+
+*.vsix

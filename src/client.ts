@@ -14,6 +14,12 @@ import {
 export function activate(context: vscode.ExtensionContext) {
 	const serverModule = path.join(__dirname, 'server.js');
 
+	const runExecArgv: string[] = [];
+	const scssPort = vscode.workspace.getConfiguration().get('scss.dev.serverPort', -1);
+	if (scssPort !== -1) {
+		runExecArgv.push(`--inspect=${scssPort}`);
+	}
+
 	const debugOptions = {
 		execArgv: ['--nolazy', '--inspect=6006']
 	};
@@ -22,9 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 		run: {
 			module: serverModule,
 			transport: TransportKind.ipc,
-			// TODO: Update Language Client to 3.4X and remove this
-			// Https://github.com/Microsoft/vscode/issues/33951
-			options: debugOptions
+			options: { execArgv: runExecArgv }
 		},
 		debug: {
 			module: serverModule,

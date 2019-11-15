@@ -121,10 +121,10 @@
   resolved "https://registry.yarnpkg.com/@types/parse-glob/-/parse-glob-3.0.29.tgz#6a40ec7ebd2418ee69ee397e48e42169268a10bf"
   integrity sha1-akDsfr0kGO5p7jl+SOQhaSaKEL8=
 
-"@types/vscode@1.14.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.14.0.tgz#24b3929ac86783796e7c497789aaddca30817d0b"
-  integrity sha512-0PFarl1nOck6V+vTMycb7b3mrc2ybDkkg3bA8u/8DUyY0/KhYUw3qxCQjxT2c66ferlpOeA05ETgddSmup69fA==
+"@types/vscode@1.30.0":
+  version "1.30.0"
+  resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.30.0.tgz#3e17ab16530b91c2abec4f114c77d8606cb5e286"
+  integrity sha512-xRas+PW/fM/MoonB+Pawg48bGTjCqJsFUFwZpH/q2oW80AMHGDAUTUqySBnqeQ18e/SNi7NOCf3ZkYOzKm3Pqw==
 
 agent-base@4, agent-base@^4.3.0:
   version "4.3.0"
@@ -1903,31 +1903,39 @@ vscode-css-languageservice@2.1.0:
     vscode-languageserver-types "^3.2.0"
     vscode-nls "^2.0.1"
 
-vscode-jsonrpc@^3.3.0:
-  version "3.6.2"
-  resolved "https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-3.6.2.tgz#3b5eef691159a15556ecc500e9a8a0dd143470c8"
-  integrity sha512-T24Jb5V48e4VgYliUXMnZ379ItbrXgOimweKaJshD84z+8q7ZOZjJan0MeDe+Ugb+uqERDVV8SBmemaGMSMugA==
+vscode-jsonrpc@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/vscode-jsonrpc/-/vscode-jsonrpc-4.0.0.tgz#a7bf74ef3254d0a0c272fab15c82128e378b3be9"
+  integrity sha512-perEnXQdQOJMTDFNv+UF3h1Y0z4iSiaN9jIlb0OqIYgosPCZGYh/MCUlkFtV2668PL69lRDO32hmvL2yiidUYg==
 
-vscode-languageclient@3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/vscode-languageclient/-/vscode-languageclient-3.3.0.tgz#c761d020f9689acc8a8a5bae51453f381903493c"
-  integrity sha512-4HVt0GorAV7lJfoT2C6qh/Fug9u/HSmKUa8u+y+Pte0HqvUtOwTI8qlX1vu8vyQ5OHD8t8pJad/9yIbYntwxCw==
+vscode-languageclient@^5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/vscode-languageclient/-/vscode-languageclient-5.2.1.tgz#7cfc83a294c409f58cfa2b910a8cfeaad0397193"
+  integrity sha512-7jrS/9WnV0ruqPamN1nE7qCxn0phkH5LjSgSp9h6qoJGoeAKzwKz/PF6M+iGA/aklx4GLZg1prddhEPQtuXI1Q==
   dependencies:
-    vscode-jsonrpc "^3.3.0"
-    vscode-languageserver-types "^3.3.0"
+    semver "^5.5.0"
+    vscode-languageserver-protocol "3.14.1"
 
-vscode-languageserver-types@^3.2.0, vscode-languageserver-types@^3.3.0:
+vscode-languageserver-protocol@3.14.1:
+  version "3.14.1"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver-protocol/-/vscode-languageserver-protocol-3.14.1.tgz#b8aab6afae2849c84a8983d39a1cf742417afe2f"
+  integrity sha512-IL66BLb2g20uIKog5Y2dQ0IiigW0XKrvmWiOvc0yXw80z3tMEzEnHjaGAb3ENuU7MnQqgnYJ1Cl2l9RvNgDi4g==
+  dependencies:
+    vscode-jsonrpc "^4.0.0"
+    vscode-languageserver-types "3.14.0"
+
+vscode-languageserver-types@3.14.0, vscode-languageserver-types@^3.14.0, vscode-languageserver-types@^3.2.0:
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.14.0.tgz#d3b5952246d30e5241592b6dde8280e03942e743"
   integrity sha512-lTmS6AlAlMHOvPQemVwo3CezxBp0sNB95KNPkqp3Nxd5VFEnuG1ByM0zlRWos0zjO3ZWtkvhal0COgiV1xIA4A==
 
-vscode-languageserver@3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/vscode-languageserver/-/vscode-languageserver-3.3.0.tgz#f547d4f0e5702f88ff3695bae5905f9604c8cc62"
-  integrity sha512-8YvEbjl77Nl24/cgcSbQC/CPEhSoJwvLLKGJZJbIF4DsGo4jrVDbuARXfmUt9S6vCEEr++o3fbbZ17iLZ0QH0A==
+vscode-languageserver@^5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver/-/vscode-languageserver-5.2.1.tgz#0d2feddd33f92aadf5da32450df498d52f6f14eb"
+  integrity sha512-GuayqdKZqAwwaCUjDvMTAVRPJOp/SLON3mJ07eGsx/Iq9HjRymhKWztX41rISqDKhHVVyFM+IywICyZDla6U3A==
   dependencies:
-    vscode-jsonrpc "^3.3.0"
-    vscode-languageserver-types "^3.3.0"
+    vscode-languageserver-protocol "3.14.1"
+    vscode-uri "^1.0.6"
 
 vscode-nls@^2.0.1:
   version "2.0.2"
@@ -1947,6 +1955,11 @@ vscode-uri@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/vscode-uri/-/vscode-uri-1.0.0.tgz#07369e2d096bfe42b406bd21860b5aa4fe7a7ad0"
   integrity sha1-BzaeLQlr/kK0Br0hhgtapP56etA=
+
+vscode-uri@^1.0.6:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/vscode-uri/-/vscode-uri-1.0.8.tgz#9769aaececae4026fb6e22359cb38946580ded59"
+  integrity sha512-obtSWTlbJ+a+TFRYGaUumtVwb+InIUVI0Lu0VBUAPmj2cU5JutEXg3xUE0c2J5Tcy7h2DEKVJBFi+Y9ZSFzzPQ==
 
 which-module@^2.0.0:
   version "2.0.0"

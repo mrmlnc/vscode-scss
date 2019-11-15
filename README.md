@@ -116,6 +116,13 @@ Allows prompt Functions.
 
 Allows prompt Functions in String context after specified symbols. For example, if you add the `/` symbol, then `background: url(images/he|)` will be suggest `hello()` function if it is defined.
 
+#### scss.dev.serverPort
+
+  * Type: `number`
+  * Default: `-1`
+
+Launches the SCSS IntelliSense server at a specific port for debugging and profiling. Used for [filing performance issue](./.github/PERF_ISSUE.md).
+
 ## Questions
 
 **I don't see suggestions in the SCSS files.**
