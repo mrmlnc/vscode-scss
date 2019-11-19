@@ -67,13 +67,6 @@ List of Glob-patterns for directories that are excluded when scanning.
 
 Allows scan imported files.
 
-#### scss.scanImportedFilesDepth
-
-  * Type: `number`
-  * Default: `50`
-
-The maximum number of imported files to scan. Prevent an infinite recursion and very deep `@import`.
-
 #### scss.implicitlyLabel
 
   * Type: `string|null`

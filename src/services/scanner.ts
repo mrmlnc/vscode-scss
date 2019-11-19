@@ -63,13 +63,10 @@ function makeEntryFile(filepath: string, ctime: Date): IFile {
  * Returns Symbols from Imported files.
  */
 function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: ISettings): Promise<ISymbols[]> {
-	let nesting = 0;
-
 	function recurse(accum: ISymbols[], list: ISymbols[]): any {
 		const importedFiles: string[] = [];
 
-		// Prevent an infinite recursion and very deep `@import`
-		if (list.length === 0 || nesting === settings.scanImportedFilesDepth) {
+		if (list.length === 0) {
 			return Promise.resolve(accum);
 		}
 
@@ -119,8 +116,6 @@ function scannerImportedFiles(cache: ICache, symbolsList: ISymbols[], settings: 
 			})
 		).then(resultList => {
 			resultList = resultList.filter(Boolean);
-
-			nesting++;
 
 			return recurse(accum.concat(resultList), resultList);
 		});

@@ -53,11 +53,6 @@
 					"default": true,
 					"description": "Allows scan imported files."
 				},
-				"scss.scanImportedFilesDepth": {
-					"type": "number",
-					"default": 50,
-					"description": "The maximum number of imported files to scan."
-				},
 				"scss.implicitlyLabel": {
 					"type": [
 						"string",
