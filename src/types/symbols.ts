@@ -23,7 +23,6 @@ export interface IImport extends IImp {
 
 export interface ISymbols {
 	document?: string;
-	ctime?: Date;
 	variables: IVariable[];
 	mixins: IMixin[];
 	functions: IFunction[];

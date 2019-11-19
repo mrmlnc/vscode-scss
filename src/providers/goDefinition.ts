@@ -108,7 +108,6 @@ export function goDefinition(
 	}
 
 	// Symbols from Cache
-	resource.symbols.ctime = new Date();
 	cache.set(resource.symbols.document, resource.symbols);
 	const symbolsList = getSymbolsCollection(cache);
 
