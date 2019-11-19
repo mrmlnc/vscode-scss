@@ -19,7 +19,7 @@ describe('SCSS Completion Test', () => {
 		await testCompletion(docUri, position(11, 11), ['$tilde']);
 	});
 
-	it('Offers completions from tilde imports', async () => {
+	it('Offers completions from partial file', async () => {
 		await testCompletion(docUri, position(17, 11), ['$partial']);
 	});
 });
