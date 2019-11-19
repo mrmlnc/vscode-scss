@@ -37,8 +37,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	};
 
-	const activeEditor = vscode.window.activeTextEditor;
-
 	const clientOptions: LanguageClientOptions = {
 		documentSelector: ['scss'],
 		synchronize: {
@@ -46,8 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 			fileEvents: vscode.workspace.createFileSystemWatcher('**/*.scss')
 		},
 		initializationOptions: {
-			settings: vscode.workspace.getConfiguration('scss'),
-			activeEditorUri: activeEditor ? activeEditor.document.uri.toString() : null
+			settings: vscode.workspace.getConfiguration('scss')
 		},
 
 		// Don't open the output console (very annoying) in case of error
@@ -57,24 +54,10 @@ export function activate(context: vscode.ExtensionContext) {
 	const client = new LanguageClient('scss-intellisense', 'SCSS IntelliSense', serverOptions, clientOptions);
 	context.subscriptions.push(client.start());
 
-	const promise = client
-		.onReady()
-		.then(() => {
-			const disposable = vscode.window.onDidChangeActiveTextEditor(event => {
-				let uri = null;
-				if (event && event.document.uri.scheme === 'file') {
-					uri = event.document.uri.toString();
-				}
-
-				client.sendRequest('changeActiveDocument', { uri });
-			});
-
-			context.subscriptions.push(disposable);
-		})
-		.catch(e => {
-			console.log('Client initialization failed');
-			console.error(e);
-		});
+	const promise = client.onReady().catch(e => {
+		console.log('Client initialization failed');
+		console.error(e);
+	});
 
 	return vscode.window.withProgress(
 		{

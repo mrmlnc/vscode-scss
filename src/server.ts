@@ -97,8 +97,6 @@ connection.onDidChangeWatchedFiles(event => {
 	return scannerService.scan(files, /* recursive */ false);
 });
 
-connection.onRequest('changeActiveDocument', () => undefined);
-
 connection.onCompletion(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
