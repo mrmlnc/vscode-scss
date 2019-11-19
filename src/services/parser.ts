@@ -29,24 +29,10 @@ ls.configure({
  * Returns all Symbols in a single document.
  */
 export function parseDocument(document: TextDocument, offset: number = null, settings: ISettings): IDocument {
-	let symbols: ISymbols;
-	try {
-		symbols = findSymbols(document.getText());
-	} catch (err) {
-		if (settings.showErrors) {
-			throw err;
-		}
-
-		symbols = {
-			variables: [],
-			mixins: [],
-			functions: [],
-			imports: []
-		};
-	}
-
-	// Set path for document in Symbols collection
-	symbols.document = Files.uriToFilePath(document.uri) || document.uri;
+	const symbols: ISymbols = {
+		...getDocumentSymbols(document, settings),
+		document: Files.uriToFilePath(document.uri) || document.uri
+	};
 
 	// Get `<reference *> comments from document
 	const references = document.getText().match(reReferenceCommentGlobal);
@@ -100,4 +86,21 @@ export function parseDocument(document: TextDocument, offset: number = null, set
 		symbols,
 		node: offset ? getNodeAtOffset(ast, offset) : null
 	};
+}
+
+function getDocumentSymbols(document: TextDocument, settings: ISettings): ISymbols {
+	try {
+		return findSymbols(document.getText());
+	} catch (err) {
+		if (settings.showErrors) {
+			throw err;
+		}
+
+		return {
+			variables: [],
+			mixins: [],
+			functions: [],
+			imports: []
+		};
+	}
 }

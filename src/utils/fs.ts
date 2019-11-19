@@ -2,6 +2,25 @@
 
 import * as fs from 'fs';
 
+import * as fg from 'fast-glob';
+
+export function findFiles(pattern: string, options: fg.Options): Promise<string[]> {
+	return fg(pattern, {
+		...options,
+		absolute: true,
+		dot: true,
+		suppressErrors: true
+	});
+}
+
+export function fileExists(filepath: string): Promise<boolean> {
+	return new Promise(resolve => {
+		fs.access(filepath, fs.constants.F_OK, error => {
+			return resolve(error === null);
+		});
+	});
+}
+
 /**
  * Read file by specified filepath;
  */

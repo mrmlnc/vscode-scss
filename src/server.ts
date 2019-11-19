@@ -7,19 +7,22 @@ import {
 	IPCMessageWriter,
 	TextDocuments,
 	InitializeParams,
-	InitializeResult
+	InitializeResult,
+	FileChangeType,
+	Files
 } from 'vscode-languageserver';
 
 import { ISettings } from './types/settings';
 
-import { getCacheStorage, invalidateCacheStorage } from './services/cache';
-import { doScanner } from './services/scanner';
+import { getCacheStorage } from './services/cache';
+import ScannerService from './services/scanner';
 
 import { doCompletion } from './providers/completion';
 import { doHover } from './providers/hover';
 import { doSignatureHelp } from './providers/signatureHelp';
 import { goDefinition } from './providers/goDefinition';
 import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
+import { findFiles } from './utils/fs';
 
 // Cache Storage
 const cache = getCacheStorage();
@@ -27,7 +30,7 @@ const cache = getCacheStorage();
 // Common variables
 let workspaceRoot: string;
 let settings: ISettings;
-let activeDocumentUri: string;
+let scannerService: ScannerService;
 
 // Create a connection for the server
 const connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -49,10 +52,16 @@ connection.onInitialize(
 	async (params: InitializeParams): Promise<InitializeResult> => {
 		workspaceRoot = params.rootPath;
 		settings = params.initializationOptions.settings;
-		activeDocumentUri = params.initializationOptions.activeEditorUri;
+		scannerService = new ScannerService(cache, settings);
+
+		const files = await findFiles('**/*.scss', {
+			cwd: params.rootPath,
+			deep: settings.scannerDepth,
+			ignore: settings.scannerExclude
+		});
 
 		try {
-			await doScanner(workspaceRoot, cache, settings);
+			await scannerService.scan(files);
 		} catch (error) {
 			if (settings.showErrors) {
 				connection.window.showErrorMessage(error);
@@ -80,25 +89,15 @@ connection.onDidChangeConfiguration(params => {
 });
 
 // Update cache
-connection.onDidChangeWatchedFiles(async event => {
-	const firstEvent = event.changes[0];
-	const isSameDocumentPath = activeDocumentUri === firstEvent.uri;
-	const isRenameAction = firstEvent.type === 1;
+connection.onDidChangeWatchedFiles(event => {
+	const files = event.changes
+		.filter(file => file.type === FileChangeType.Changed || file.type === FileChangeType.Created)
+		.map(file => Files.uriToFilePath(file.uri));
 
-	// We do not need to update the Cache if the current document has been updated
-	// But we should warm up Cache if is rename action
-	if (event.changes.length === 1 && isSameDocumentPath && !isRenameAction) {
-		return;
-	}
-
-	const symbols = await doScanner(workspaceRoot, cache, settings);
-
-	invalidateCacheStorage(cache, symbols);
+	return scannerService.scan(files, /* recursive */ false);
 });
 
-connection.onRequest('changeActiveDocument', (data: any) => {
-	activeDocumentUri = data.uri;
-});
+connection.onRequest('changeActiveDocument', () => undefined);
 
 connection.onCompletion(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
