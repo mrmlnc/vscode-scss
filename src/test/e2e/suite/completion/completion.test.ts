@@ -8,7 +8,7 @@ describe('SCSS Completion Test', () => {
 
 	before(async () => {
 		showFile(docUri);
-		await sleep(2000);
+		await sleep(10000);
 	});
 
 	it('Offers variable completions', async () => {

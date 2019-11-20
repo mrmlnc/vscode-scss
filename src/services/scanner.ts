@@ -14,6 +14,9 @@ export default class ScannerService {
 		const iterator = new Set(files);
 
 		for (let filepath of iterator) {
+			// Cast to the system file path style
+			filepath = path.normalize(filepath);
+
 			const originalFilepath = filepath;
 
 			let isExistFile = await this._fileExists(filepath);
