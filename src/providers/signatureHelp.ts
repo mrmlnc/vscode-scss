@@ -5,7 +5,7 @@ import { tokenizer } from 'scss-symbols-parser';
 
 import { IVariable } from '../types/symbols';
 import { ISettings } from '../types/settings';
-import { ICache } from '../services/cache';
+import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
@@ -144,7 +144,7 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 export function doSignatureHelp(
 	document: TextDocument,
 	offset: number,
-	cache: ICache,
+	storage: StorageService,
 	settings: ISettings
 ): SignatureHelp {
 	const suggestions: { name: string; parameters: IVariable[] }[] = [];
@@ -175,10 +175,9 @@ export function doSignatureHelp(
 
 	const resource = parseDocument(document, offset, settings);
 
-	// Update Cache for current document
-	cache.set(documentPath, resource.symbols);
+	storage.set(documentPath, resource.symbols);
 
-	getSymbolsCollection(cache).forEach(symbols => {
+	getSymbolsCollection(storage).forEach(symbols => {
 		symbols[symbolType].forEach(symbol => {
 			if (entry.name === symbol.name && symbol.parameters.length >= entry.parameters) {
 				suggestions.push({

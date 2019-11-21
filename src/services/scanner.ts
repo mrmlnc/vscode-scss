@@ -2,13 +2,13 @@ import * as path from 'path';
 
 import { TextDocument } from 'vscode-languageserver';
 
-import { ICache } from './cache';
 import { ISettings } from '../types/settings';
 import { readFile, fileExists } from '../utils/fs';
 import { parseDocument } from './parser';
+import StorageService from './storage';
 
 export default class ScannerService {
-	constructor(private readonly _cache: ICache, private readonly _settings: ISettings) {}
+	constructor(private readonly _storage: StorageService, private readonly _settings: ISettings) {}
 
 	public async scan(files: string[], recursive = true): Promise<void> {
 		const iterator = new Set(files);
@@ -30,8 +30,8 @@ export default class ScannerService {
 			}
 
 			if (!isExistFile) {
-				this._cache.drop(filepath);
-				this._cache.drop(partialFilepath);
+				this._storage.delete(filepath);
+				this._storage.delete(partialFilepath);
 
 				continue;
 			}
@@ -40,7 +40,7 @@ export default class ScannerService {
 			const document = TextDocument.create(originalFilepath, 'scss', 1, content);
 			const { symbols } = parseDocument(document, null, this._settings);
 
-			this._cache.set(filepath, symbols);
+			this._storage.set(filepath, symbols);
 
 			if (!recursive || !this._settings.scanImportedFiles) {
 				continue;

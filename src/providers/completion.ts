@@ -3,9 +3,9 @@
 import { CompletionList, CompletionItemKind, TextDocument, Files } from 'vscode-languageserver';
 
 import { INode, NodeType } from '../types/nodes';
-import { ICache } from '../services/cache';
 import { IMixin } from '../types/symbols';
 import { ISettings } from '../types/settings';
+import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
@@ -111,7 +111,7 @@ export function doCompletion(
 	document: TextDocument,
 	offset: number,
 	settings: ISettings,
-	cache: ICache
+	storage: StorageService
 ): CompletionList {
 	const completions = CompletionList.create([], false);
 
@@ -122,10 +122,9 @@ export function doCompletion(
 
 	const resource = parseDocument(document, offset, settings);
 
-	// Update Cache for current document
-	cache.set(documentPath, resource.symbols);
+	storage.set(documentPath, resource.symbols);
 
-	const symbolsList = getSymbolsCollection(cache);
+	const symbolsList = getSymbolsCollection(storage);
 	const documentImports = getCurrentDocumentImportPaths(symbolsList, documentPath);
 	const currentWord = getCurrentWord(document.getText(), offset);
 	const textBeforeWord = getTextBeforePosition(document.getText(), offset);

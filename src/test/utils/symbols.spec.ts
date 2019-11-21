@@ -2,15 +2,14 @@
 
 import * as assert from 'assert';
 
-import { getCacheStorage } from '../../services/cache';
+import StorageService from '../../services/storage';
 import { getSymbolsCollection } from '../../utils/symbols';
 
 describe('Utils/Symbols', () => {
-
 	it('getSymbolsCollection', () => {
-		const cache = getCacheStorage();
+		const storage = new StorageService();
 
-		cache.set('test.scss', {
+		storage.set('test.scss', {
 			document: 'test.scss',
 			variables: [],
 			mixins: [],
@@ -18,6 +17,6 @@ describe('Utils/Symbols', () => {
 			imports: []
 		});
 
-		assert.equal(getSymbolsCollection(cache).length, 1);
+		assert.equal(getSymbolsCollection(storage).length, 1);
 	});
 });

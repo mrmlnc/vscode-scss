@@ -2,12 +2,12 @@
 
 import * as assert from 'assert';
 
-import { getCacheStorage } from '../../services/cache';
+import StorageService from '../../services/storage';
 import { searchWorkspaceSymbol } from '../../providers/workspaceSymbol';
 
-const cache = getCacheStorage();
+const storage = new StorageService();
 
-cache.set('one.less', {
+storage.set('one.less', {
 	document: 'one.less',
 	variables: [
 		{ name: '$a', value: '1', offset: 0, position: { line: 1, character: 1 } }
@@ -22,13 +22,11 @@ cache.set('one.less', {
 });
 
 describe('Providers/WorkspaceSymbol', () => {
-
 	it('searchWorkspaceSymbol - Empty query', () => {
-		assert.equal(searchWorkspaceSymbol('', cache, '').length, 3);
+		assert.equal(searchWorkspaceSymbol('', storage, '').length, 3);
 	});
 
 	it('searchWorkspaceSymbol - Non-empty query', () => {
-		assert.equal(searchWorkspaceSymbol('$', cache, '').length, 1);
+		assert.equal(searchWorkspaceSymbol('$', storage, '').length, 1);
 	});
-
 });

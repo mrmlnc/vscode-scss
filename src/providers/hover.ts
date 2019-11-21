@@ -5,7 +5,7 @@ import { Hover, MarkedString, TextDocument, Files } from 'vscode-languageserver'
 import { NodeType } from '../types/nodes';
 import { ISymbols, IVariable, IMixin, IFunction } from '../types/symbols';
 import { ISettings } from '../types/settings';
-import { ICache } from '../services/cache';
+import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
@@ -92,7 +92,7 @@ function getSymbol(symbolList: ISymbols[], identifier: any, currentPath: string)
 /**
  * Do Hover :)
  */
-export function doHover(document: TextDocument, offset: number, cache: ICache, settings: ISettings): Hover {
+export function doHover(document: TextDocument, offset: number, storage: StorageService, settings: ISettings): Hover {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
 		return null;
@@ -144,13 +144,10 @@ export function doHover(document: TextDocument, offset: number, cache: ICache, s
 		return;
 	}
 
-	// Update Cache for current document
-	cache.set(documentPath, resource.symbols);
-	// Symbols from Cache
-	const symbolsList = getSymbolsCollection(cache);
-	// Imports for current document
+	storage.set(documentPath, resource.symbols);
+
+	const symbolsList = getSymbolsCollection(storage);
 	const documentImports = getCurrentDocumentImportPaths(symbolsList, documentPath);
-	// All symbols
 	const symbol = getSymbol(symbolsList, identifier, documentPath);
 
 	// Content for Hover popup

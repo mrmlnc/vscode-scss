@@ -14,8 +14,8 @@ import {
 
 import { ISettings } from './types/settings';
 
-import { getCacheStorage } from './services/cache';
 import ScannerService from './services/scanner';
+import StorageService from './services/storage';
 
 import { doCompletion } from './providers/completion';
 import { doHover } from './providers/hover';
@@ -24,12 +24,9 @@ import { goDefinition } from './providers/goDefinition';
 import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
 import { findFiles } from './utils/fs';
 
-// Cache Storage
-const cache = getCacheStorage();
-
-// Common variables
 let workspaceRoot: string;
 let settings: ISettings;
+let storageService: StorageService;
 let scannerService: ScannerService;
 
 // Create a connection for the server
@@ -52,7 +49,8 @@ connection.onInitialize(
 	async (params: InitializeParams): Promise<InitializeResult> => {
 		workspaceRoot = params.rootPath;
 		settings = params.initializationOptions.settings;
-		scannerService = new ScannerService(cache, settings);
+		storageService = new StorageService();
+		scannerService = new ScannerService(storageService, settings);
 
 		const files = await findFiles('**/*.scss', {
 			cwd: params.rootPath,
@@ -83,12 +81,10 @@ connection.onInitialize(
 	}
 );
 
-// Update settings
 connection.onDidChangeConfiguration(params => {
 	settings = params.settings.scss;
 });
 
-// Update cache
 connection.onDidChangeWatchedFiles(event => {
 	const files = event.changes
 		.filter(file => file.type === FileChangeType.Changed || file.type === FileChangeType.Created)
@@ -100,35 +96,33 @@ connection.onDidChangeWatchedFiles(event => {
 connection.onCompletion(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return doCompletion(document, offset, settings, cache);
+	return doCompletion(document, offset, settings, storageService);
 });
 
 connection.onHover(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return doHover(document, offset, cache, settings);
+	return doHover(document, offset, storageService, settings);
 });
 
 connection.onSignatureHelp(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return doSignatureHelp(document, offset, cache, settings);
+	return doSignatureHelp(document, offset, storageService, settings);
 });
 
 connection.onDefinition(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return goDefinition(document, offset, cache, settings);
+	return goDefinition(document, offset, storageService, settings);
 });
 
 connection.onWorkspaceSymbol(workspaceSymbolParams => {
-	return searchWorkspaceSymbol(workspaceSymbolParams.query, cache, workspaceRoot);
+	return searchWorkspaceSymbol(workspaceSymbolParams.query, storageService, workspaceRoot);
 });
 
-// Dispose cache
 connection.onShutdown(() => {
-	cache.dispose();
+	storageService.clear();
 });
 
-// Listen on the connection
 connection.listen();
