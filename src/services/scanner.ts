@@ -30,7 +30,7 @@ export default class ScannerService {
 			}
 
 			if (!isExistFile) {
-				this._storage.delete(filepath);
+				this._storage.delete(originalFilepath);
 				this._storage.delete(partialFilepath);
 
 				continue;

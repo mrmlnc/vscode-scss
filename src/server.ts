@@ -8,7 +8,6 @@ import {
 	TextDocuments,
 	InitializeParams,
 	InitializeResult,
-	FileChangeType,
 	Files
 } from 'vscode-languageserver';
 
@@ -86,11 +85,9 @@ connection.onDidChangeConfiguration(params => {
 });
 
 connection.onDidChangeWatchedFiles(event => {
-	const files = event.changes
-		.filter(file => file.type === FileChangeType.Changed || file.type === FileChangeType.Created)
-		.map(file => Files.uriToFilePath(file.uri));
+	const files = event.changes.map(file => Files.uriToFilePath(file.uri));
 
-	return scannerService.scan(files, /* recursive */ false);
+	return scannerService.scan(files);
 });
 
 connection.onCompletion(textDocumentPosition => {
