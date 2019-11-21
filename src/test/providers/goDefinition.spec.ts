@@ -24,6 +24,7 @@ const storage = new StorageService();
 
 storage.set('one.scss', {
 	document: 'one.scss',
+	filepath: 'one.scss',
 	variables: [
 		{ name: '$a', value: '1', offset: 0, position: { line: 1, character: 1 } }
 	],

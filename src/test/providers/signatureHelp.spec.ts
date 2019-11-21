@@ -24,6 +24,7 @@ const storage = new StorageService();
 
 storage.set('one.scss', {
 	document: 'one.scss',
+	filepath: 'one.scss',
 	variables: [],
 	mixins: [
 		{ name: 'one', parameters: [], offset: 0, position: null },

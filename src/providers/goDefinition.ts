@@ -40,7 +40,7 @@ function getSymbols(symbolList: ISymbols[], identifier: IIdentifier, currentPath
 		symbols[identifier.type].forEach(item => {
 			if (item.name === identifier.name && !samePosition(item.position, identifier.position)) {
 				list.push({
-					document: symbols.document,
+					document: symbols.filepath,
 					path: fsPath,
 					info: item
 				});

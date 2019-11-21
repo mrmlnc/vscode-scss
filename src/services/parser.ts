@@ -31,7 +31,8 @@ ls.configure({
 export function parseDocument(document: TextDocument, offset: number = null, settings: ISettings): IDocument {
 	const symbols: ISymbols = {
 		...getDocumentSymbols(document, settings),
-		document: Files.uriToFilePath(document.uri) || document.uri
+		document: Files.uriToFilePath(document.uri) || document.uri,
+		filepath: Files.uriToFilePath(document.uri) || document.uri
 	};
 
 	// Get `<reference *> comments from document

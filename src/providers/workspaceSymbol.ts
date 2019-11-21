@@ -13,7 +13,7 @@ export function searchWorkspaceSymbol(query: string, storage: StorageService, ro
 	const workspaceSymbols: SymbolInformation[] = [];
 
 	getSymbolsCollection(storage).forEach(symbols => {
-		const documentUri = Uri.file(symbols.document);
+		const documentUri = Uri.file(symbols.filepath);
 		if (!documentUri.fsPath.includes(root)) {
 			return;
 		}

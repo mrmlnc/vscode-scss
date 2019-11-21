@@ -40,7 +40,7 @@ export default class ScannerService {
 			const document = TextDocument.create(originalFilepath, 'scss', 1, content);
 			const { symbols } = parseDocument(document, null, this._settings);
 
-			this._storage.set(filepath, symbols);
+			this._storage.set(filepath, { ...symbols, filepath });
 
 			if (!recursive || !this._settings.scanImportedFiles) {
 				continue;
