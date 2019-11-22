@@ -3,9 +3,9 @@
 import { CompletionList, CompletionItemKind, TextDocument, Files } from 'vscode-languageserver';
 
 import { INode, NodeType } from '../types/nodes';
-import { ICache } from '../services/cache';
 import { IMixin } from '../types/symbols';
 import { ISettings } from '../types/settings';
+import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
@@ -111,7 +111,7 @@ export function doCompletion(
 	document: TextDocument,
 	offset: number,
 	settings: ISettings,
-	cache: ICache
+	storage: StorageService
 ): CompletionList {
 	const completions = CompletionList.create([], false);
 
@@ -122,10 +122,9 @@ export function doCompletion(
 
 	const resource = parseDocument(document, offset, settings);
 
-	// Update Cache for current document
-	cache.set(documentPath, resource.symbols);
+	storage.set(documentPath, resource.symbols);
 
-	const symbolsList = getSymbolsCollection(cache);
+	const symbolsList = getSymbolsCollection(storage);
 	const documentImports = getCurrentDocumentImportPaths(symbolsList, documentPath);
 	const currentWord = getCurrentWord(document.getText(), offset);
 	const textBeforeWord = getTextBeforePosition(document.getText(), offset);
@@ -164,8 +163,8 @@ export function doCompletion(
 	// Variables
 	if (settings.suggestVariables && isVariableContext) {
 		symbolsList.forEach(symbols => {
-			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
+			const fsPath = getDocumentPath(documentPath, isImplicitlyImport ? symbols.filepath : symbols.document);
 
 			symbols.variables.forEach(variable => {
 				const color = getVariableColor(variable.value);
@@ -196,8 +195,8 @@ export function doCompletion(
 	// Mixins
 	if (settings.suggestMixins && isMixinContext) {
 		symbolsList.forEach(symbols => {
-			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
+			const fsPath = getDocumentPath(documentPath, isImplicitlyImport ? symbols.filepath : symbols.document);
 
 			symbols.mixins.forEach(mixin => {
 				if (mixinSuggestionsFilter(mixin, resource.node)) {
@@ -224,8 +223,8 @@ export function doCompletion(
 	// Functions
 	if (settings.suggestFunctions && isFunctionContext) {
 		symbolsList.forEach(symbols => {
-			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
+			const fsPath = getDocumentPath(documentPath, isImplicitlyImport ? symbols.filepath : symbols.document);
 
 			symbols.functions.forEach(func => {
 				// Add 'implicitly' prefix for Path if the file imported implicitly

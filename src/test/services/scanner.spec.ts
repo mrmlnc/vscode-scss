@@ -2,51 +2,101 @@
 
 import * as assert from 'assert';
 
-import { getCacheStorage } from '../../services/cache';
-import { doScanner } from '../../services/scanner';
-import { ISettings } from '../../types/settings';
+import * as sinon from 'sinon';
 
-const cache = getCacheStorage();
+import StorageService from '../../services/storage';
+import { ISettings } from '../../types/settings';
+import ScannerService from '../../services/scanner';
+
+class ScannerServiceTest extends ScannerService {
+	protected _readFile = sinon.stub();
+	protected _fileExists = sinon.stub();
+
+	public get readFileStub(): sinon.SinonStub {
+		return this._readFile;
+	}
+
+	public get fileExistsStub(): sinon.SinonStub {
+		return this._fileExists;
+	}
+}
 
 describe('Services/Scanner', () => {
-	beforeEach(() => {
-		cache.dispose();
-	});
+	describe('.scan', () => {
+		it('should find files and update cache', async () => {
+			const storage = new StorageService();
+			const settings = {} as ISettings;
+			const scanner = new ScannerServiceTest(storage, settings);
 
-	it('Scan', () => {
-		const options = <ISettings>{
-			scannerDepth: 10,
-			scannerExclude: []
-		};
+			scanner.fileExistsStub.resolves(true);
+			scanner.readFileStub.onFirstCall().resolves('$name: value;');
+			scanner.readFileStub.onSecondCall().resolves('');
 
-		return doScanner('./fixtures/unit', cache, options).then(symbols => {
-			assert.equal(symbols.length, 7);
-			assert.equal(Object.keys(cache.storage()).length, 7);
+			await scanner.scan(['index.scss', 'variables.scss']);
+
+			assert.deepStrictEqual(storage.keys(), ['index.scss', 'variables.scss']);
+			assert.ok(storage.get('index.scss'));
+			assert.strictEqual(storage.get('index.scss').variables.length, 1);
+
+			assert.strictEqual(scanner.fileExistsStub.callCount, 2);
+			assert.strictEqual(scanner.readFileStub.callCount, 2);
 		});
-	});
 
-	it('Scan without Imported files', () => {
-		const options = <ISettings>{
-			scannerDepth: 10,
-			scannerExclude: ['**/variables', '**/mixins', '**/functions']
-		};
+		it('should find file and imported files', async () => {
+			const storage = new StorageService();
+			const settings = {
+				scanImportedFiles: true
+			} as ISettings;
+			const scanner = new ScannerServiceTest(storage, settings);
 
-		return doScanner('./fixtures/unit', cache, options).then(symbols => {
-			assert.equal(symbols.length, 1);
-			assert.equal(Object.keys(cache.storage()).length, 1);
+			scanner.fileExistsStub.resolves(true);
+			scanner.readFileStub.onFirstCall().resolves('@import "variables.scss";');
+			scanner.readFileStub.onSecondCall().resolves('');
+
+			await scanner.scan(['index.scss']);
+
+			assert.deepStrictEqual(storage.keys(), ['index.scss', 'variables.scss']);
+
+			assert.strictEqual(scanner.fileExistsStub.callCount, 2);
+			assert.strictEqual(scanner.readFileStub.callCount, 2);
 		});
-	});
 
-	it('Scan with Imported files', () => {
-		const options = <ISettings>{
-			scannerDepth: 10,
-			scannerExclude: ['**/variables', '**/mixins', '**/functions'],
-			scanImportedFiles: true
-		};
+		it('should do not find imported files when it not required', async () => {
+			const storage = new StorageService();
+			const settings = {
+				scanImportedFiles: false
+			} as ISettings;
+			const scanner = new ScannerServiceTest(storage, settings);
 
-		return doScanner('./fixtures/unit', cache, options).then(symbols => {
-			assert.equal(symbols.length, 8);
-			assert.equal(Object.keys(cache.storage()).length, 7);
+			scanner.fileExistsStub.resolves(true);
+			scanner.readFileStub.onFirstCall().resolves('@import "variables.scss";');
+			scanner.readFileStub.onSecondCall().resolves('');
+
+			await scanner.scan(['index.scss']);
+
+			assert.deepStrictEqual(storage.keys(), ['index.scss']);
+
+			assert.strictEqual(scanner.fileExistsStub.callCount, 1);
+			assert.strictEqual(scanner.readFileStub.callCount, 1);
+		});
+
+		it('should do not find imported files when the recursive mode is no required', async () => {
+			const storage = new StorageService();
+			const settings = {
+				scanImportedFiles: true
+			} as ISettings;
+			const scanner = new ScannerServiceTest(storage, settings);
+
+			scanner.fileExistsStub.resolves(true);
+			scanner.readFileStub.onFirstCall().resolves('@import "variables.scss";');
+			scanner.readFileStub.onSecondCall().resolves('');
+
+			await scanner.scan(['index.scss'], /* recursive */ false);
+
+			assert.deepStrictEqual(storage.keys(), ['index.scss']);
+
+			assert.strictEqual(scanner.fileExistsStub.callCount, 1);
+			assert.strictEqual(scanner.readFileStub.callCount, 1);
 		});
 	});
 });

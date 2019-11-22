@@ -4,11 +4,11 @@ import * as assert from 'assert';
 
 import { TextDocument } from 'vscode-languageserver';
 
-import { getCacheStorage } from '../../services/cache';
+import StorageService from '../../services/storage';
 import { doHover } from '../../providers/hover';
 import { ISettings } from '../../types/settings';
 
-const cache = getCacheStorage();
+const storage = new StorageService();
 
 const settings = <ISettings>{
 	scannerExclude: [],
@@ -29,7 +29,6 @@ function makeDocument(lines: string | string[]) {
 }
 
 describe('Providers/Hover', () => {
-
 	it('doHover - Variables', () => {
 		const doc = makeDocument([
 			'$one: 1;',
@@ -37,9 +36,9 @@ describe('Providers/Hover', () => {
 		]);
 
 		// $o|
-		assert.equal(<any>doHover(doc, 2, cache, settings), null);
+		assert.equal(<any>doHover(doc, 2, storage, settings), null);
 		// .a { content: $o|
-		assert.equal((<IHover>doHover(doc, 25, cache, settings).contents).value, '$one: 1;');
+		assert.equal((<IHover>doHover(doc, 25, storage, settings).contents).value, '$one: 1;');
 	});
 
 	it('doHover - Mixins', () => {
@@ -49,19 +48,19 @@ describe('Providers/Hover', () => {
 		]);
 
 		// @m|
-		assert.equal(<any>doHover(doc, 2, cache, settings), null);
+		assert.equal(<any>doHover(doc, 2, storage, settings), null);
 		// @mixin on|
-		assert.equal(<any>doHover(doc, 9, cache, settings), null);
+		assert.equal(<any>doHover(doc, 9, storage, settings), null);
 		// @mixin one($|
-		assert.equal(<any>doHover(doc, 12, cache, settings), null);
+		assert.equal(<any>doHover(doc, 12, storage, settings), null);
 		// @mixin one($a) { con|
-		assert.equal(<any>doHover(doc, 20, cache, settings), null);
+		assert.equal(<any>doHover(doc, 20, storage, settings), null);
 		// @mixin one($a) { content: "no|
-		assert.equal(<any>doHover(doc, 29, cache, settings), null);
+		assert.equal(<any>doHover(doc, 29, storage, settings), null);
 		// @inc|
-		assert.equal((<IHover>doHover(doc, 40, cache, settings).contents).value, '@mixin one($a: null) {…}');
+		assert.equal((<IHover>doHover(doc, 40, storage, settings).contents).value, '@mixin one($a: null) {…}');
 		// @include on|
-		assert.equal((<IHover>doHover(doc, 47, cache, settings).contents).value, '@mixin one($a: null) {…}');
+		assert.equal((<IHover>doHover(doc, 47, storage, settings).contents).value, '@mixin one($a: null) {…}');
 	});
 
 	it('doHover - Functions', () => {
@@ -71,15 +70,14 @@ describe('Providers/Hover', () => {
 		]);
 
 		// @f|
-		assert.equal(<any>doHover(doc, 2, cache, settings), null);
+		assert.equal(<any>doHover(doc, 2, storage, settings), null);
 		// @function ma|
-		assert.equal(<any>doHover(doc, 12, cache, settings), null);
+		assert.equal(<any>doHover(doc, 12, storage, settings), null);
 		// @function make($a) { @re|
-		assert.equal(<any>doHover(doc, 24, cache, settings), null);
+		assert.equal(<any>doHover(doc, 24, storage, settings), null);
 		// @function make($a) { @return $|
-		assert.equal((<IHover>doHover(doc, 30, cache, settings).contents).value, '$a: null;');
+		assert.equal((<IHover>doHover(doc, 30, storage, settings).contents).value, '$a: null;');
 		// .hi { content: ma|
-		assert.equal((<IHover>doHover(doc, 52, cache, settings).contents).value, '@function make($a: null) {…}');
+		assert.equal((<IHover>doHover(doc, 52, storage, settings).contents).value, '@function make($a: null) {…}');
 	});
-
 });

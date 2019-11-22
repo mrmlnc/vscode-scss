@@ -7,27 +7,26 @@ import {
 	IPCMessageWriter,
 	TextDocuments,
 	InitializeParams,
-	InitializeResult
+	InitializeResult,
+	Files
 } from 'vscode-languageserver';
 
 import { ISettings } from './types/settings';
 
-import { getCacheStorage, invalidateCacheStorage } from './services/cache';
-import { doScanner } from './services/scanner';
+import ScannerService from './services/scanner';
+import StorageService from './services/storage';
 
 import { doCompletion } from './providers/completion';
 import { doHover } from './providers/hover';
 import { doSignatureHelp } from './providers/signatureHelp';
 import { goDefinition } from './providers/goDefinition';
 import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
+import { findFiles } from './utils/fs';
 
-// Cache Storage
-const cache = getCacheStorage();
-
-// Common variables
 let workspaceRoot: string;
 let settings: ISettings;
-let activeDocumentUri: string;
+let storageService: StorageService;
+let scannerService: ScannerService;
 
 // Create a connection for the server
 const connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -46,94 +45,81 @@ documents.listen(connection);
 // After the server has started the client sends an initilize request. The server receives
 // _in the passed params the rootPath of the workspace plus the client capabilites
 connection.onInitialize(
-	(params: InitializeParams): Promise<InitializeResult> => {
+	async (params: InitializeParams): Promise<InitializeResult> => {
 		workspaceRoot = params.rootPath;
 		settings = params.initializationOptions.settings;
-		activeDocumentUri = params.initializationOptions.activeEditorUri;
+		storageService = new StorageService();
+		scannerService = new ScannerService(storageService, settings);
 
-		return <Promise<InitializeResult>>doScanner(workspaceRoot, cache, settings)
-			.then(() => {
-				return <InitializeResult>{
-					capabilities: {
-						textDocumentSync: documents.syncKind,
-						completionProvider: { resolveProvider: false },
-						signatureHelpProvider: {
-							triggerCharacters: ['(', ',', ';']
-						},
-						hoverProvider: true,
-						definitionProvider: true,
-						workspaceSymbolProvider: true
-					}
-				};
-			})
-			.catch(err => {
-				if (settings.showErrors) {
-					connection.window.showErrorMessage(err);
-				}
+		const files = await findFiles('**/*.scss', {
+			cwd: params.rootPath,
+			deep: settings.scannerDepth,
+			ignore: settings.scannerExclude
+		});
 
-				return <InitializeResult>{};
-			});
+		try {
+			await scannerService.scan(files);
+		} catch (error) {
+			if (settings.showErrors) {
+				connection.window.showErrorMessage(error);
+			}
+		}
+
+		return {
+			capabilities: {
+				textDocumentSync: documents.syncKind,
+				completionProvider: { resolveProvider: false },
+				signatureHelpProvider: {
+					triggerCharacters: ['(', ',', ';']
+				},
+				hoverProvider: true,
+				definitionProvider: true,
+				workspaceSymbolProvider: true
+			}
+		};
 	}
 );
 
-// Update settings
 connection.onDidChangeConfiguration(params => {
 	settings = params.settings.scss;
 });
 
-// Update cache
 connection.onDidChangeWatchedFiles(event => {
-	const firstEvent = event.changes[0];
-	const isSameDocumentPath = activeDocumentUri === firstEvent.uri;
-	const isRenameAction = firstEvent.type === 1;
+	const files = event.changes.map(file => Files.uriToFilePath(file.uri));
 
-	// We do not need to update the Cache if the current document has been updated
-	// But we should warm up Cache if is rename action
-	if (event.changes.length === 1 && isSameDocumentPath && !isRenameAction) {
-		return;
-	}
-
-	return doScanner(workspaceRoot, cache, settings).then(symbols => {
-		return invalidateCacheStorage(cache, symbols);
-	});
-});
-
-connection.onRequest('changeActiveDocument', (data: any) => {
-	activeDocumentUri = data.uri;
+	return scannerService.scan(files);
 });
 
 connection.onCompletion(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return doCompletion(document, offset, settings, cache);
+	return doCompletion(document, offset, settings, storageService);
 });
 
 connection.onHover(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return doHover(document, offset, cache, settings);
+	return doHover(document, offset, storageService, settings);
 });
 
 connection.onSignatureHelp(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return doSignatureHelp(document, offset, cache, settings);
+	return doSignatureHelp(document, offset, storageService, settings);
 });
 
 connection.onDefinition(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return goDefinition(document, offset, cache, settings);
+	return goDefinition(document, offset, storageService, settings);
 });
 
 connection.onWorkspaceSymbol(workspaceSymbolParams => {
-	return searchWorkspaceSymbol(workspaceSymbolParams.query, cache, workspaceRoot);
+	return searchWorkspaceSymbol(workspaceSymbolParams.query, storageService, workspaceRoot);
 });
 
-// Dispose cache
 connection.onShutdown(() => {
-	cache.dispose();
+	storageService.clear();
 });
 
-// Listen on the connection
 connection.listen();

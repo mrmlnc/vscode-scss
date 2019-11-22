@@ -6,7 +6,7 @@ import Uri from 'vscode-uri';
 import { NodeType } from '../types/nodes';
 import { ISymbols } from '../types/symbols';
 import { ISettings } from '../types/settings';
-import { ICache } from '../services/cache';
+import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
@@ -40,7 +40,7 @@ function getSymbols(symbolList: ISymbols[], identifier: IIdentifier, currentPath
 		symbols[identifier.type].forEach(item => {
 			if (item.name === identifier.name && !samePosition(item.position, identifier.position)) {
 				list.push({
-					document: symbols.document,
+					document: symbols.filepath,
 					path: fsPath,
 					info: item
 				});
@@ -57,7 +57,7 @@ function getSymbols(symbolList: ISymbols[], identifier: IIdentifier, currentPath
 export function goDefinition(
 	document: TextDocument,
 	offset: number,
-	cache: ICache,
+	storage: StorageService,
 	settings: ISettings
 ): Promise<Location> {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
@@ -107,10 +107,9 @@ export function goDefinition(
 		return Promise.resolve(null);
 	}
 
-	// Symbols from Cache
-	resource.symbols.ctime = new Date();
-	cache.set(resource.symbols.document, resource.symbols);
-	const symbolsList = getSymbolsCollection(cache);
+	storage.set(resource.symbols.document, resource.symbols);
+
+	const symbolsList = getSymbolsCollection(storage);
 
 	// Symbols
 	const candidates = getSymbols(symbolsList, identifier, documentPath);

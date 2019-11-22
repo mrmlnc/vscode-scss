@@ -22,8 +22,14 @@ export interface IImport extends IImp {
 }
 
 export interface ISymbols {
+	/**
+	 * The imported path in the document.
+	 */
 	document?: string;
-	ctime?: Date;
+	/**
+	 * The real path to the file on the file system.
+	 */
+	filepath?: string;
 	variables: IVariable[];
 	mixins: IMixin[];
 	functions: IFunction[];
