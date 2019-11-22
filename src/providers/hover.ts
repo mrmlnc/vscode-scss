@@ -73,7 +73,7 @@ function getSymbol(symbolList: ISymbols[], identifier: any, currentPath: string)
 		const symbols = symbolList[i];
 		const symbolsByType = symbols[identifier.type];
 
-		const fsPath = getDocumentPath(currentPath, symbols.document);
+		const fsPath = getDocumentPath(currentPath, symbols.filepath || symbols.document);
 
 		for (let j = 0; j < symbolsByType.length; j++) {
 			if (symbolsByType[j].name === identifier.name) {

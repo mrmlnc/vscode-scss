@@ -163,8 +163,8 @@ export function doCompletion(
 	// Variables
 	if (settings.suggestVariables && isVariableContext) {
 		symbolsList.forEach(symbols => {
-			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
+			const fsPath = getDocumentPath(documentPath, isImplicitlyImport ? symbols.filepath : symbols.document);
 
 			symbols.variables.forEach(variable => {
 				const color = getVariableColor(variable.value);
@@ -195,8 +195,8 @@ export function doCompletion(
 	// Mixins
 	if (settings.suggestMixins && isMixinContext) {
 		symbolsList.forEach(symbols => {
-			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
+			const fsPath = getDocumentPath(documentPath, isImplicitlyImport ? symbols.filepath : symbols.document);
 
 			symbols.mixins.forEach(mixin => {
 				if (mixinSuggestionsFilter(mixin, resource.node)) {
@@ -223,8 +223,8 @@ export function doCompletion(
 	// Functions
 	if (settings.suggestFunctions && isFunctionContext) {
 		symbolsList.forEach(symbols => {
-			const fsPath = getDocumentPath(documentPath, symbols.document);
 			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
+			const fsPath = getDocumentPath(documentPath, isImplicitlyImport ? symbols.filepath : symbols.document);
 
 			symbols.functions.forEach(func => {
 				// Add 'implicitly' prefix for Path if the file imported implicitly
