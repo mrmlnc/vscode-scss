@@ -26,7 +26,6 @@ function parseText(text: string[]): INode {
 }
 
 describe('Utils/Ast', () => {
-
 	it('getNodeAtOffset', () => {
 		const ast = parseText([
 			'.a {}'
@@ -72,5 +71,4 @@ describe('Utils/Ast', () => {
 
 		assert.equal(getChildByType(ast, NodeType.VariableDeclaration).length, 2);
 	});
-
 });

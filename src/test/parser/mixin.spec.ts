@@ -23,7 +23,6 @@ function parseText(text: string[], naked = false): INode {
 }
 
 describe('Parser/Mixin', () => {
-
 	it('Simple', () => {
 		const ast = parseText([
 			'@mixin a() {',
@@ -55,7 +54,7 @@ describe('Parser/Mixin', () => {
 		assert.equal(mixin.parameters[1].value, null);
 	});
 
-	it('Nesting', (done) => {
+	it('Nesting', done => {
 		const ast = parseText([
 			'.a-#{$name} {',
 			'  @mixin b($a: 1, $b) {',
@@ -82,5 +81,4 @@ describe('Parser/Mixin', () => {
 			return true;
 		});
 	});
-
 });

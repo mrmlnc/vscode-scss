@@ -21,7 +21,6 @@ function parseText(text: string[]): INode {
 }
 
 describe('Parser/Variable', () => {
-
 	it('Simple', () => {
 		const ast = parseText([
 			'$name: 1;'
@@ -53,5 +52,4 @@ describe('Parser/Variable', () => {
 		assert.equal(vars.two.mixin, 'a');
 		assert.equal(vars.two.value, null);
 	});
-
 });

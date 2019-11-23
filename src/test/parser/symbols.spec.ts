@@ -21,7 +21,6 @@ function parseText(text: string[]): INode {
 }
 
 describe('Parser/Symbols', () => {
-
 	it('findSymbols - Variables', () => {
 		const text = [
 			'$a: 1;',
@@ -145,5 +144,4 @@ describe('Parser/Symbols', () => {
 		assert.equal(variables[0].name, '$a');
 		assert.equal(variables[0].value, '1');
 	});
-
 });

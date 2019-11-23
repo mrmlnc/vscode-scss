@@ -12,7 +12,6 @@ function parseText(text: string[]): TextDocument {
 }
 
 describe('Services/Parser', () => {
-
 	it('Find symbols without offset position', () => {
 		const doc = parseText([
 			'$name: "value";',
@@ -94,5 +93,4 @@ describe('Services/Parser', () => {
 		// Imports
 		assert.equal(symbols.imports.length, 0);
 	});
-
 });

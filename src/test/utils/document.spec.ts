@@ -6,7 +6,6 @@ import { ISymbols } from '../../types/symbols';
 import { getCurrentDocumentImportPaths, getDocumentPath } from '../../utils/document';
 
 describe('Utils/Document', () => {
-
 	it('getCurrentDocumentImports', () => {
 		const symbolsList: ISymbols[] = [
 			{
@@ -51,5 +50,4 @@ describe('Utils/Document', () => {
 		assert.equal(getDocumentPath('test/file.scss', 'test/includes/a.scss'), 'includes/a.scss');
 		assert.equal(getDocumentPath('test/includes/a.scss', 'test/file.scss'), '../file.scss');
 	});
-
 });

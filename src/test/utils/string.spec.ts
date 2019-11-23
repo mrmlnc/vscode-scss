@@ -10,7 +10,6 @@ import {
 } from '../../utils/string';
 
 describe('Utils/String', () => {
-
 	it('getCurrentWord', () => {
 		const text = `.text($a) {}`;
 
@@ -38,5 +37,4 @@ describe('Utils/String', () => {
 		assert.equal(getLimitedString(text).length, 141);
 		assert.equal(getLimitedString(text, false).length, 140);
 	});
-
 });
