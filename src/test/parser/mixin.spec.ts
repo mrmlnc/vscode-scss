@@ -11,7 +11,6 @@ import { makeMixin } from '../../parser/mixin';
 const ls = getSCSSLanguageService();
 
 ls.configure({
-	lint: false,
 	validate: false
 });
 

@@ -11,7 +11,6 @@ import { makeVariable } from '../../parser/variable';
 const ls = getSCSSLanguageService();
 
 ls.configure({
-	lint: false,
 	validate: false
 });
 
