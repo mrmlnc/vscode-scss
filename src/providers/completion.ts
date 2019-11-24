@@ -1,8 +1,8 @@
 'use strict';
 
-import { CompletionList, CompletionItemKind, TextDocument, Files } from 'vscode-languageserver';
+import { CompletionList, CompletionItemKind, TextDocument, Files, CompletionItem } from 'vscode-languageserver';
 
-import { IMixin } from '../types/symbols';
+import { IMixin, ISymbols } from '../types/symbols';
 import { ISettings } from '../types/settings';
 import StorageService from '../services/storage';
 
@@ -82,6 +82,145 @@ function checkFunctionContext(
 	return false;
 }
 
+function isCommentContext(text: string): boolean {
+	return reComment.test(text.trim());
+}
+
+function isInterpolationContext(text: string): boolean {
+	return text.includes('#{');
+}
+
+function createCompletionContext(document: TextDocument, offset: number, settings: ISettings) {
+	const currentWord = getCurrentWord(document.getText(), offset);
+	const textBeforeWord = getTextBeforePosition(document.getText(), offset);
+
+	// Is "#{INTERPOLATION}"
+	const isInterpolation = isInterpolationContext(currentWord);
+
+	// Information about current position
+	const isPropertyValue = rePropertyValue.test(textBeforeWord);
+	const isEmptyValue = reEmptyPropertyValue.test(textBeforeWord);
+	const isQuotes = reQuotes.test(textBeforeWord.replace(reQuotedValueInString, ''));
+
+	return {
+		comment: isCommentContext(textBeforeWord),
+		variable: checkVariableContext(currentWord, isInterpolation, isPropertyValue, isEmptyValue, isQuotes),
+		function: checkFunctionContext(
+			textBeforeWord,
+			isInterpolation,
+			isPropertyValue,
+			isEmptyValue,
+			isQuotes,
+			settings
+		),
+		mixin: checkMixinContext(textBeforeWord, isPropertyValue)
+	};
+}
+
+function createVariableCompletionItems(
+	symbols: ISymbols[],
+	filepath: string,
+	imports: string[],
+	settings: ISettings
+): CompletionItem[] {
+	const completions: CompletionItem[] = [];
+
+	symbols.forEach(symbol => {
+		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
+		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
+
+		symbol.variables.forEach(variable => {
+			const color = getVariableColor(variable.value);
+			const completionKind = color ? CompletionItemKind.Color : CompletionItemKind.Variable;
+
+			// Add 'implicitly' prefix for Path if the file imported implicitly
+			let detailPath = fsPath;
+			if (isImplicitlyImport && settings.implicitlyLabel) {
+				detailPath = settings.implicitlyLabel + ' ' + detailPath;
+			}
+
+			// Add 'argument from MIXIN_NAME' suffix if Variable is Mixin argument
+			let detailText = detailPath;
+			if (variable.mixin) {
+				detailText = `argument from ${variable.mixin}, ${detailText}`;
+			}
+
+			completions.push({
+				label: variable.name,
+				kind: completionKind,
+				detail: detailText,
+				documentation: getLimitedString(color ? color.toString() : variable.value)
+			});
+		});
+	});
+
+	return completions;
+}
+
+function createMixinCompletionItems(
+	symbols: ISymbols[],
+	filepath: string,
+	imports: string[],
+	settings: ISettings
+): CompletionItem[] {
+	const completions: CompletionItem[] = [];
+
+	symbols.forEach(symbol => {
+		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
+		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
+
+		symbol.mixins.forEach(mixin => {
+			// Add 'implicitly' prefix for Path if the file imported implicitly
+			let detailPath = fsPath;
+			if (isImplicitlyImport && settings.implicitlyLabel) {
+				detailPath = settings.implicitlyLabel + ' ' + detailPath;
+			}
+
+			completions.push({
+				label: mixin.name,
+				kind: CompletionItemKind.Function,
+				detail: detailPath,
+				documentation: makeMixinDocumentation(mixin),
+				insertText: mixin.name
+			});
+		});
+	});
+
+	return completions;
+}
+
+function createFunctionCompletionItems(
+	symbols: ISymbols[],
+	filepath: string,
+	imports: string[],
+	settings: ISettings
+): CompletionItem[] {
+	const completions: CompletionItem[] = [];
+
+	symbols.forEach(symbol => {
+		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
+		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
+
+		symbol.functions.forEach(func => {
+			// Add 'implicitly' prefix for Path if the file imported implicitly
+			let detailPath = fsPath;
+			if (isImplicitlyImport && settings.implicitlyLabel) {
+				detailPath = settings.implicitlyLabel + ' ' + detailPath;
+			}
+
+			completions.push({
+				label: func.name,
+				kind: CompletionItemKind.Interface,
+				detail: detailPath,
+				documentation: makeMixinDocumentation(func),
+				insertText: func.name
+			});
+		});
+	});
+
+	return completions;
+}
+
 /**
  * Do Completion :)
  */
@@ -104,118 +243,29 @@ export function doCompletion(
 
 	const symbolsList = getSymbolsCollection(storage);
 	const documentImports = getCurrentDocumentImportPaths(symbolsList, documentPath);
-	const currentWord = getCurrentWord(document.getText(), offset);
-	const textBeforeWord = getTextBeforePosition(document.getText(), offset);
+	const context = createCompletionContext(document, offset, settings);
 
 	// Drop suggestions inside `//` and `/* */` comments
-	if (reComment.test(textBeforeWord.trim())) {
+	if (context.comment) {
 		return completions;
 	}
 
-	// Is "#{INTERPOLATION}"
-	const isInterpolation = currentWord.includes('#{');
+	if (settings.suggestVariables && context.variable) {
+		const variables = createVariableCompletionItems(symbolsList, documentPath, documentImports, settings);
 
-	// Information about current position
-	const isPropertyValue = rePropertyValue.test(textBeforeWord);
-	const isEmptyValue = reEmptyPropertyValue.test(textBeforeWord);
-	const isQuotes = reQuotes.test(textBeforeWord.replace(reQuotedValueInString, ''));
-
-	// Check contexts
-	const isVariableContext = checkVariableContext(
-		currentWord,
-		isInterpolation,
-		isPropertyValue,
-		isEmptyValue,
-		isQuotes
-	);
-	const isFunctionContext = checkFunctionContext(
-		textBeforeWord,
-		isInterpolation,
-		isPropertyValue,
-		isEmptyValue,
-		isQuotes,
-		settings
-	);
-	const isMixinContext = checkMixinContext(textBeforeWord, isPropertyValue);
-
-	// Variables
-	if (settings.suggestVariables && isVariableContext) {
-		symbolsList.forEach(symbols => {
-			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
-			const fsPath = getDocumentPath(documentPath, isImplicitlyImport ? symbols.filepath : symbols.document);
-
-			symbols.variables.forEach(variable => {
-				const color = getVariableColor(variable.value);
-				const completionKind = color ? CompletionItemKind.Color : CompletionItemKind.Variable;
-
-				// Add 'implicitly' prefix for Path if the file imported implicitly
-				let detailPath = fsPath;
-				if (isImplicitlyImport && settings.implicitlyLabel) {
-					detailPath = settings.implicitlyLabel + ' ' + detailPath;
-				}
-
-				// Add 'argument from MIXIN_NAME' suffix if Variable is Mixin argument
-				let detailText = detailPath;
-				if (variable.mixin) {
-					detailText = `argument from ${variable.mixin}, ${detailText}`;
-				}
-
-				completions.items.push({
-					label: variable.name,
-					kind: completionKind,
-					detail: detailText,
-					documentation: getLimitedString(color ? color.toString() : variable.value)
-				});
-			});
-		});
+		completions.items = completions.items.concat(variables);
 	}
 
-	// Mixins
-	if (settings.suggestMixins && isMixinContext) {
-		symbolsList.forEach(symbols => {
-			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
-			const fsPath = getDocumentPath(documentPath, isImplicitlyImport ? symbols.filepath : symbols.document);
+	if (settings.suggestMixins && context.mixin) {
+		const mixins = createMixinCompletionItems(symbolsList, documentPath, documentImports, settings);
 
-			symbols.mixins.forEach(mixin => {
-				// Add 'implicitly' prefix for Path if the file imported implicitly
-				let detailPath = fsPath;
-				if (isImplicitlyImport && settings.implicitlyLabel) {
-					detailPath = settings.implicitlyLabel + ' ' + detailPath;
-				}
-
-				completions.items.push({
-					label: mixin.name,
-					kind: CompletionItemKind.Function,
-					detail: detailPath,
-					documentation: makeMixinDocumentation(mixin),
-					insertText: mixin.name
-				});
-			});
-		});
+		completions.items = completions.items.concat(mixins);
 	}
 
-	// Functions
-	if (settings.suggestFunctions && isFunctionContext) {
-		symbolsList.forEach(symbols => {
-			const isImplicitlyImport = isImplicitly(symbols.document, documentPath, documentImports);
-			const fsPath = getDocumentPath(documentPath, isImplicitlyImport ? symbols.filepath : symbols.document);
+	if (settings.suggestFunctions && context.function) {
+		const functions = createFunctionCompletionItems(symbolsList, documentPath, documentImports, settings);
 
-			symbols.functions.forEach(func => {
-				// Add 'implicitly' prefix for Path if the file imported implicitly
-				let detailPath = fsPath;
-				if (isImplicitlyImport && settings.implicitlyLabel) {
-					detailPath = settings.implicitlyLabel + ' ' + detailPath;
-				}
-
-				completions.items.push({
-					label: func.name,
-					kind: CompletionItemKind.Interface,
-					detail: detailPath,
-					documentation: makeMixinDocumentation(func),
-					insertText: func.name
-				});
-			});
-		});
+		completions.items = completions.items.concat(functions);
 	}
 
 	return completions;
