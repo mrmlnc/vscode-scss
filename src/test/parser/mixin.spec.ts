@@ -8,26 +8,26 @@ import * as helpers from '../helpers';
 
 describe('Parser/Mixin', () => {
 	it('Simple', () => {
-		const ast = helpers.makeAst([
+		const node = helpers.makeAst([
 			'@mixin a() {',
 			'  content: "1"',
 			'}'
-		]);
+		]).getChild(0);
 
-		const mixin = makeMixin(ast.getChild(0));
+		const mixin = makeMixin(node);
 
 		assert.equal(mixin.name, 'a');
 		assert.equal(mixin.parameters.length, 0);
 	});
 
 	it('Parameters', () => {
-		const ast = helpers.makeAst([
+		const node = helpers.makeAst([
 			'@mixin a($a: 1, $b) {',
 			'  content: "1";',
 			'}'
-		]);
+		]).getChild(0);
 
-		const mixin = makeMixin(ast.getChild(0));
+		const mixin = makeMixin(node);
 
 		assert.equal(mixin.name, 'a');
 

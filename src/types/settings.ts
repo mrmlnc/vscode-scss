@@ -7,7 +7,7 @@ export interface ISettings {
 	scanImportedFiles: boolean;
 
 	// Label
-	implicitlyLabel: string;
+	implicitlyLabel: string | null;
 
 	// Display
 	showErrors: boolean;
