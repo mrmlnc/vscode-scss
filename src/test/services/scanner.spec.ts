@@ -5,8 +5,8 @@ import * as assert from 'assert';
 import * as sinon from 'sinon';
 
 import StorageService from '../../services/storage';
-import { ISettings } from '../../types/settings';
 import ScannerService from '../../services/scanner';
+import * as helpers from '../helpers';
 
 class ScannerServiceTest extends ScannerService {
 	protected _readFile = sinon.stub();
@@ -25,7 +25,7 @@ describe('Services/Scanner', () => {
 	describe('.scan', () => {
 		it('should find files and update cache', async () => {
 			const storage = new StorageService();
-			const settings = {} as ISettings;
+			const settings = helpers.makeSettings();
 			const scanner = new ScannerServiceTest(storage, settings);
 
 			scanner.fileExistsStub.resolves(true);
@@ -44,9 +44,7 @@ describe('Services/Scanner', () => {
 
 		it('should find file and imported files', async () => {
 			const storage = new StorageService();
-			const settings = {
-				scanImportedFiles: true
-			} as ISettings;
+			const settings = helpers.makeSettings();
 			const scanner = new ScannerServiceTest(storage, settings);
 
 			scanner.fileExistsStub.resolves(true);
@@ -63,9 +61,7 @@ describe('Services/Scanner', () => {
 
 		it('should do not find imported files when it not required', async () => {
 			const storage = new StorageService();
-			const settings = {
-				scanImportedFiles: false
-			} as ISettings;
+			const settings = helpers.makeSettings({ scanImportedFiles: false });
 			const scanner = new ScannerServiceTest(storage, settings);
 
 			scanner.fileExistsStub.resolves(true);
@@ -82,9 +78,7 @@ describe('Services/Scanner', () => {
 
 		it('should do not find imported files when the recursive mode is no required', async () => {
 			const storage = new StorageService();
-			const settings = {
-				scanImportedFiles: true
-			} as ISettings;
+			const settings = helpers.makeSettings();
 			const scanner = new ScannerServiceTest(storage, settings);
 
 			scanner.fileExistsStub.resolves(true);

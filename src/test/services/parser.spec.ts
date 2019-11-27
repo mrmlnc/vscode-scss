@@ -2,18 +2,13 @@
 
 import * as assert from 'assert';
 
-import { TextDocument } from 'vscode-languageserver';
-
 import { parseDocument } from '../../services/parser';
 import { ISettings } from '../../types/settings';
-
-function parseText(text: string[]): TextDocument {
-	return TextDocument.create('test.scss', 'scss', 1, text.join('\n'));
-}
+import * as helpers from '../helpers';
 
 describe('Services/Parser', () => {
 	it('Find symbols without offset position', () => {
-		const doc = parseText([
+		const doc = helpers.makeDocument([
 			'$name: "value";',
 			'@mixin mixin($a: 1, $b) {}'
 		]);
@@ -45,7 +40,7 @@ describe('Services/Parser', () => {
 	});
 
 	it('Find symbols with offset position', () => {
-		const doc = parseText([
+		const doc = helpers.makeDocument([
 			'$name: "value";',
 			'@function func($a) { @return $a }',
 			'@mixin mixin($a: 1, $b) {',

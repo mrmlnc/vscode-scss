@@ -2,47 +2,32 @@
 
 import * as assert from 'assert';
 
-import { TextDocument } from 'vscode-languageserver';
-import { getSCSSLanguageService } from 'vscode-css-languageservice';
-
 import { INode, NodeType } from '../../types/nodes';
 import { makeMixin } from '../../parser/mixin';
-
-const ls = getSCSSLanguageService();
-
-ls.configure({
-	validate: false
-});
-
-function parseText(text: string[], naked = false): INode {
-	const doc = TextDocument.create('test.scss', 'scss', 1, text.join('\n'));
-	const ast = <INode>ls.parseStylesheet(doc);
-
-	return naked ? ast : ast.getChildren()[0];
-}
+import * as helpers from '../helpers';
 
 describe('Parser/Mixin', () => {
 	it('Simple', () => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'@mixin a() {',
 			'  content: "1"',
 			'}'
 		]);
 
-		const mixin = makeMixin(ast);
+		const mixin = makeMixin(ast.getChild(0));
 
 		assert.equal(mixin.name, 'a');
 		assert.equal(mixin.parameters.length, 0);
 	});
 
 	it('Parameters', () => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'@mixin a($a: 1, $b) {',
 			'  content: "1";',
 			'}'
 		]);
 
-		const mixin = makeMixin(ast);
+		const mixin = makeMixin(ast.getChild(0));
 
 		assert.equal(mixin.name, 'a');
 
@@ -54,13 +39,13 @@ describe('Parser/Mixin', () => {
 	});
 
 	it('Nesting', done => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'.a-#{$name} {',
 			'  @mixin b($a: 1, $b) {',
 			'    content: "1";',
 			'  }',
 			'}'
-		], true);
+		]);
 
 		ast.accept((node: INode) => {
 			if (node.type === NodeType.MixinDeclaration) {

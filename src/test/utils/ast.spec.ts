@@ -2,31 +2,18 @@
 
 import * as assert from 'assert';
 
-import { TextDocument } from 'vscode-languageserver';
-import { getSCSSLanguageService } from 'vscode-css-languageservice';
-
-import { INode, NodeType } from '../../types/nodes';
+import { NodeType } from '../../types/nodes';
 import {
 	getNodeAtOffset,
 	getParentNodeByType,
 	hasParentsByType,
 	getChildByType
 } from '../../utils/ast';
-
-const ls = getSCSSLanguageService();
-
-ls.configure({
-	validate: false
-});
-
-function parseText(text: string[]): INode {
-	const doc = TextDocument.create('test.dcdd', 'dcdd', 1, text.join('\n'));
-	return <INode>ls.parseStylesheet(doc);
-}
+import * as helpers from '../helpers';
 
 describe('Utils/Ast', () => {
 	it('getNodeAtOffset', () => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'.a {}'
 		]);
 
@@ -37,7 +24,7 @@ describe('Utils/Ast', () => {
 	});
 
 	it('getParentNodeByType', () => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'.a {}'
 		]);
 
@@ -49,7 +36,7 @@ describe('Utils/Ast', () => {
 	});
 
 	it('hasParentsByType', () => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'@mixin a() {',
 			'  $name: 1;',
 			'}'
@@ -63,7 +50,7 @@ describe('Utils/Ast', () => {
 	});
 
 	it('getChildByType', () => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'$a: 1;',
 			'$b: 2;'
 		]);

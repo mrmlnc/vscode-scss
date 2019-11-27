@@ -2,35 +2,21 @@
 
 import * as assert from 'assert';
 
-import { TextDocument } from 'vscode-languageserver';
-
 import StorageService from '../../services/storage';
 import { doHover } from '../../providers/hover';
-import { ISettings } from '../../types/settings';
+import * as helpers from '../helpers';
 
 const storage = new StorageService();
-
-const settings = <ISettings>{
-	scannerExclude: [],
-	scannerDepth: 20,
-	showErrors: false,
-	suggestMixins: true,
-	suggestVariables: true,
-	suggestFunctions: true
-};
+const settings = helpers.makeSettings();
 
 interface IHover {
 	language: string;
 	value: string;
 }
 
-function makeDocument(lines: string | string[]) {
-	return TextDocument.create('test.scss', 'scss', 1, Array.isArray(lines) ? lines.join('\n') : lines);
-}
-
 describe('Providers/Hover', () => {
 	it('doHover - Variables', () => {
-		const doc = makeDocument([
+		const doc = helpers.makeDocument([
 			'$one: 1;',
 			'.a { content: $one; }'
 		]);
@@ -42,7 +28,7 @@ describe('Providers/Hover', () => {
 	});
 
 	it('doHover - Mixins', () => {
-		const doc = makeDocument([
+		const doc = helpers.makeDocument([
 			'@mixin one($a) { content: "nope"; }',
 			'@include one(1);'
 		]);
@@ -64,7 +50,7 @@ describe('Providers/Hover', () => {
 	});
 
 	it('doHover - Functions', () => {
-		const doc = makeDocument([
+		const doc = helpers.makeDocument([
 			'@function make($a) { @return $a; }',
 			'.hi { content: make(1); }'
 		]);

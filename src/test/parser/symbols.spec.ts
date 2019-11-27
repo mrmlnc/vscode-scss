@@ -2,22 +2,8 @@
 
 import * as assert from 'assert';
 
-import { TextDocument } from 'vscode-languageserver';
-import { getSCSSLanguageService } from 'vscode-css-languageservice';
-
-import { INode } from '../../types/nodes';
 import { findSymbols, findSymbolsAtOffset } from '../../parser/symbols';
-
-const ls = getSCSSLanguageService();
-
-ls.configure({
-	validate: false
-});
-
-function parseText(text: string[]): INode {
-	const doc = TextDocument.create('test.scss', 'scss', 1, text.join('\n'));
-	return <INode>ls.parseStylesheet(doc);
-}
+import * as helpers from '../helpers';
 
 describe('Parser/Symbols', () => {
 	it('findSymbols - Variables', () => {
@@ -88,7 +74,7 @@ describe('Parser/Symbols', () => {
 	});
 
 	it('findSymbolsAtOffset - Variables', () => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'$a: 1;',
 			'.a {',
 			'  $b: 2;',
@@ -104,7 +90,7 @@ describe('Parser/Symbols', () => {
 	});
 
 	it('findSymbolsAtOffset - Mixins', () => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'@mixin a() {}',
 			'.a {',
 			'  @mixin b() {}',
@@ -132,7 +118,7 @@ describe('Parser/Symbols', () => {
 	});
 
 	it('findSymbolsAtOffset - Functions', () => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'@function name($a: 1) { @return  }'
 		]);
 

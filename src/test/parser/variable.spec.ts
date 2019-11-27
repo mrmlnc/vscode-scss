@@ -2,28 +2,14 @@
 
 import * as assert from 'assert';
 
-import { TextDocument } from 'vscode-languageserver';
-import { getSCSSLanguageService } from 'vscode-css-languageservice';
-
-import { INode } from '../../types/nodes';
 import { makeVariable } from '../../parser/variable';
-
-const ls = getSCSSLanguageService();
-
-ls.configure({
-	validate: false
-});
-
-function parseText(text: string[]): INode {
-	const doc = TextDocument.create('test.scss', 'scss', 1, text.join('\n'));
-	return (<INode>ls.parseStylesheet(doc)).getChildren()[0];
-}
+import * as helpers from '../helpers';
 
 describe('Parser/Variable', () => {
 	it('Simple', () => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'$name: 1;'
-		]);
+		]).getChild(0);
 
 		const variable = makeVariable(ast);
 
@@ -32,11 +18,11 @@ describe('Parser/Variable', () => {
 	});
 
 	it('Parameter', () => {
-		const ast = parseText([
+		const ast = helpers.makeAst([
 			'@mixin a($a:1, $b) {',
 			'  content: "1";',
 			'}'
-		]).getParameters().getChildren();
+		]).getChild(0).getParameters().getChildren();
 
 		const vars = {
 			one: makeVariable(ast[0], 'a'),

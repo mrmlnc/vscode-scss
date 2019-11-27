@@ -2,25 +2,14 @@
 
 import * as assert from 'assert';
 
-import { TextDocument, Files } from 'vscode-languageserver';
+import { Files } from 'vscode-languageserver';
 
-import { ISettings } from '../../types/settings';
 import StorageService from '../../services/storage';
 import { goDefinition } from '../../providers/goDefinition';
-
-const settings = <ISettings>{
-	scannerExclude: [],
-	scannerDepth: 20,
-	showErrors: false,
-	suggestMixins: true,
-	suggestVariables: true
-};
-
-function makeDocument(lines: string | string[]) {
-	return TextDocument.create('test.scss', 'scss', 1, Array.isArray(lines) ? lines.join('\n') : lines);
-}
+import * as helpers from '../helpers';
 
 const storage = new StorageService();
+const settings = helpers.makeSettings();
 
 storage.set('one.scss', {
 	document: 'one.scss',
@@ -39,7 +28,7 @@ storage.set('one.scss', {
 
 describe('Providers/GoDefinition', () => {
 	it('doGoDefinition - Variables', () => {
-		const doc = makeDocument('.a { content: $a; }');
+		const doc = helpers.makeDocument('.a { content: $a; }');
 
 		return goDefinition(doc, 15, storage, settings).then(result => {
 			assert.ok(Files.uriToFilePath(result.uri), 'one.scss');
@@ -51,7 +40,7 @@ describe('Providers/GoDefinition', () => {
 	});
 
 	it('doGoDefinition - Variable definition', () => {
-		const doc = makeDocument('$a: 1;');
+		const doc = helpers.makeDocument('$a: 1;');
 
 		return goDefinition(doc, 2, storage, settings).then(result => {
 			assert.equal(result, null);
@@ -59,7 +48,7 @@ describe('Providers/GoDefinition', () => {
 	});
 
 	it('doGoDefinition - Mixins', () => {
-		const doc = makeDocument('.a { @include mixin(); }');
+		const doc = helpers.makeDocument('.a { @include mixin(); }');
 
 		return goDefinition(doc, 16, storage, settings).then(result => {
 			assert.ok(Files.uriToFilePath(result.uri), 'one.scss');
@@ -71,7 +60,7 @@ describe('Providers/GoDefinition', () => {
 	});
 
 	it('doGoDefinition - Mixin definition', () => {
-		const doc = makeDocument('@mixin mixin($a) {}');
+		const doc = helpers.makeDocument('@mixin mixin($a) {}');
 
 		return goDefinition(doc, 8, storage, settings).then(result => {
 			assert.equal(result, null);
@@ -79,7 +68,7 @@ describe('Providers/GoDefinition', () => {
 	});
 
 	it('doGoDefinition - Mixin Arguments', () => {
-		const doc = makeDocument('@mixin mixin($a) {}');
+		const doc = helpers.makeDocument('@mixin mixin($a) {}');
 
 		return goDefinition(doc, 10, storage, settings).then(result => {
 			assert.equal(result, null);
@@ -87,7 +76,7 @@ describe('Providers/GoDefinition', () => {
 	});
 
 	it('doGoDefinition - Functions', () => {
-		const doc = makeDocument('.a { content: make(1); }');
+		const doc = helpers.makeDocument('.a { content: make(1); }');
 
 		return goDefinition(doc, 16, storage, settings).then(result => {
 			assert.ok(Files.uriToFilePath(result.uri), 'one.scss');
@@ -99,7 +88,7 @@ describe('Providers/GoDefinition', () => {
 	});
 
 	it('doGoDefinition - Function definition', () => {
-		const doc = makeDocument('@function make($a) {}');
+		const doc = helpers.makeDocument('@function make($a) {}');
 
 		return goDefinition(doc, 8, storage, settings).then(result => {
 			assert.equal(result, null);
@@ -107,7 +96,7 @@ describe('Providers/GoDefinition', () => {
 	});
 
 	it('doGoDefinition - Function Arguments', () => {
-		const doc = makeDocument('@function make($a) {}');
+		const doc = helpers.makeDocument('@function make($a) {}');
 
 		return goDefinition(doc, 13, storage, settings).then(result => {
 			assert.equal(result, null);
