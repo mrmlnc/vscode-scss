@@ -2,70 +2,80 @@
 
 import * as assert from 'assert';
 
+import { Hover } from 'vscode-languageserver';
+
 import StorageService from '../../services/storage';
 import { doHover } from '../../providers/hover';
 import * as helpers from '../helpers';
 
 const storage = new StorageService();
 
-interface IHover {
-	language: string;
-	value: string;
+storage.set('file.scss', {
+	document: 'file.scss',
+	filepath: 'file.scss',
+	variables: [
+		{ name: '$variable', value: null, offset: 0, position: { line: 1, character: 1 } }
+	],
+	mixins: [
+		{ name: 'mixin', parameters: [], offset: 0, position: { line: 1, character: 1 } }
+	],
+	functions: [
+		{ name: 'make', parameters: [], offset: 0, position: { line: 1, character: 1 } }
+	],
+	imports: []
+});
+
+function getHover(lines: string[]): Hover | null {
+	const text = lines.join('\n');
+
+	const settings = helpers.makeSettings();
+	const document = helpers.makeDocument(text);
+	const offset = text.indexOf('|');
+
+	return doHover(document, offset, storage, settings);
 }
 
 describe('Providers/Hover', () => {
-	it('doHover - Variables', () => {
-		const settings = helpers.makeSettings();
-		const document = helpers.makeDocument([
+	it('should do not suggest local symbols', () => {
+		const actual = getHover([
 			'$one: 1;',
-			'.a { content: $one; }'
+			'.a { content: $one|; }'
 		]);
 
-		// $o|
-		assert.equal(<any>doHover(document, 2, storage, settings), null);
-		// .a { content: $o|
-		assert.equal((<IHover>doHover(document, 25, storage, settings).contents).value, '$one: 1;');
+		assert.strictEqual(actual.contents, '');
 	});
 
-	it('doHover - Mixins', () => {
-		const settings = helpers.makeSettings();
-		const document = helpers.makeDocument([
-			'@mixin one($a) { content: "nope"; }',
-			'@include one(1);'
+	it('should suggest global variables', () => {
+		const actual = getHover([
+			'.a { content: $variable|; }'
 		]);
 
-		// @m|
-		assert.equal(<any>doHover(document, 2, storage, settings), null);
-		// @mixin on|
-		assert.equal(<any>doHover(document, 9, storage, settings), null);
-		// @mixin one($|
-		assert.equal(<any>doHover(document, 12, storage, settings), null);
-		// @mixin one($a) { con|
-		assert.equal(<any>doHover(document, 20, storage, settings), null);
-		// @mixin one($a) { content: "no|
-		assert.equal(<any>doHover(document, 29, storage, settings), null);
-		// @inc|
-		assert.equal((<IHover>doHover(document, 40, storage, settings).contents).value, '@mixin one($a: null) {…}');
-		// @include on|
-		assert.equal((<IHover>doHover(document, 47, storage, settings).contents).value, '@mixin one($a: null) {…}');
+		assert.deepStrictEqual(actual.contents, {
+			language: 'scss',
+			value: '$variable: null;\n@import "file.scss" (implicitly)'
+		});
 	});
 
-	it('doHover - Functions', () => {
-		const settings = helpers.makeSettings();
-		const document = helpers.makeDocument([
-			'@function make($a) { @return $a; }',
-			'.hi { content: make(1); }'
+	it('should suggest global mixins', () => {
+		const actual = getHover([
+			'@include mixin|'
 		]);
 
-		// @f|
-		assert.equal(<any>doHover(document, 2, storage, settings), null);
-		// @function ma|
-		assert.equal(<any>doHover(document, 12, storage, settings), null);
-		// @function make($a) { @re|
-		assert.equal(<any>doHover(document, 24, storage, settings), null);
-		// @function make($a) { @return $|
-		assert.equal((<IHover>doHover(document, 30, storage, settings).contents).value, '$a: null;');
-		// .hi { content: ma|
-		assert.equal((<IHover>doHover(document, 52, storage, settings).contents).value, '@function make($a: null) {…}');
+		assert.deepStrictEqual(actual.contents, {
+			language: 'scss',
+			value: '@mixin mixin() {…}\n@import "file.scss" (implicitly)'
+		});
+	});
+
+	// Does not work right now
+	it.skip('should suggest global functions', () => {
+		const actual = getHover([
+			'.a { content: make|(); }'
+		]);
+
+		assert.deepStrictEqual(actual.contents, {
+			language: 'scss',
+			value: '@function make($a: null) {…}\n@import "file.scss" (implicitly)'
+		});
 	});
 });

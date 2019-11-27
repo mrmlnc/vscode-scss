@@ -28,7 +28,7 @@ export function getNodeAtOffset(parsedDocument: INode, posOffset: number): INode
 /**
  * Returns the parent Node of the specified type.
  */
-export function getParentNodeByType(node: INode, type: NodeType): INode {
+export function getParentNodeByType(node: INode, type: NodeType): INode | null {
 	node = node.getParent();
 
 	while (node.type !== type) {

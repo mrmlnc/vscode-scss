@@ -9,7 +9,7 @@ import { ISettings } from '../types/settings';
 import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
-import { getSymbolsCollection } from '../utils/symbols';
+import { getSymbolsRelatedToDocument } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
 
 interface ISymbol {
@@ -109,7 +109,7 @@ export function goDefinition(
 
 	storage.set(resource.symbols.document, resource.symbols);
 
-	const symbolsList = getSymbolsCollection(storage);
+	const symbolsList = getSymbolsRelatedToDocument(storage, documentPath);
 
 	// Symbols
 	const candidates = getSymbols(symbolsList, identifier, documentPath);

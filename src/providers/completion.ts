@@ -7,7 +7,7 @@ import { ISettings } from '../types/settings';
 import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
-import { getSymbolsCollection } from '../utils/symbols';
+import { getSymbolsRelatedToDocument } from '../utils/symbols';
 import { getCurrentDocumentImportPaths, getDocumentPath } from '../utils/document';
 import { getCurrentWord, getLimitedString, getTextBeforePosition } from '../utils/string';
 import { getVariableColor } from '../utils/color';
@@ -241,7 +241,7 @@ export function doCompletion(
 
 	storage.set(documentPath, resource.symbols);
 
-	const symbolsList = getSymbolsCollection(storage);
+	const symbolsList = getSymbolsRelatedToDocument(storage, documentPath);
 	const documentImports = getCurrentDocumentImportPaths(symbolsList, documentPath);
 	const context = createCompletionContext(document, offset, settings);
 
