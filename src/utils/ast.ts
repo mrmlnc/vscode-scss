@@ -41,27 +41,3 @@ export function getParentNodeByType(node: INode, type: NodeType): INode | null {
 
 	return node;
 }
-
-/**
- * Returns True, if node has Parent with specified type(s).
- */
-export function hasParentsByType(node: INode, types: NodeType[]): boolean {
-	node = node.getParent();
-
-	while (node.type !== NodeType.Stylesheet) {
-		if (types.indexOf(node.type) !== -1) {
-			return true;
-		}
-
-		node = node.getParent();
-	}
-
-	return false;
-}
-
-/**
- * Returns the child Node of the specified type.
- */
-export function getChildByType(parent: INode, type: NodeType): INode[] {
-	return parent.getChildren().filter(node => node.type === type);
-}
