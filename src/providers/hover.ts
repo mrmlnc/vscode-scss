@@ -8,7 +8,7 @@ import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsRelatedToDocument } from '../utils/symbols';
-import { getCurrentDocumentImportPaths, getDocumentPath } from '../utils/document';
+import { getDocumentPath } from '../utils/document';
 import { getLimitedString } from '../utils/string';
 
 /**
@@ -146,7 +146,7 @@ export function doHover(document: TextDocument, offset: number, storage: Storage
 	storage.set(documentPath, resource.symbols);
 
 	const symbolsList = getSymbolsRelatedToDocument(storage, documentPath);
-	const documentImports = getCurrentDocumentImportPaths(symbolsList, documentPath);
+	const documentImports = resource.symbols.imports.map(x => x.filepath);
 	const symbol = getSymbol(symbolsList, identifier, documentPath);
 
 	// Content for Hover popup

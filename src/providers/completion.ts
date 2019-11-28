@@ -8,7 +8,7 @@ import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsRelatedToDocument } from '../utils/symbols';
-import { getCurrentDocumentImportPaths, getDocumentPath } from '../utils/document';
+import { getDocumentPath } from '../utils/document';
 import { getCurrentWord, getLimitedString, getTextBeforePosition } from '../utils/string';
 import { getVariableColor } from '../utils/color';
 
@@ -242,7 +242,7 @@ export function doCompletion(
 	storage.set(documentPath, resource.symbols);
 
 	const symbolsList = getSymbolsRelatedToDocument(storage, documentPath);
-	const documentImports = getCurrentDocumentImportPaths(symbolsList, documentPath);
+	const documentImports = resource.symbols.imports.map(x => x.filepath);
 	const context = createCompletionContext(document, offset, settings);
 
 	// Drop suggestions inside `//` and `/* */` comments
