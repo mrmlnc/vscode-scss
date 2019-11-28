@@ -1,10 +1,8 @@
-import * as vscode from 'vscode';
 import { getDocUri, showFile, position, sleep } from '../util';
 import { testCompletion } from './helper';
 
 describe('SCSS Completion Test', () => {
-	vscode.window.showInformationMessage('Start all tests.');
-	const docUri = getDocUri('main.scss');
+	const docUri = getDocUri('completion/main.scss');
 
 	before(async () => {
 		showFile(docUri);

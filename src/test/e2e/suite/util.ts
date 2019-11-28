@@ -1,5 +1,6 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
+
+import * as vscode from 'vscode';
 
 /**
  * Line and Char as shown in lowerright of VS Code
@@ -11,6 +12,7 @@ export function position(line: number, char: number) {
 export function getDocPath(p: string) {
 	return path.resolve(__dirname, '../../../../fixtures/e2e', p);
 }
+
 export function getDocUri(p: string) {
 	return vscode.Uri.file(getDocPath(p));
 }
