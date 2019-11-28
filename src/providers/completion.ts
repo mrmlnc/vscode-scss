@@ -237,7 +237,7 @@ export function doCompletion(
 		return null;
 	}
 
-	const resource = parseDocument(document, offset, settings);
+	const resource = parseDocument(document, offset);
 
 	storage.set(documentPath, resource.symbols);
 

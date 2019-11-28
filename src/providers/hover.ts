@@ -4,14 +4,12 @@ import { Hover, MarkedString, TextDocument, Files } from 'vscode-languageserver'
 
 import { NodeType } from '../types/nodes';
 import { ISymbols, IVariable, IMixin, IFunction } from '../types/symbols';
-import { ISettings } from '../types/settings';
 import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsRelatedToDocument } from '../utils/symbols';
 import { getCurrentDocumentImportPaths, getDocumentPath } from '../utils/document';
 import { getLimitedString } from '../utils/string';
-import { getParentNodeByType } from '../utils/ast';
 
 /**
  * Returns a colored (marked) line for Variable.
@@ -93,18 +91,13 @@ function getSymbol(symbolList: ISymbols[], identifier: any, currentPath: string)
 /**
  * Do Hover :)
  */
-export function doHover(
-	document: TextDocument,
-	offset: number,
-	storage: StorageService,
-	settings: ISettings
-): Hover | null {
+export function doHover(document: TextDocument, offset: number, storage: StorageService): Hover | null {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
 		return null;
 	}
 
-	const resource = parseDocument(document, offset, settings);
+	const resource = parseDocument(document, offset);
 	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
 		return null;

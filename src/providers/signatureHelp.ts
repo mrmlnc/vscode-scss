@@ -4,7 +4,6 @@ import { SignatureHelp, SignatureInformation, TextDocument, Files } from 'vscode
 import { tokenizer } from 'scss-symbols-parser';
 
 import { IVariable } from '../types/symbols';
-import { ISettings } from '../types/settings';
 import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
@@ -141,12 +140,7 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 /**
  * Do Signature Help :)
  */
-export function doSignatureHelp(
-	document: TextDocument,
-	offset: number,
-	storage: StorageService,
-	settings: ISettings
-): SignatureHelp {
+export function doSignatureHelp(document: TextDocument, offset: number, storage: StorageService): SignatureHelp {
 	const suggestions: { name: string; parameters: IVariable[] }[] = [];
 
 	const ret: SignatureHelp = {
@@ -173,7 +167,7 @@ export function doSignatureHelp(
 
 	const symbolType = textBeforeWord.indexOf('@include') !== -1 ? 'mixins' : 'functions';
 
-	const resource = parseDocument(document, offset, settings);
+	const resource = parseDocument(document, offset);
 
 	storage.set(documentPath, resource.symbols);
 

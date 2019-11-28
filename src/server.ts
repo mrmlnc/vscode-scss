@@ -99,19 +99,19 @@ connection.onCompletion(textDocumentPosition => {
 connection.onHover(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return doHover(document, offset, storageService, settings);
+	return doHover(document, offset, storageService);
 });
 
 connection.onSignatureHelp(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return doSignatureHelp(document, offset, storageService, settings);
+	return doSignatureHelp(document, offset, storageService);
 });
 
 connection.onDefinition(textDocumentPosition => {
 	const document = documents.get(textDocumentPosition.textDocument.uri);
 	const offset = document.offsetAt(textDocumentPosition.position);
-	return goDefinition(document, offset, storageService, settings);
+	return goDefinition(document, offset, storageService);
 });
 
 connection.onWorkspaceSymbol(workspaceSymbolParams => {

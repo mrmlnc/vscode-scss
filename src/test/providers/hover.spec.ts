@@ -28,11 +28,10 @@ storage.set('file.scss', {
 function getHover(lines: string[]): Hover | null {
 	const text = lines.join('\n');
 
-	const settings = helpers.makeSettings();
 	const document = helpers.makeDocument(text);
 	const offset = text.indexOf('|');
 
-	return doHover(document, offset, storage, settings);
+	return doHover(document, offset, storage);
 }
 
 describe('Providers/Hover', () => {

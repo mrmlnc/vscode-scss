@@ -5,7 +5,6 @@ import Uri from 'vscode-uri';
 
 import { NodeType } from '../types/nodes';
 import { ISymbols } from '../types/symbols';
-import { ISettings } from '../types/settings';
 import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
@@ -54,18 +53,13 @@ function getSymbols(symbolList: ISymbols[], identifier: IIdentifier, currentPath
 /**
  * Do Go Definition :)
  */
-export function goDefinition(
-	document: TextDocument,
-	offset: number,
-	storage: StorageService,
-	settings: ISettings
-): Promise<Location> {
+export function goDefinition(document: TextDocument, offset: number, storage: StorageService): Promise<Location> {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
 		return Promise.resolve(null);
 	}
 
-	const resource = parseDocument(document, offset, settings);
+	const resource = parseDocument(document, offset);
 	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
 		return Promise.resolve(null);

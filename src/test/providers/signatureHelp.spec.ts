@@ -63,11 +63,10 @@ storage.set('one.scss', {
 function getSignatureHelp(lines: string[]): SignatureHelp {
 	const text = lines.join('\n');
 
-	const settings = helpers.makeSettings();
 	const document = helpers.makeDocument(text);
 	const offset = text.indexOf('|');
 
-	return doSignatureHelp(document, offset, storage, settings);
+	return doSignatureHelp(document, offset, storage);
 }
 
 describe('Providers/SignatureHelp - Empty', () => {
