@@ -5,7 +5,7 @@ describe('SCSS Hover Test', () => {
 	const docUri = getDocUri('hover/main.scss');
 
 	before(async () => {
-		showFile(docUri);
+		await showFile(docUri);
 		await sleep(2000);
 	});
 

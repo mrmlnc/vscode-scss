@@ -5,7 +5,7 @@ describe('SCSS Completion Test', () => {
 	const docUri = getDocUri('completion/main.scss');
 
 	before(async () => {
-		showFile(docUri);
+		await showFile(docUri);
 		await sleep(2000);
 	});
 

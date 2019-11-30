@@ -5,7 +5,7 @@ describe('SCSS Definition Test', () => {
 	const docUri = getDocUri('definition/main.scss');
 
 	before(async () => {
-		showFile(docUri);
+		await showFile(docUri);
 		await sleep(2000);
 	});
 
