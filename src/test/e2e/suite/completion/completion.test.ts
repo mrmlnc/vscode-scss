@@ -1,14 +1,12 @@
-import * as vscode from 'vscode';
 import { getDocUri, showFile, position, sleep } from '../util';
 import { testCompletion } from './helper';
 
 describe('SCSS Completion Test', () => {
-	vscode.window.showInformationMessage('Start all tests.');
-	const docUri = getDocUri('main.scss');
+	const docUri = getDocUri('completion/main.scss');
 
 	before(async () => {
-		showFile(docUri);
-		await sleep(10000);
+		await showFile(docUri);
+		await sleep(2000);
 	});
 
 	it('Offers variable completions', async () => {
@@ -16,10 +14,10 @@ describe('SCSS Completion Test', () => {
 	});
 
 	it('Offers completions from tilde imports', async () => {
-		await testCompletion(docUri, position(11, 11), ['$tilde']);
+		await testCompletion(docUri, position(11, 11), [{ label: '$tilde', detail: 'node_modules/foo/bar.scss' }]);
 	});
 
 	it('Offers completions from partial file', async () => {
-		await testCompletion(docUri, position(17, 11), ['$partial']);
+		await testCompletion(docUri, position(17, 11), [{ label: '$partial', detail: 'partial.scss' }]);
 	});
 });

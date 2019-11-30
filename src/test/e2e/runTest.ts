@@ -15,7 +15,12 @@ async function main() {
 		const workspaceDir = path.resolve(__dirname, '../../../fixtures/e2e');
 
 		// Download VS Code, unzip it and run the integration test
-		await runTests({ version: '1.40.0', extensionDevelopmentPath, extensionTestsPath, launchArgs: [workspaceDir] });
+		await runTests({
+			version: '1.40.0',
+			extensionDevelopmentPath,
+			extensionTestsPath,
+			launchArgs: [workspaceDir, '--disable-extensions']
+		});
 	} catch (err) {
 		console.error('Failed to run tests');
 		process.exit(1);
