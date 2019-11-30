@@ -1,0 +1,6 @@
+.test {
+  @include square();
+  @include square(1,);
+
+  content: pow() + pow(1,);
+}
