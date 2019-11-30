@@ -13,6 +13,14 @@ export function getDocPath(p: string) {
 	return path.resolve(__dirname, '../../../../fixtures/e2e', p);
 }
 
+export function sameLineRange(line: number, startChar: number, endChar: number) {
+	return new vscode.Range(position(line, startChar), position(line, endChar));
+}
+
+export function sameLineLocation(uri: vscode.Uri, line: number, startChar: number, endChar: number) {
+	return new vscode.Location(uri, sameLineRange(line, startChar, endChar));
+}
+
 export function getDocUri(p: string) {
 	return vscode.Uri.file(getDocPath(p));
 }

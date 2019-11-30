@@ -1,0 +1,5 @@
+.test {
+  content: $variable + function();
+
+  @include mixin();
+}
