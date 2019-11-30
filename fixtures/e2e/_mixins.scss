@@ -1,3 +1,7 @@
+@mixin mixin {
+  content: 'mixin';
+}
+
 @mixin square($size, $radius: 0) {
   width: $size;
   height: $size;

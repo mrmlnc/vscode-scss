@@ -11,19 +11,19 @@ describe('SCSS Hover Test', () => {
 
 	it('shows hover for variables', async () => {
 		await testHover(docUri, position(2, 13), {
-			contents: ['\n```scss\n$variable: \'value\';\n@import "_variables.scss" (implicitly)\n```\n']
+			contents: ['\n```scss\n$variable: \'value\';\n@import "../_variables.scss" (implicitly)\n```\n']
 		});
 	});
 
 	it('shows hover for functions', async () => {
 		await testHover(docUri, position(2, 24), {
-			contents: ['\n```scss\n@function function() {…}\n@import "_functions.scss" (implicitly)\n```\n']
+			contents: ['\n```scss\n@function function() {…}\n@import "../_functions.scss" (implicitly)\n```\n']
 		});
 	});
 
 	it('shows hover for mixins', async () => {
 		await testHover(docUri, position(4, 12), {
-			contents: ['\n```scss\n@mixin mixin() {…}\n@import "_mixins.scss" (implicitly)\n```\n']
+			contents: ['\n```scss\n@mixin mixin() {…}\n@import "../_mixins.scss" (implicitly)\n```\n']
 		});
 	});
 });
