@@ -7,7 +7,7 @@ import { ISymbols, IVariable, IMixin, IFunction } from '../types/symbols';
 import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
-import { getSymbolsRelatedToDocument } from '../utils/symbols';
+import { getSymbolsCollection } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
 import { getLimitedString } from '../utils/string';
 
@@ -145,7 +145,7 @@ export function doHover(document: TextDocument, offset: number, storage: Storage
 
 	storage.set(documentPath, resource.symbols);
 
-	const symbolsList = getSymbolsRelatedToDocument(storage, documentPath);
+	const symbolsList = getSymbolsCollection(storage);
 	const documentImports = resource.symbols.imports.map(x => x.filepath);
 	const symbol = getSymbol(symbolsList, identifier, documentPath);
 

@@ -7,7 +7,7 @@ import { IVariable } from '../types/symbols';
 import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
-import { getSymbolsRelatedToDocument } from '../utils/symbols';
+import { getSymbolsCollection } from '../utils/symbols';
 import { getTextBeforePosition } from '../utils/string';
 import { hasInFacts } from '../utils/facts';
 
@@ -171,7 +171,7 @@ export function doSignatureHelp(document: TextDocument, offset: number, storage:
 
 	storage.set(documentPath, resource.symbols);
 
-	getSymbolsRelatedToDocument(storage, documentPath).forEach(symbols => {
+	getSymbolsCollection(storage).forEach(symbols => {
 		symbols[symbolType].forEach(symbol => {
 			if (entry.name === symbol.name && symbol.parameters.length >= entry.parameters) {
 				suggestions.push({

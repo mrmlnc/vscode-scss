@@ -35,13 +35,16 @@ function getHover(lines: string[]): Hover | null {
 }
 
 describe('Providers/Hover', () => {
-	it('should do not suggest local symbols', () => {
+	it('should suggest local symbols', () => {
 		const actual = getHover([
 			'$one: 1;',
 			'.a { content: $one|; }'
 		]);
 
-		assert.strictEqual(actual.contents, '');
+		assert.deepStrictEqual(actual.contents, {
+			language: 'scss',
+			value: '$one: 1;'
+		});
 	});
 
 	it('should suggest global variables', () => {
