@@ -23,11 +23,15 @@ storage.set('one.scss', {
 });
 
 describe('Providers/WorkspaceSymbol', () => {
-	it('searchWorkspaceSymbol - Empty query', () => {
-		assert.equal(searchWorkspaceSymbol('', storage, '').length, 3);
+	it('searchWorkspaceSymbol - Empty query', async () => {
+		const actual = await searchWorkspaceSymbol('', storage, '');
+
+		assert.equal(actual.length, 3);
 	});
 
-	it('searchWorkspaceSymbol - Non-empty query', () => {
-		assert.equal(searchWorkspaceSymbol('$', storage, '').length, 1);
+	it('searchWorkspaceSymbol - Non-empty query', async () => {
+		const actual = await searchWorkspaceSymbol('$', storage, '');
+
+		assert.equal(actual.length, 1);
 	});
 });

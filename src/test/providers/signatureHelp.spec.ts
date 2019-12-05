@@ -60,7 +60,7 @@ storage.set('one.scss', {
 	imports: []
 });
 
-function getSignatureHelp(lines: string[]): SignatureHelp {
+function getSignatureHelp(lines: string[]): Promise<SignatureHelp> {
 	const text = lines.join('\n');
 
 	const document = helpers.makeDocument(text);
@@ -70,88 +70,88 @@ function getSignatureHelp(lines: string[]): SignatureHelp {
 }
 
 describe('Providers/SignatureHelp - Empty', () => {
-	it('Empty', () => {
-		const actual = getSignatureHelp(['@include one(|']);
+	it('Empty', async () => {
+		const actual = await getSignatureHelp(['@include one(|']);
 
 		assert.equal(actual.signatures.length, 1);
 	});
-	it('Closed without parameters', () => {
-		const actual = getSignatureHelp(['@include two(|)']);
+	it('Closed without parameters', async () => {
+		const actual = await getSignatureHelp(['@include two(|)']);
 
 		assert.equal(actual.signatures.length, 3);
 	});
 
-	it('Closed with parameters', () => {
-		const actual = getSignatureHelp(['@include two(1);']);
+	it('Closed with parameters', async () => {
+		const actual = await getSignatureHelp(['@include two(1);']);
 
 		assert.equal(actual.signatures.length, 0);
 	});
 });
 
 describe('Providers/SignatureHelp - Two parameters', () => {
-	it('Passed one parameter of two', () => {
-		const actual = getSignatureHelp(['@include two(1,|']);
+	it('Passed one parameter of two', async () => {
+		const actual = await getSignatureHelp(['@include two(1,|']);
 
 		assert.equal(actual.activeParameter, 1, 'activeParameter');
 		assert.equal(actual.signatures.length, 2, 'signatures.length');
 	});
 
-	it('Passed two parameter of two', () => {
-		const actual = getSignatureHelp(['@include two(1, 2,|']);
+	it('Passed two parameter of two', async () => {
+		const actual = await getSignatureHelp(['@include two(1, 2,|']);
 
 		assert.equal(actual.activeParameter, 2, 'activeParameter');
 		assert.equal(actual.signatures.length, 1, 'signatures.length');
 	});
 
-	it('Passed three parameters of two', () => {
-		const actual = getSignatureHelp(['@include two(1, 2, 3,|']);
+	it('Passed three parameters of two', async () => {
+		const actual = await getSignatureHelp(['@include two(1, 2, 3,|']);
 
 		assert.equal(actual.signatures.length, 0);
 	});
 
-	it('Passed two parameter of two with parenthesis', () => {
-		const actual = getSignatureHelp(['@include two(1, 2)|']);
+	it('Passed two parameter of two with parenthesis', async () => {
+		const actual = await getSignatureHelp(['@include two(1, 2)|']);
 
 		assert.equal(actual.signatures.length, 0);
 	});
 });
 
 describe('Providers/SignatureHelp - parseArgumentsAtLine for Mixins', () => {
-	it('RGBA', () => {
-		const actual = getSignatureHelp(['@include two(rgba(0,0,0,.0001),|']);
+	it('RGBA', async () => {
+		const actual = await getSignatureHelp(['@include two(rgba(0,0,0,.0001),|']);
 
 		assert.equal(actual.activeParameter, 1, 'activeParameter');
 		assert.equal(actual.signatures.length, 2, 'signatures.length');
 	});
 
-	it('RGBA when typing', () => {
-		const actual = getSignatureHelp(['@include two(rgba(0,0,0,|']);
+	it('RGBA when typing', async () => {
+		const actual = await getSignatureHelp(['@include two(rgba(0,0,0,|']);
 
 		assert.equal(actual.activeParameter, 0, 'activeParameter');
 		assert.equal(actual.signatures.length, 3, 'signatures.length');
 	});
 
-	it('Quotes', () => {
-		const actual = getSignatureHelp(['@include two("\\",;",|']);
+	it('Quotes', async () => {
+		const actual = await getSignatureHelp(['@include two("\\",;",|']);
 
 		assert.equal(actual.activeParameter, 1, 'activeParameter');
 		assert.equal(actual.signatures.length, 2, 'signatures.length');
 	});
 
-	it('With overload', () => {
-		const actual = getSignatureHelp(['@include two(|']);
+	it('With overload', async () => {
+		const actual = await getSignatureHelp(['@include two(|']);
 
 		assert.equal(actual.signatures.length, 3);
 	});
 
-	it('Single-line selector', () => {
-		const actual = getSignatureHelp(['h1 { @include two(1,| }']);
+	it('Single-line selector', async () => {
+		const actual = await getSignatureHelp(['h1 { @include two(1,| }']);
 
 		assert.equal(actual.signatures.length, 2);
 	});
 
-	it('Single-line Mixin reference', () => {
-		const actual = getSignatureHelp([
+	it('Single-line Mixin reference', async () => {
+		const actual = await getSignatureHelp([
 			'h1 {',
 			'    @include two(1, 2);',
 			'    @include two(1,|)',
@@ -160,72 +160,72 @@ describe('Providers/SignatureHelp - parseArgumentsAtLine for Mixins', () => {
 		assert.equal(actual.signatures.length, 2);
 	});
 
-	it('Mixin with named argument', () => {
-		const actual = getSignatureHelp(['@include two($a: 1,|']);
+	it('Mixin with named argument', async () => {
+		const actual = await getSignatureHelp(['@include two($a: 1,|']);
 
 		assert.equal(actual.signatures.length, 2);
 	});
 });
 
 describe('Providers/SignatureHelp - parseArgumentsAtLine for Functions', () => {
-	it('Empty', () => {
-		const actual = getSignatureHelp(['content: make(|']);
+	it('Empty', async () => {
+		const actual = await getSignatureHelp(['content: make(|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
 		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
 	});
 
-	it('Single-line Function reference', () => {
-		const actual = getSignatureHelp(['content: make()+make(|']);
+	it('Single-line Function reference', async () => {
+		const actual = await getSignatureHelp(['content: make()+make(|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
 		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
 	});
 
-	it('Inside another uncompleted function', () => {
-		const actual = getSignatureHelp(['content: attr(make(|']);
+	it('Inside another uncompleted function', async () => {
+		const actual = await getSignatureHelp(['content: attr(make(|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
 		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
 	});
 
-	it('Inside another completed function', () => {
-		const actual = getSignatureHelp(['content: attr(one(1, two(1, two(1, 2)),|']);
+	it('Inside another completed function', async () => {
+		const actual = await getSignatureHelp(['content: attr(one(1, two(1, two(1, 2)),|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
 		assert.ok(actual.signatures[0].label.startsWith('one'), 'name');
 	});
 
-	it('Inside several completed functions', () => {
-		const actual = getSignatureHelp(['background: url(one(1, one(1, 2, two(1, 2)),|']);
+	it('Inside several completed functions', async () => {
+		const actual = await getSignatureHelp(['background: url(one(1, one(1, 2, two(1, 2)),|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
 		assert.ok(actual.signatures[0].label.startsWith('one'), 'name');
 	});
 
-	it('Inside another function with CSS function', () => {
-		const actual = getSignatureHelp(['background-color: make(rgba(|']);
+	it('Inside another function with CSS function', async () => {
+		const actual = await getSignatureHelp(['background-color: make(rgba(|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
 		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
 	});
 
-	it('Inside another function with uncompleted CSS function', () => {
-		const actual = getSignatureHelp(['background-color: make(rgba(1, 1,2,|']);
+	it('Inside another function with uncompleted CSS function', async () => {
+		const actual = await getSignatureHelp(['background-color: make(rgba(1, 1,2,|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
 		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
 	});
 
-	it('Inside another function with completed CSS function', () => {
-		const actual = getSignatureHelp(['background-color: make(rgba(1,2, 3,.5)|']);
+	it('Inside another function with completed CSS function', async () => {
+		const actual = await getSignatureHelp(['background-color: make(rgba(1,2, 3,.5)|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
 		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
 	});
 
-	it('Interpolation', () => {
-		const actual = getSignatureHelp(['background-color: "#{make(|}"']);
+	it('Interpolation', async () => {
+		const actual = await getSignatureHelp(['background-color: "#{make(|}"']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
 		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');

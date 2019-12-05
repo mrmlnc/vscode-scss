@@ -221,15 +221,12 @@ function createFunctionCompletionItems(
 	return completions;
 }
 
-/**
- * Do Completion :)
- */
-export function doCompletion(
+export async function doCompletion(
 	document: TextDocument,
 	offset: number,
 	settings: ISettings,
 	storage: StorageService
-): CompletionList {
+): Promise<CompletionList> {
 	const completions = CompletionList.create([], false);
 
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;

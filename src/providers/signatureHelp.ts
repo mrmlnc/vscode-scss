@@ -137,10 +137,11 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 	};
 }
 
-/**
- * Do Signature Help :)
- */
-export function doSignatureHelp(document: TextDocument, offset: number, storage: StorageService): SignatureHelp {
+export async function doSignatureHelp(
+	document: TextDocument,
+	offset: number,
+	storage: StorageService
+): Promise<SignatureHelp> {
 	const suggestions: { name: string; parameters: IVariable[] }[] = [];
 
 	const ret: SignatureHelp = {

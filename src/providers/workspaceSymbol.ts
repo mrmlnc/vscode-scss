@@ -6,10 +6,11 @@ import Uri from 'vscode-uri';
 import StorageService from '../services/storage';
 import { getSymbolsCollection } from '../utils/symbols';
 
-/**
- * All Symbol Definitions in Folder :)
- */
-export function searchWorkspaceSymbol(query: string, storage: StorageService, root: string): SymbolInformation[] {
+export async function searchWorkspaceSymbol(
+	query: string,
+	storage: StorageService,
+	root: string
+): Promise<SymbolInformation[]> {
 	const workspaceSymbols: SymbolInformation[] = [];
 
 	getSymbolsCollection(storage).forEach(symbols => {
