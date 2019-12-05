@@ -1,96 +1,150 @@
 'use strict';
 
 import * as assert from 'assert';
+import * as path from 'path';
 
-import { TextDocument } from 'vscode-languageserver';
-
-import { parseDocument } from '../../services/parser';
-import { ISettings } from '../../types/settings';
-
-function parseText(text: string[]): TextDocument {
-	return TextDocument.create('test.scss', 'scss', 1, text.join('\n'));
-}
+import { parseDocument, convertLinksToImports, resolveReference } from '../../services/parser';
+import * as helpers from '../helpers';
+import { NodeType } from '../../types/nodes';
+import { DocumentLink } from 'vscode-languageclient';
+import { IImport } from '../../types/symbols';
 
 describe('Services/Parser', () => {
-	it('Find symbols without offset position', () => {
-		const doc = parseText([
-			'$name: "value";',
-			'@mixin mixin($a: 1, $b) {}'
-		]);
+	describe('.parseDocument', () => {
+		it('should return symbols', () => {
+			const document = helpers.makeDocument([
+				'@import "file.scss";',
+				'$name: "value";',
+				'@mixin mixin($a: 1, $b) {}',
+				'@function function($a: 1, $b) {}'
+			]);
 
-		const { symbols } = parseDocument(doc, null, <ISettings>{
-			showErrors: false
+			const { symbols } = parseDocument(document, null);
+
+			// Variables
+			assert.equal(symbols.variables.length, 1);
+
+			assert.equal(symbols.variables[0].name, '$name');
+			assert.equal(symbols.variables[0].value, '"value"');
+
+			// Mixins
+			assert.equal(symbols.mixins.length, 1);
+
+			assert.equal(symbols.mixins[0].name, 'mixin');
+			assert.equal(symbols.mixins[0].parameters.length, 2);
+
+			assert.equal(symbols.mixins[0].parameters[0].name, '$a');
+			assert.equal(symbols.mixins[0].parameters[0].value, '1');
+
+			assert.equal(symbols.mixins[0].parameters[1].name, '$b');
+			assert.equal(symbols.mixins[0].parameters[1].value, null);
+
+			// Functions
+			assert.equal(symbols.functions.length, 1);
+
+			assert.equal(symbols.functions[0].name, 'function');
+			assert.equal(symbols.functions[0].parameters.length, 2);
+
+			assert.equal(symbols.functions[0].parameters[0].name, '$a');
+			assert.equal(symbols.functions[0].parameters[0].value, '1');
+
+			assert.equal(symbols.functions[0].parameters[1].name, '$b');
+			assert.equal(symbols.functions[0].parameters[1].value, null);
+
+			// Imports
+			assert.equal(symbols.imports.length, 1);
+
+			assert.equal(symbols.imports[0].filepath, 'file.scss');
 		});
 
-		// Variables
-		assert.equal(symbols.variables.length, 1);
+		it('should include references as imports', () => {
+			const document = helpers.makeDocument([
+				'// <reference path="file">'
+			]);
 
-		assert.equal(symbols.variables[0].name, '$name');
-		assert.equal(symbols.variables[0].value, '"value"');
+			const { symbols } = parseDocument(document);
 
-		// Mixins
-		assert.equal(symbols.mixins.length, 1);
+			assert.equal(symbols.imports[0].filepath, 'file.scss');
+			assert.ok(symbols.imports[0].reference);
+		});
 
-		assert.equal(symbols.mixins[0].name, 'mixin');
-		assert.equal(symbols.mixins[0].parameters.length, 2);
+		it('should return Node at offset', () => {
+			const lines = [
+				'$name: "value";',
+				'@mixin mixin($a: 1, $b) {}',
+				'.test {',
+				'    content: a|;',
+				'}'
+			];
 
-		assert.equal(symbols.mixins[0].parameters[0].name, '$a');
-		assert.equal(symbols.mixins[0].parameters[0].value, '1');
+			const document = helpers.makeDocument(lines);
+			const offset = lines.join('\n').indexOf('|');
 
-		assert.equal(symbols.mixins[0].parameters[1].name, '$b');
-		assert.equal(symbols.mixins[0].parameters[1].value, null);
+			const { node } = parseDocument(document, offset);
 
-		// Imports
-		assert.equal(symbols.imports.length, 0);
+			assert.equal(node.type, NodeType.Identifier);
+		});
 	});
 
-	it('Find symbols with offset position', () => {
-		const doc = parseText([
-			'$name: "value";',
-			'@function func($a) { @return $a }',
-			'@mixin mixin($a: 1, $b) {',
-			'  content: ',
-			'}'
-		]);
+	describe('.resolveReference', () => {
+		it('should return reference to the node_modules directory', () => {
+			const expected = path.join('.', 'node_modules', 'foo.scss');
 
-		const { symbols } = parseDocument(doc, 87, <ISettings>{
-			showErrors: false
+			const actual = resolveReference('~foo.scss', '.');
+
+			assert.strictEqual(actual, expected);
 		});
 
-		// Variables
-		assert.equal(symbols.variables.length, 3);
+		it('should add default extension', () => {
+			const expected = '_foo.scss';
 
-		assert.equal(symbols.variables[0].name, '$name');
-		assert.equal(symbols.variables[0].value, '"value"');
+			const actual = resolveReference('_foo', '.');
 
-		assert.equal(symbols.variables[1].name, '$a');
-		assert.equal(symbols.variables[1].value, '1');
+			assert.strictEqual(actual, expected);
+		});
+	});
 
-		assert.equal(symbols.variables[2].name, '$b');
-		assert.equal(symbols.variables[2].value, null);
+	describe('.convertLinksToImports', () => {
+		it('should convert links to imports', () => {
+			const links: DocumentLink[] = [
+				{ target: '_partial.scss', range: helpers.makeSameLineRange() }
+			];
 
-		// Mixins
-		assert.equal(symbols.mixins.length, 1);
+			const expected: IImport[] = [
+				{ filepath: '_partial.scss', dynamic: false, css: false }
+			];
 
-		assert.equal(symbols.mixins[0].name, 'mixin');
-		assert.equal(symbols.mixins[0].parameters.length, 2);
+			const actual = convertLinksToImports(links);
 
-		assert.equal(symbols.mixins[0].parameters[0].name, '$a');
-		assert.equal(symbols.mixins[0].parameters[0].value, '1');
+			assert.deepStrictEqual(actual, expected);
+		});
 
-		assert.equal(symbols.mixins[0].parameters[1].name, '$b');
-		assert.equal(symbols.mixins[0].parameters[1].value, null);
+		it('should convert dynamic links to imports', () => {
+			const links: DocumentLink[] = [
+				{ target: '**/*.scss', range: helpers.makeSameLineRange() }
+			];
 
-		// Functions
-		assert.equal(symbols.functions.length, 1);
+			const expected: IImport[] = [
+				{ filepath: '**/*.scss', dynamic: true, css: false }
+			];
 
-		assert.equal(symbols.functions[0].name, 'func');
-		assert.equal(symbols.functions[0].parameters.length, 1);
+			const actual = convertLinksToImports(links);
 
-		assert.equal(symbols.functions[0].parameters[0].name, '$a');
-		assert.equal(symbols.functions[0].parameters[0].value, null);
+			assert.deepStrictEqual(actual, expected);
+		});
 
-		// Imports
-		assert.equal(symbols.imports.length, 0);
+		it('should convert css links to imports', () => {
+			const links: DocumentLink[] = [
+				{ target: 'file.css', range: helpers.makeSameLineRange() }
+			];
+
+			const expected: IImport[] = [
+				{ filepath: 'file.css', dynamic: false, css: true }
+			];
+
+			const actual = convertLinksToImports(links);
+
+			assert.deepStrictEqual(actual, expected);
+		});
 	});
 });

@@ -28,7 +28,7 @@ export function getNodeAtOffset(parsedDocument: INode, posOffset: number): INode
 /**
  * Returns the parent Node of the specified type.
  */
-export function getParentNodeByType(node: INode, type: NodeType): INode {
+export function getParentNodeByType(node: INode, type: NodeType): INode | null {
 	node = node.getParent();
 
 	while (node.type !== type) {
@@ -40,28 +40,4 @@ export function getParentNodeByType(node: INode, type: NodeType): INode {
 	}
 
 	return node;
-}
-
-/**
- * Returns True, if node has Parent with specified type(s).
- */
-export function hasParentsByType(node: INode, types: NodeType[]): boolean {
-	node = node.getParent();
-
-	while (node.type !== NodeType.Stylesheet) {
-		if (types.indexOf(node.type) !== -1) {
-			return true;
-		}
-
-		node = node.getParent();
-	}
-
-	return false;
-}
-
-/**
- * Returns the child Node of the specified type.
- */
-export function getChildByType(parent: INode, type: NodeType): INode[] {
-	return parent.getChildren().filter(node => node.type === type);
 }

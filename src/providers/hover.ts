@@ -4,12 +4,11 @@ import { Hover, MarkedString, TextDocument, Files } from 'vscode-languageserver'
 
 import { NodeType } from '../types/nodes';
 import { ISymbols, IVariable, IMixin, IFunction } from '../types/symbols';
-import { ISettings } from '../types/settings';
 import StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
-import { getCurrentDocumentImportPaths, getDocumentPath } from '../utils/document';
+import { getDocumentPath } from '../utils/document';
 import { getLimitedString } from '../utils/string';
 
 /**
@@ -92,16 +91,16 @@ function getSymbol(symbolList: ISymbols[], identifier: any, currentPath: string)
 /**
  * Do Hover :)
  */
-export function doHover(document: TextDocument, offset: number, storage: StorageService, settings: ISettings): Hover {
+export function doHover(document: TextDocument, offset: number, storage: StorageService): Hover | null {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
 		return null;
 	}
 
-	const resource = parseDocument(document, offset, settings);
+	const resource = parseDocument(document, offset);
 	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
-		return;
+		return null;
 	}
 
 	let identifier: { type: string; name: string } = null;
@@ -141,13 +140,13 @@ export function doHover(document: TextDocument, offset: number, storage: Storage
 	}
 
 	if (!identifier) {
-		return;
+		return null;
 	}
 
 	storage.set(documentPath, resource.symbols);
 
 	const symbolsList = getSymbolsCollection(storage);
-	const documentImports = getCurrentDocumentImportPaths(symbolsList, documentPath);
+	const documentImports = resource.symbols.imports.map(x => x.filepath);
 	const symbol = getSymbol(symbolsList, identifier, documentPath);
 
 	// Content for Hover popup
