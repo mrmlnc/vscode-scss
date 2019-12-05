@@ -11,7 +11,7 @@ import { IImport } from '../../types/symbols';
 
 describe('Services/Parser', () => {
 	describe('.parseDocument', () => {
-		it('should return symbols', () => {
+		it('should return symbols', async () => {
 			const document = helpers.makeDocument([
 				'@import "file.scss";',
 				'$name: "value";',
@@ -19,7 +19,7 @@ describe('Services/Parser', () => {
 				'@function function($a: 1, $b) {}'
 			]);
 
-			const { symbols } = parseDocument(document, null);
+			const { symbols } = await parseDocument(document, null);
 
 			// Variables
 			assert.equal(symbols.variables.length, 1);
@@ -57,18 +57,18 @@ describe('Services/Parser', () => {
 			assert.equal(symbols.imports[0].filepath, 'file.scss');
 		});
 
-		it('should include references as imports', () => {
+		it('should include references as imports', async () => {
 			const document = helpers.makeDocument([
 				'// <reference path="file">'
 			]);
 
-			const { symbols } = parseDocument(document);
+			const { symbols } = await parseDocument(document);
 
 			assert.equal(symbols.imports[0].filepath, 'file.scss');
 			assert.ok(symbols.imports[0].reference);
 		});
 
-		it('should return Node at offset', () => {
+		it('should return Node at offset', async () => {
 			const lines = [
 				'$name: "value";',
 				'@mixin mixin($a: 1, $b) {}',
@@ -80,7 +80,7 @@ describe('Services/Parser', () => {
 			const document = helpers.makeDocument(lines);
 			const offset = lines.join('\n').indexOf('|');
 
-			const { node } = parseDocument(document, offset);
+			const { node } = await parseDocument(document, offset);
 
 			assert.equal(node.type, NodeType.Identifier);
 		});

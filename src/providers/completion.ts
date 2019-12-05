@@ -234,7 +234,7 @@ export async function doCompletion(
 		return null;
 	}
 
-	const resource = parseDocument(document, offset);
+	const resource = await parseDocument(document, offset);
 
 	storage.set(documentPath, resource.symbols);
 

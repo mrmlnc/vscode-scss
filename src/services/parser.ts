@@ -24,7 +24,7 @@ ls.configure({
 /**
  * Returns all Symbols in a single document.
  */
-export function parseDocument(document: TextDocument, offset: number = null): IDocument {
+export async function parseDocument(document: TextDocument, offset: number = null): Promise<IDocument> {
 	const ast = ls.parseStylesheet(document) as INode;
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 

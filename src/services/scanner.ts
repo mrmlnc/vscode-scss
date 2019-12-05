@@ -38,7 +38,7 @@ export default class ScannerService {
 
 			const content = await this._readFile(filepath);
 			const document = TextDocument.create(originalFilepath, 'scss', 1, content);
-			const { symbols } = parseDocument(document, null);
+			const { symbols } = await parseDocument(document, null);
 
 			this._storage.set(filepath, { ...symbols, filepath });
 

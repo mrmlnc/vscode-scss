@@ -56,7 +56,7 @@ export async function goDefinition(document: TextDocument, offset: number, stora
 		return null;
 	}
 
-	const resource = parseDocument(document, offset);
+	const resource = await parseDocument(document, offset);
 	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
 		return null;

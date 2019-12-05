@@ -168,7 +168,7 @@ export async function doSignatureHelp(
 
 	const symbolType = textBeforeWord.indexOf('@include') !== -1 ? 'mixins' : 'functions';
 
-	const resource = parseDocument(document, offset);
+	const resource = await parseDocument(document, offset);
 
 	storage.set(documentPath, resource.symbols);
 

@@ -94,7 +94,7 @@ export async function doHover(document: TextDocument, offset: number, storage: S
 		return null;
 	}
 
-	const resource = parseDocument(document, offset);
+	const resource = await parseDocument(document, offset);
 	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
 		return null;
