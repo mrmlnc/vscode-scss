@@ -67,9 +67,12 @@ export default class ScannerService {
 	private _formatPartialFilepath(filepath: string): string {
 		const original = path.parse(filepath);
 
+		const hasUnderscorePrefix = original.base[0] === '_';
+		const base = hasUnderscorePrefix ? original.base : `_${original.base}`;
+
 		return path.format({
 			...original,
-			base: '_' + original.base
+			base
 		});
 	}
 }
