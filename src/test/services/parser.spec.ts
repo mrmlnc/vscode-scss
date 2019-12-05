@@ -1,10 +1,13 @@
 'use strict';
 
 import * as assert from 'assert';
+import * as path from 'path';
 
-import { parseDocument } from '../../services/parser';
+import { parseDocument, convertLinksToImports, resolveReference } from '../../services/parser';
 import * as helpers from '../helpers';
 import { NodeType } from '../../types/nodes';
+import { DocumentLink } from 'vscode-languageclient';
+import { IImport } from '../../types/symbols';
 
 describe('Services/Parser', () => {
 	describe('.parseDocument', () => {
@@ -80,6 +83,68 @@ describe('Services/Parser', () => {
 			const { node } = parseDocument(document, offset);
 
 			assert.equal(node.type, NodeType.Identifier);
+		});
+	});
+
+	describe('.resolveReference', () => {
+		it('should return reference to the node_modules directory', () => {
+			const expected = path.join('.', 'node_modules', 'foo.scss');
+
+			const actual = resolveReference('~foo.scss', '.');
+
+			assert.strictEqual(actual, expected);
+		});
+
+		it('should add default extension', () => {
+			const expected = '_foo.scss';
+
+			const actual = resolveReference('_foo', '.');
+
+			assert.strictEqual(actual, expected);
+		});
+	});
+
+	describe('.convertLinksToImports', () => {
+		it('should convert links to imports', () => {
+			const links: DocumentLink[] = [
+				{ target: '_partial.scss', range: helpers.makeSameLineRange() }
+			];
+
+			const expected: IImport[] = [
+				{ filepath: '_partial.scss', dynamic: false, css: false }
+			];
+
+			const actual = convertLinksToImports(links);
+
+			assert.deepStrictEqual(actual, expected);
+		});
+
+		it('should convert dynamic links to imports', () => {
+			const links: DocumentLink[] = [
+				{ target: '**/*.scss', range: helpers.makeSameLineRange() }
+			];
+
+			const expected: IImport[] = [
+				{ filepath: '**/*.scss', dynamic: true, css: false }
+			];
+
+			const actual = convertLinksToImports(links);
+
+			assert.deepStrictEqual(actual, expected);
+		});
+
+		it('should convert css links to imports', () => {
+			const links: DocumentLink[] = [
+				{ target: 'file.css', range: helpers.makeSameLineRange() }
+			];
+
+			const expected: IImport[] = [
+				{ filepath: 'file.css', dynamic: false, css: true }
+			];
+
+			const actual = convertLinksToImports(links);
+
+			assert.deepStrictEqual(actual, expected);
 		});
 	});
 });

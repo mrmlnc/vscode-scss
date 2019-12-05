@@ -12,7 +12,7 @@ import { getNodeAtOffset, getParentNodeByType } from '../utils/ast';
 // RegExp's
 const reReferenceCommentGlobal = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/g;
 const reReferenceComment = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/;
-const reDynamicPath = /#{}\*/;
+const reDynamicPath = /[#{}\*]/;
 
 // SCSS Language Service
 const ls = getSCSSLanguageService();
@@ -107,7 +107,7 @@ function findDocumentLinks(document: TextDocument, ast: INode): DocumentLink[] {
 	}));
 }
 
-function resolveReference(ref: string, base?: string): string {
+export function resolveReference(ref: string, base: string): string {
 	if (ref[0] === '~') {
 		ref = 'node_modules/' + ref.slice(1);
 	}
@@ -154,7 +154,7 @@ function getMethodParameters(ast: INode, offset: number): IVariable[] {
 		});
 }
 
-function convertLinksToImports(links: DocumentLink[]): IImport[] {
+export function convertLinksToImports(links: DocumentLink[]): IImport[] {
 	return links.map(link => ({
 		filepath: link.target,
 		dynamic: reDynamicPath.test(link.target),

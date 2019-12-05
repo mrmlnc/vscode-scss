@@ -1,4 +1,4 @@
-import { TextDocument } from 'vscode-languageserver';
+import { TextDocument, Range, Position } from 'vscode-languageserver';
 import { getSCSSLanguageService } from 'vscode-css-languageservice';
 
 import { INode } from '../types/nodes';
@@ -29,6 +29,10 @@ export function makeAst(lines: string[]): INode {
 	const document = makeDocument(lines);
 
 	return ls.parseStylesheet(document) as INode;
+}
+
+export function makeSameLineRange(line: number = 1, start: number = 1, end: number = 1): Range {
+	return Range.create(Position.create(line, start), Position.create(line, end));
 }
 
 export function makeSettings(options?: Partial<ISettings>): ISettings {
