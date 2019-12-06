@@ -1,7 +1,7 @@
 'use strict';
 
 import { SymbolInformation, SymbolKind } from 'vscode-languageserver';
-import Uri from 'vscode-uri';
+import { URI } from 'vscode-uri';
 
 import StorageService from '../services/storage';
 import { getSymbolsCollection } from '../utils/symbols';
@@ -14,7 +14,7 @@ export async function searchWorkspaceSymbol(
 	const workspaceSymbols: SymbolInformation[] = [];
 
 	getSymbolsCollection(storage).forEach(symbols => {
-		const documentUri = Uri.file(symbols.filepath);
+		const documentUri = URI.file(symbols.filepath);
 		if (!documentUri.fsPath.includes(root)) {
 			return;
 		}

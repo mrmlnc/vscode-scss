@@ -2029,11 +2029,6 @@ vscode-test@^1.2.3:
     https-proxy-agent "^2.2.4"
     rimraf "^2.6.3"
 
-vscode-uri@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/vscode-uri/-/vscode-uri-1.0.0.tgz#07369e2d096bfe42b406bd21860b5aa4fe7a7ad0"
-  integrity sha1-BzaeLQlr/kK0Br0hhgtapP56etA=
-
 vscode-uri@^1.0.6:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/vscode-uri/-/vscode-uri-1.0.8.tgz#9769aaececae4026fb6e22359cb38946580ded59"

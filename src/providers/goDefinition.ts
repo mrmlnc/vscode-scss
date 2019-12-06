@@ -1,7 +1,7 @@
 'use strict';
 
 import { TextDocument, Location, Position, Files } from 'vscode-languageserver';
-import Uri from 'vscode-uri';
+import { URI } from 'vscode-uri';
 
 import { NodeType } from '../types/nodes';
 import { ISymbols } from '../types/symbols';
@@ -110,7 +110,7 @@ export async function goDefinition(document: TextDocument, offset: number, stora
 
 	const definition = candidates[0];
 
-	const symbol = Location.create(Uri.file(definition.document).toString(), {
+	const symbol = Location.create(URI.file(definition.document).toString(), {
 		start: definition.info.position,
 		end: {
 			line: definition.info.position.line,
