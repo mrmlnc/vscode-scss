@@ -2,22 +2,36 @@
 
 import * as assert from 'assert';
 import * as path from 'path';
+import * as fs from 'fs';
 
-import { parseDocument, convertLinksToImports, resolveReference } from '../../services/parser';
+import * as sinon from 'sinon';
+import { Stats } from '@nodelib/fs.macchiato';
+import { DocumentLink } from 'vscode-languageclient';
+
+import { parseDocument, convertLinksToImports } from '../../services/parser';
 import * as helpers from '../helpers';
 import { NodeType } from '../../types/nodes';
-import { DocumentLink } from 'vscode-languageclient';
 import { IImport } from '../../types/symbols';
 
 describe('Services/Parser', () => {
 	describe('.parseDocument', () => {
+		let statStub;
+
+		beforeEach(() => {
+			statStub = sinon.stub(fs, 'stat').yields(null, new Stats());
+		});
+
+		afterEach(() => {
+			statStub.restore();
+		});
+
 		it('should return symbols', async () => {
 			const document = helpers.makeDocument([
 				'@import "file.scss";',
 				'$name: "value";',
 				'@mixin mixin($a: 1, $b) {}',
 				'@function function($a: 1, $b) {}'
-			]);
+			], { uri: path.resolve('index.scss') });
 
 			const { symbols } = await parseDocument(document, null);
 
@@ -54,18 +68,7 @@ describe('Services/Parser', () => {
 			// Imports
 			assert.equal(symbols.imports.length, 1);
 
-			assert.equal(symbols.imports[0].filepath, 'file.scss');
-		});
-
-		it('should include references as imports', async () => {
-			const document = helpers.makeDocument([
-				'// <reference path="file">'
-			]);
-
-			const { symbols } = await parseDocument(document);
-
-			assert.equal(symbols.imports[0].filepath, 'file.scss');
-			assert.ok(symbols.imports[0].reference);
+			assert.ok(symbols.imports[0].filepath.endsWith('file.scss'));
 		});
 
 		it('should return Node at offset', async () => {
@@ -83,24 +86,6 @@ describe('Services/Parser', () => {
 			const { node } = await parseDocument(document, offset);
 
 			assert.equal(node.type, NodeType.Identifier);
-		});
-	});
-
-	describe('.resolveReference', () => {
-		it('should return reference to the node_modules directory', () => {
-			const expected = path.join('.', 'node_modules', 'foo.scss');
-
-			const actual = resolveReference('~foo.scss', '.');
-
-			assert.strictEqual(actual, expected);
-		});
-
-		it('should add default extension', () => {
-			const expected = '_foo.scss';
-
-			const actual = resolveReference('_foo', '.');
-
-			assert.strictEqual(actual, expected);
 		});
 	});
 

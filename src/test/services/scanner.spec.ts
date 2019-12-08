@@ -1,8 +1,11 @@
 'use strict';
 
 import * as assert from 'assert';
+import * as path from 'path';
+import * as fs from 'fs';
 
 import * as sinon from 'sinon';
+import { Stats } from '@nodelib/fs.macchiato';
 
 import StorageService from '../../services/storage';
 import ScannerService from '../../services/scanner';
@@ -23,7 +26,20 @@ class ScannerServiceTest extends ScannerService {
 
 describe('Services/Scanner', () => {
 	describe('.scan', () => {
+		let statStub;
+
+		beforeEach(() => {
+			statStub = sinon.stub(fs, 'stat').yields(null, new Stats());
+		});
+
+		afterEach(() => {
+			statStub.restore();
+		});
+
 		it('should find files and update cache', async () => {
+			const indexDocumentPath = path.resolve('index.scss').toLowerCase();
+			const variablesDocumentPath = path.resolve('variables.scss').toLowerCase();
+
 			const storage = new StorageService();
 			const settings = helpers.makeSettings();
 			const scanner = new ScannerServiceTest(storage, settings);
@@ -32,17 +48,19 @@ describe('Services/Scanner', () => {
 			scanner.readFileStub.onFirstCall().resolves('$name: value;');
 			scanner.readFileStub.onSecondCall().resolves('');
 
-			await scanner.scan(['index.scss', 'variables.scss']);
+			await scanner.scan([indexDocumentPath, variablesDocumentPath]);
 
-			assert.deepStrictEqual(storage.keys(), ['index.scss', 'variables.scss']);
-			assert.ok(storage.get('index.scss'));
-			assert.strictEqual(storage.get('index.scss').variables.length, 1);
+			assert.deepStrictEqual(storage.keys(), [indexDocumentPath, variablesDocumentPath]);
+			assert.strictEqual(storage.get(indexDocumentPath).variables.length, 1);
 
 			assert.strictEqual(scanner.fileExistsStub.callCount, 2);
 			assert.strictEqual(scanner.readFileStub.callCount, 2);
 		});
 
 		it('should find file and imported files', async () => {
+			const indexDocumentPath = path.resolve('index.scss').toLowerCase();
+			const variablesDocumentPath = path.resolve('variables.scss').toLowerCase();
+
 			const storage = new StorageService();
 			const settings = helpers.makeSettings();
 			const scanner = new ScannerServiceTest(storage, settings);
@@ -51,9 +69,9 @@ describe('Services/Scanner', () => {
 			scanner.readFileStub.onFirstCall().resolves('@import "variables.scss";');
 			scanner.readFileStub.onSecondCall().resolves('');
 
-			await scanner.scan(['index.scss']);
+			await scanner.scan([indexDocumentPath]);
 
-			assert.deepStrictEqual(storage.keys(), ['index.scss', 'variables.scss']);
+			assert.deepStrictEqual(storage.keys(), [indexDocumentPath, variablesDocumentPath]);
 
 			assert.strictEqual(scanner.fileExistsStub.callCount, 2);
 			assert.strictEqual(scanner.readFileStub.callCount, 2);

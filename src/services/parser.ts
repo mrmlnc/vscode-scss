@@ -1,21 +1,61 @@
 'use strict';
 
-import * as path from 'path';
-
 import { TextDocument, Files } from 'vscode-languageserver';
-import { getSCSSLanguageService, SymbolKind, DocumentLink } from 'vscode-css-languageservice';
+import {
+	getSCSSLanguageService,
+	SymbolKind,
+	DocumentLink,
+	FileType,
+	FileSystemProvider
+} from 'vscode-css-languageservice';
+import { URI } from 'vscode-uri';
 
 import { INode, NodeType } from '../types/nodes';
 import { IDocument, ISymbols, IVariable, IImport } from '../types/symbols';
 import { getNodeAtOffset, getParentNodeByType } from '../utils/ast';
+import { statFile } from '../utils/fs';
+import { buildDocumentContext } from '../utils/document';
 
-// RegExp's
-const reReferenceCommentGlobal = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/g;
-const reReferenceComment = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/;
 const reDynamicPath = /[#{}\*]/;
 
-// SCSS Language Service
-const ls = getSCSSLanguageService();
+const fileSystemProvider: FileSystemProvider = {
+	async stat(uri: string) {
+		const filePath = URI.parse(uri).fsPath;
+
+		try {
+			const stats = await statFile(filePath);
+
+			let type = FileType.Unknown;
+			if (stats.isFile()) {
+				type = FileType.File;
+			} else if (stats.isDirectory()) {
+				type = FileType.Directory;
+			} else if (stats.isSymbolicLink()) {
+				type = FileType.SymbolicLink;
+			}
+
+			return {
+				type,
+				ctime: stats.ctime.getTime(),
+				mtime: stats.mtime.getTime(),
+				size: stats.size
+			};
+		} catch (error) {
+			if (error.code !== 'ENOENT') {
+				throw error;
+			}
+
+			return {
+				type: FileType.Unknown,
+				ctime: -1,
+				mtime: -1,
+				size: -1
+			};
+		}
+	}
+};
+
+const ls = getSCSSLanguageService({ fileSystemProvider });
 
 ls.configure({
 	validate: false
@@ -31,22 +71,8 @@ export async function parseDocument(document: TextDocument, offset: number = nul
 	const symbols: ISymbols = {
 		document: documentPath,
 		filepath: documentPath,
-		...findDocumentSymbols(document, ast)
+		...(await findDocumentSymbols(document, ast))
 	};
-
-	// Get `<reference *> comments from document
-	const references = document.getText().match(reReferenceCommentGlobal);
-	if (references) {
-		references.forEach(x => {
-			const filepath = reReferenceComment.exec(x)[1];
-			symbols.imports.push({
-				css: filepath.endsWith('.css'),
-				dynamic: reDynamicPath.test(filepath),
-				filepath: resolveReference(filepath, documentPath),
-				reference: true
-			});
-		});
-	}
 
 	return {
 		node: getNodeAtOffset(ast, offset),
@@ -54,9 +80,9 @@ export async function parseDocument(document: TextDocument, offset: number = nul
 	};
 }
 
-function findDocumentSymbols(document: TextDocument, ast: INode): ISymbols {
+async function findDocumentSymbols(document: TextDocument, ast: INode): Promise<ISymbols> {
 	const symbols = ls.findDocumentSymbols(document, ast);
-	const links = findDocumentLinks(document, ast);
+	const links = await findDocumentLinks(document, ast);
 
 	const result: ISymbols = {
 		functions: [],
@@ -96,27 +122,16 @@ function findDocumentSymbols(document: TextDocument, ast: INode): ISymbols {
 	return result;
 }
 
-function findDocumentLinks(document: TextDocument, ast: INode): DocumentLink[] {
-	const links = ls.findDocumentLinks(document, ast, {
-		resolveReference: (ref, base = Files.uriToFilePath(document.uri)) => resolveReference(ref, base)
-	});
+async function findDocumentLinks(document: TextDocument, ast: INode): Promise<DocumentLink[]> {
+	// The `findDocumentLinks2` method requires URI.
+	const uri = document.uri.startsWith('file:') ? document.uri : URI.file(document.uri).toString();
+
+	const links = await ls.findDocumentLinks2(document, ast, buildDocumentContext(uri));
 
 	return links.map(link => ({
 		...link,
-		target: link.target.startsWith('file:') ? Files.uriToFilePath(link.target) : link.target
+		target: URI.parse(link.target).fsPath
 	}));
-}
-
-export function resolveReference(ref: string, base: string): string {
-	if (ref[0] === '~') {
-		ref = 'node_modules/' + ref.slice(1);
-	}
-
-	if (!ref.endsWith('.scss') && !ref.endsWith('.css')) {
-		ref += '.scss';
-	}
-
-	return path.join(path.dirname(base), ref);
 }
 
 function getVariableValue(ast: INode, offset: number): string | null {

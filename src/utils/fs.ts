@@ -21,6 +21,10 @@ export function fileExists(filepath: string): Promise<boolean> {
 	});
 }
 
+export function fileExistsSync(filepath: string): boolean {
+	return fs.existsSync(filepath);
+}
+
 /**
  * Read file by specified filepath;
  */
