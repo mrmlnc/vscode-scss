@@ -25,7 +25,8 @@
 		"Programming Languages"
 	],
 	"activationEvents": [
-		"onLanguage:scss"
+		"onLanguage:scss",
+		"onLanguage:vue"
 	],
 	"main": "./out/client.js",
 	"contributes": {
