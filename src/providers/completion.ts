@@ -1,6 +1,14 @@
 'use strict';
 
-import { CompletionList, CompletionItemKind, TextDocument, Files, CompletionItem } from 'vscode-languageserver';
+import {
+	CompletionList,
+	CompletionItemKind,
+	TextDocument,
+	Files,
+	CompletionItem,
+	Range,
+	TextEdit
+} from 'vscode-languageserver';
 
 import { IMixin, ISymbols } from '../types/symbols';
 import { ISettings } from '../types/settings';
@@ -221,6 +229,20 @@ function createFunctionCompletionItems(
 	return completions;
 }
 
+function convertRange(document: TextDocument, offset: number, text: string) {
+	const start =
+		offset -
+		document
+			.getText()
+			.slice(0, offset)
+			.split('')
+			.reverse()
+			.findIndex(el => el === ' ' || el === ':');
+	const startPosition = document.positionAt(start);
+	const endPosition = document.positionAt(start + text.length);
+	return Range.create(startPosition, endPosition);
+}
+
 /**
  * Do Completion :)
  */
@@ -237,7 +259,7 @@ export function doCompletion(
 		return null;
 	}
 
-	const resource = parseDocument(document, offset);
+	const resource = parseDocument(document, offset, settings);
 
 	storage.set(documentPath, resource.symbols);
 
@@ -267,6 +289,11 @@ export function doCompletion(
 
 		completions.items = completions.items.concat(functions);
 	}
+
+	completions.items = completions.items.map(el => ({
+		...el,
+		textEdit: TextEdit.replace(convertRange(document, offset, el.insertText ?? el.label), el.insertText ?? el.label)
+	}));
 
 	return completions;
 }
