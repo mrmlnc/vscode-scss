@@ -6,6 +6,7 @@ import { ISettings } from '../types/settings';
 import { readFile, fileExists } from '../utils/fs';
 import { parseDocument } from './parser';
 import StorageService from './storage';
+import { isVueFile, getVueSCSSContent } from '../utils/vue';
 
 export default class ScannerService {
 	constructor(private readonly _storage: StorageService, private readonly _settings: ISettings) {}
@@ -37,7 +38,12 @@ export default class ScannerService {
 			}
 
 			const content = await this._readFile(filepath);
-			const document = TextDocument.create(originalFilepath, 'scss', 1, content);
+			const document = TextDocument.create(
+				originalFilepath,
+				'scss',
+				1,
+				isVueFile(filepath) ? getVueSCSSContent(content) : content
+			);
 			const { symbols } = parseDocument(document, null);
 
 			this._storage.set(filepath, { ...symbols, filepath });

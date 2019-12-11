@@ -22,6 +22,7 @@ import { doSignatureHelp } from './providers/signatureHelp';
 import { goDefinition } from './providers/goDefinition';
 import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
 import { findFiles } from './utils/fs';
+import { getSCSSRegionsDocument } from './utils/vue';
 
 let workspaceRoot: string;
 let settings: ISettings;
@@ -51,7 +52,7 @@ connection.onInitialize(
 		storageService = new StorageService();
 		scannerService = new ScannerService(storageService, settings);
 
-		const files = await findFiles('**/*.scss', {
+		const files = await findFiles('**/*.{scss,vue}', {
 			cwd: params.rootPath,
 			deep: settings.scannerDepth,
 			ignore: settings.scannerExclude
@@ -91,26 +92,46 @@ connection.onDidChangeWatchedFiles(event => {
 });
 
 connection.onCompletion(textDocumentPosition => {
-	const document = documents.get(textDocumentPosition.textDocument.uri);
-	const offset = document.offsetAt(textDocumentPosition.position);
+	const { document, offset } = getSCSSRegionsDocument(
+		documents.get(textDocumentPosition.textDocument.uri),
+		textDocumentPosition.position
+	);
+	if (!document) {
+		return null;
+	}
 	return doCompletion(document, offset, settings, storageService);
 });
 
 connection.onHover(textDocumentPosition => {
-	const document = documents.get(textDocumentPosition.textDocument.uri);
-	const offset = document.offsetAt(textDocumentPosition.position);
+	const { document, offset } = getSCSSRegionsDocument(
+		documents.get(textDocumentPosition.textDocument.uri),
+		textDocumentPosition.position
+	);
+	if (!document) {
+		return null;
+	}
 	return doHover(document, offset, storageService);
 });
 
 connection.onSignatureHelp(textDocumentPosition => {
-	const document = documents.get(textDocumentPosition.textDocument.uri);
-	const offset = document.offsetAt(textDocumentPosition.position);
+	const { document, offset } = getSCSSRegionsDocument(
+		documents.get(textDocumentPosition.textDocument.uri),
+		textDocumentPosition.position
+	);
+	if (!document) {
+		return null;
+	}
 	return doSignatureHelp(document, offset, storageService);
 });
 
 connection.onDefinition(textDocumentPosition => {
-	const document = documents.get(textDocumentPosition.textDocument.uri);
-	const offset = document.offsetAt(textDocumentPosition.position);
+	const { document, offset } = getSCSSRegionsDocument(
+		documents.get(textDocumentPosition.textDocument.uri),
+		textDocumentPosition.position
+	);
+	if (!document) {
+		return null;
+	}
 	return goDefinition(document, offset, storageService);
 });
 
