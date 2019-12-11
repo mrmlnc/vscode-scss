@@ -18,8 +18,9 @@ describe('Services/Parser', () => {
 				'@mixin mixin($a: 1, $b) {}',
 				'@function function($a: 1, $b) {}'
 			]);
+			const setting = helpers.makeSettings();
 
-			const { symbols } = parseDocument(document, null);
+			const { symbols } = parseDocument(document, null, setting);
 
 			// Variables
 			assert.equal(symbols.variables.length, 1);
@@ -61,8 +62,9 @@ describe('Services/Parser', () => {
 			const document = helpers.makeDocument([
 				'// <reference path="file">'
 			]);
+			const setting = helpers.makeSettings();
 
-			const { symbols } = parseDocument(document);
+			const { symbols } = parseDocument(document, null, setting);
 
 			assert.equal(symbols.imports[0].filepath, 'file.scss');
 			assert.ok(symbols.imports[0].reference);
@@ -78,9 +80,10 @@ describe('Services/Parser', () => {
 			];
 
 			const document = helpers.makeDocument(lines);
+			const setting = helpers.makeSettings();
 			const offset = lines.join('\n').indexOf('|');
 
-			const { node } = parseDocument(document, offset);
+			const { node } = parseDocument(document, offset, setting);
 
 			assert.equal(node.type, NodeType.Identifier);
 		});
@@ -89,16 +92,18 @@ describe('Services/Parser', () => {
 	describe('.resolveReference', () => {
 		it('should return reference to the node_modules directory', () => {
 			const expected = path.join('.', 'node_modules', 'foo.scss');
+			const setting = helpers.makeSettings();
 
-			const actual = resolveReference('~foo.scss', '.');
+			const actual = resolveReference('~foo.scss', '.', setting);
 
 			assert.strictEqual(actual, expected);
 		});
 
 		it('should add default extension', () => {
 			const expected = '_foo.scss';
+			const setting = helpers.makeSettings();
 
-			const actual = resolveReference('_foo', '.');
+			const actual = resolveReference('_foo', '.', setting);
 
 			assert.strictEqual(actual, expected);
 		});

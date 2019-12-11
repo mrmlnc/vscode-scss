@@ -14,7 +14,7 @@ describe('SCSS Completion Test', () => {
 	});
 
 	it('Offers completions from tilde imports', async () => {
-		await testCompletion(docUri, position(11, 11), [{ label: '$tilde', detail: 'node_modules/foo/bar.scss' }]);
+		await testCompletion(docUri, position(11, 11), [{ label: '$tilde', detail: '../node_modules/foo/bar.scss' }]);
 	});
 
 	it('Offers completions from partial file', async () => {

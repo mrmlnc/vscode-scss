@@ -10,6 +10,7 @@ import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
 import { getLimitedString } from '../utils/string';
+import { ISettings } from '../types/settings';
 
 /**
  * Returns a colored (marked) line for Variable.
@@ -91,13 +92,18 @@ function getSymbol(symbolList: ISymbols[], identifier: any, currentPath: string)
 /**
  * Do Hover :)
  */
-export function doHover(document: TextDocument, offset: number, storage: StorageService): Hover | null {
+export function doHover(
+	document: TextDocument,
+	offset: number,
+	settings: ISettings,
+	storage: StorageService
+): Hover | null {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
 		return null;
 	}
 
-	const resource = parseDocument(document, offset);
+	const resource = parseDocument(document, offset, settings);
 	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
 		return null;

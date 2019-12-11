@@ -8,6 +8,7 @@ import { getSCSSLanguageService, SymbolKind, DocumentLink } from 'vscode-css-lan
 import { INode, NodeType } from '../types/nodes';
 import { IDocument, ISymbols, IVariable, IImport } from '../types/symbols';
 import { getNodeAtOffset, getParentNodeByType } from '../utils/ast';
+import { ISettings } from '../types/settings';
 
 // RegExp's
 const reReferenceCommentGlobal = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/g;
@@ -24,14 +25,14 @@ ls.configure({
 /**
  * Returns all Symbols in a single document.
  */
-export function parseDocument(document: TextDocument, offset: number = null): IDocument {
+export function parseDocument(document: TextDocument, offset: number = null, setting: ISettings): IDocument {
 	const ast = ls.parseStylesheet(document) as INode;
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 
 	const symbols: ISymbols = {
 		document: documentPath,
 		filepath: documentPath,
-		...findDocumentSymbols(document, ast)
+		...findDocumentSymbols(document, ast, setting)
 	};
 
 	// Get `<reference *> comments from document
@@ -42,7 +43,7 @@ export function parseDocument(document: TextDocument, offset: number = null): ID
 			symbols.imports.push({
 				css: filepath.endsWith('.css'),
 				dynamic: reDynamicPath.test(filepath),
-				filepath: resolveReference(filepath, documentPath),
+				filepath: resolveReference(filepath, documentPath, setting),
 				reference: true
 			});
 		});
@@ -54,9 +55,9 @@ export function parseDocument(document: TextDocument, offset: number = null): ID
 	};
 }
 
-function findDocumentSymbols(document: TextDocument, ast: INode): ISymbols {
+function findDocumentSymbols(document: TextDocument, ast: INode, setting: ISettings): ISymbols {
 	const symbols = ls.findDocumentSymbols(document, ast);
-	const links = findDocumentLinks(document, ast);
+	const links = findDocumentLinks(document, ast, setting);
 
 	const result: ISymbols = {
 		functions: [],
@@ -96,9 +97,9 @@ function findDocumentSymbols(document: TextDocument, ast: INode): ISymbols {
 	return result;
 }
 
-function findDocumentLinks(document: TextDocument, ast: INode): DocumentLink[] {
+function findDocumentLinks(document: TextDocument, ast: INode, setting: ISettings): DocumentLink[] {
 	const links = ls.findDocumentLinks(document, ast, {
-		resolveReference: (ref, base = Files.uriToFilePath(document.uri)) => resolveReference(ref, base)
+		resolveReference: (ref, base = Files.uriToFilePath(document.uri)) => resolveReference(ref, base, setting)
 	});
 
 	return links.map(link => ({
@@ -107,16 +108,30 @@ function findDocumentLinks(document: TextDocument, ast: INode): DocumentLink[] {
 	}));
 }
 
-export function resolveReference(ref: string, base: string): string {
+export function resolveReference(ref: string, base: string, setting: ISettings): string {
+	let result = '';
 	if (ref[0] === '~') {
-		ref = 'node_modules/' + ref.slice(1);
+		for (const alias of Object.keys(setting.aliasPaths)) {
+			const prefix = `~${alias}`;
+			if (ref.startsWith(prefix)) {
+				result = path.join(setting.workspaceRoot, setting.aliasPaths[alias], ref.slice(prefix.length));
+				break;
+			}
+		}
+		if (result === '') {
+			result = path.join(setting.workspaceRoot, 'node_modules', ref.slice(1));
+		}
+	}
+
+	if (result === '') {
+		result = path.join(path.dirname(base), ref);
 	}
 
 	if (!ref.endsWith('.scss') && !ref.endsWith('.css')) {
-		ref += '.scss';
+		result += '.scss';
 	}
 
-	return path.join(path.dirname(base), ref);
+	return result;
 }
 
 function getVariableValue(ast: INode, offset: number): string | null {

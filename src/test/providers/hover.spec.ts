@@ -29,9 +29,10 @@ function getHover(lines: string[]): Hover | null {
 	const text = lines.join('\n');
 
 	const document = helpers.makeDocument(text);
+	const settings = helpers.makeSettings();
 	const offset = text.indexOf('|');
 
-	return doHover(document, offset, storage);
+	return doHover(document, offset, settings, storage);
 }
 
 describe('Providers/Hover', () => {

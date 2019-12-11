@@ -28,8 +28,9 @@ storage.set('one.scss', {
 describe('Providers/GoDefinition', () => {
 	it('doGoDefinition - Variables', async () => {
 		const document = helpers.makeDocument('.a { content: $a; }');
+		const settings = helpers.makeSettings();
 
-		const actual = await goDefinition(document, 15, storage);
+		const actual = await goDefinition(document, 15, settings, storage);
 
 		assert.ok(Files.uriToFilePath(actual.uri), 'one.scss');
 		assert.deepEqual(actual.range, {
@@ -40,16 +41,18 @@ describe('Providers/GoDefinition', () => {
 
 	it('doGoDefinition - Variable definition', async () => {
 		const document = helpers.makeDocument('$a: 1;');
+		const settings = helpers.makeSettings();
 
-		const actual = await goDefinition(document, 2, storage);
+		const actual = await goDefinition(document, 2, settings, storage);
 
 		assert.equal(actual, null);
 	});
 
 	it('doGoDefinition - Mixins', async () => {
 		const document = helpers.makeDocument('.a { @include mixin(); }');
+		const settings = helpers.makeSettings();
 
-		const actual = await goDefinition(document, 16, storage);
+		const actual = await goDefinition(document, 16, settings, storage);
 
 		assert.ok(Files.uriToFilePath(actual.uri), 'one.scss');
 		assert.deepEqual(actual.range, {
@@ -60,24 +63,27 @@ describe('Providers/GoDefinition', () => {
 
 	it('doGoDefinition - Mixin definition', async () => {
 		const document = helpers.makeDocument('@mixin mixin($a) {}');
+		const settings = helpers.makeSettings();
 
-		const actual = await goDefinition(document, 8, storage);
+		const actual = await goDefinition(document, 8, settings, storage);
 
 		assert.equal(actual, null);
 	});
 
 	it('doGoDefinition - Mixin Arguments', async () => {
 		const document = helpers.makeDocument('@mixin mixin($a) {}');
+		const settings = helpers.makeSettings();
 
-		const actual = await goDefinition(document, 10, storage);
+		const actual = await goDefinition(document, 10, settings, storage);
 
 		assert.equal(actual, null);
 	});
 
 	it('doGoDefinition - Functions', async () => {
 		const document = helpers.makeDocument('.a { content: make(1); }');
+		const settings = helpers.makeSettings();
 
-		const actual = await goDefinition(document, 16, storage);
+		const actual = await goDefinition(document, 16, settings, storage);
 
 		assert.ok(Files.uriToFilePath(actual.uri), 'one.scss');
 		assert.deepEqual(actual.range, {
@@ -88,16 +94,18 @@ describe('Providers/GoDefinition', () => {
 
 	it('doGoDefinition - Function definition', async () => {
 		const document = helpers.makeDocument('@function make($a) {}');
+		const settings = helpers.makeSettings();
 
-		const actual = await goDefinition(document, 8, storage);
+		const actual = await goDefinition(document, 8, settings, storage);
 
 		assert.equal(actual, null);
 	});
 
 	it('doGoDefinition - Function Arguments', async () => {
 		const document = helpers.makeDocument('@function make($a) {}');
+		const settings = helpers.makeSettings();
 
-		const actual = await goDefinition(document, 13, storage);
+		const actual = await goDefinition(document, 13, settings, storage);
 
 		assert.equal(actual, null);
 	});

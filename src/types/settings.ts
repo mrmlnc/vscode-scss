@@ -17,4 +17,8 @@ export interface ISettings {
 	suggestMixins: boolean;
 	suggestFunctions: boolean;
 	suggestFunctionsInStringContextAfterSymbols: string;
+
+	// Path
+	aliasPaths: { [path: string]: string };
+	workspaceRoot: string;
 }

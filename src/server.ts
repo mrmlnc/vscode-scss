@@ -48,7 +48,7 @@ documents.listen(connection);
 connection.onInitialize(
 	async (params: InitializeParams): Promise<InitializeResult> => {
 		workspaceRoot = params.rootPath;
-		settings = params.initializationOptions.settings;
+		settings = { ...params.initializationOptions.settings, workspaceRoot };
 		storageService = new StorageService();
 		scannerService = new ScannerService(storageService, settings);
 
@@ -82,7 +82,7 @@ connection.onInitialize(
 );
 
 connection.onDidChangeConfiguration(params => {
-	settings = params.settings.scss;
+	settings = { ...params.settings.scss, workspaceRoot };
 });
 
 connection.onDidChangeWatchedFiles(event => {
@@ -110,7 +110,7 @@ connection.onHover(textDocumentPosition => {
 	if (!document) {
 		return null;
 	}
-	return doHover(document, offset, storageService);
+	return doHover(document, offset, settings, storageService);
 });
 
 connection.onSignatureHelp(textDocumentPosition => {
@@ -121,7 +121,7 @@ connection.onSignatureHelp(textDocumentPosition => {
 	if (!document) {
 		return null;
 	}
-	return doSignatureHelp(document, offset, storageService);
+	return doSignatureHelp(document, offset, settings, storageService);
 });
 
 connection.onDefinition(textDocumentPosition => {
@@ -132,7 +132,7 @@ connection.onDefinition(textDocumentPosition => {
 	if (!document) {
 		return null;
 	}
-	return goDefinition(document, offset, storageService);
+	return goDefinition(document, offset, settings, storageService);
 });
 
 connection.onWorkspaceSymbol(workspaceSymbolParams => {

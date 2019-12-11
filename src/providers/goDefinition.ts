@@ -10,6 +10,7 @@ import StorageService from '../services/storage';
 import { parseDocument } from '../services/parser';
 import { getSymbolsRelatedToDocument } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
+import { ISettings } from '../types/settings';
 
 interface ISymbol {
 	document: string;
@@ -53,13 +54,18 @@ function getSymbols(symbolList: ISymbols[], identifier: IIdentifier, currentPath
 /**
  * Do Go Definition :)
  */
-export function goDefinition(document: TextDocument, offset: number, storage: StorageService): Promise<Location> {
+export function goDefinition(
+	document: TextDocument,
+	offset: number,
+	settings: ISettings,
+	storage: StorageService
+): Promise<Location> {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
 		return Promise.resolve(null);
 	}
 
-	const resource = parseDocument(document, offset);
+	const resource = parseDocument(document, offset, settings);
 	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
 		return Promise.resolve(null);

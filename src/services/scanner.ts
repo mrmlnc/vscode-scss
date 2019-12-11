@@ -44,7 +44,7 @@ export default class ScannerService {
 				1,
 				isVueFile(filepath) ? getVueSCSSContent(content) : content
 			);
-			const { symbols } = parseDocument(document, null);
+			const { symbols } = parseDocument(document, null, this._settings);
 
 			this._storage.set(filepath, { ...symbols, filepath });
 

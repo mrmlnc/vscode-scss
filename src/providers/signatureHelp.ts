@@ -10,6 +10,7 @@ import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getTextBeforePosition } from '../utils/string';
 import { hasInFacts } from '../utils/facts';
+import { ISettings } from '../types/settings';
 
 // RegExp's
 const reNestedParenthesis = /\(([\w-]+)\(/;
@@ -140,7 +141,12 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 /**
  * Do Signature Help :)
  */
-export function doSignatureHelp(document: TextDocument, offset: number, storage: StorageService): SignatureHelp {
+export function doSignatureHelp(
+	document: TextDocument,
+	offset: number,
+	settings: ISettings,
+	storage: StorageService
+): SignatureHelp {
 	const suggestions: { name: string; parameters: IVariable[] }[] = [];
 
 	const ret: SignatureHelp = {
@@ -167,7 +173,7 @@ export function doSignatureHelp(document: TextDocument, offset: number, storage:
 
 	const symbolType = textBeforeWord.indexOf('@include') !== -1 ? 'mixins' : 'functions';
 
-	const resource = parseDocument(document, offset);
+	const resource = parseDocument(document, offset, settings);
 
 	storage.set(documentPath, resource.symbols);
 

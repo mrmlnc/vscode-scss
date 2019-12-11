@@ -64,9 +64,10 @@ function getSignatureHelp(lines: string[]): SignatureHelp {
 	const text = lines.join('\n');
 
 	const document = helpers.makeDocument(text);
+	const settings = helpers.makeSettings();
 	const offset = text.indexOf('|');
 
-	return doSignatureHelp(document, offset, storage);
+	return doSignatureHelp(document, offset, settings, storage);
 }
 
 describe('Providers/SignatureHelp - Empty', () => {

@@ -82,6 +82,13 @@
 					"default": true,
 					"description": "Allows prompt Functions."
 				},
+				"scss.aliasPaths": {
+					"type": "object",
+					"default": {
+						"@/": "src/"
+					},
+					"description": "Allows parse alias paths. ex: { '@/': 'src/' }"
+				},
 				"scss.suggestFunctionsInStringContextAfterSymbols": {
 					"type": "string",
 					"default": " (+-*%",
