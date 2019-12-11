@@ -1,65 +1,18 @@
 'use strict';
 
 import { TextDocument, Files } from 'vscode-languageserver';
-import {
-	getSCSSLanguageService,
-	SymbolKind,
-	DocumentLink,
-	FileType,
-	FileSystemProvider
-} from 'vscode-css-languageservice';
+import { SymbolKind, DocumentLink } from 'vscode-css-languageservice';
 import { URI } from 'vscode-uri';
 
 import { INode, NodeType } from '../types/nodes';
 import { IDocument, ISymbols, IVariable, IImport } from '../types/symbols';
 import { getNodeAtOffset, getParentNodeByType } from '../utils/ast';
-import { statFile } from '../utils/fs';
 import { buildDocumentContext } from '../utils/document';
+import { getLanguageService } from '../language-service';
 
 const reDynamicPath = /[#{}\*]/;
 
-const fileSystemProvider: FileSystemProvider = {
-	async stat(uri: string) {
-		const filePath = URI.parse(uri).fsPath;
-
-		try {
-			const stats = await statFile(filePath);
-
-			let type = FileType.Unknown;
-			if (stats.isFile()) {
-				type = FileType.File;
-			} else if (stats.isDirectory()) {
-				type = FileType.Directory;
-			} else if (stats.isSymbolicLink()) {
-				type = FileType.SymbolicLink;
-			}
-
-			return {
-				type,
-				ctime: stats.ctime.getTime(),
-				mtime: stats.mtime.getTime(),
-				size: stats.size
-			};
-		} catch (error) {
-			if (error.code !== 'ENOENT') {
-				throw error;
-			}
-
-			return {
-				type: FileType.Unknown,
-				ctime: -1,
-				mtime: -1,
-				size: -1
-			};
-		}
-	}
-};
-
-const ls = getSCSSLanguageService({ fileSystemProvider });
-
-ls.configure({
-	validate: false
-});
+const ls = getLanguageService();
 
 /**
  * Returns all Symbols in a single document.
