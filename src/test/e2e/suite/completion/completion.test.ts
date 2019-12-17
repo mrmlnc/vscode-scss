@@ -17,7 +17,15 @@ describe('SCSS Completion Test', () => {
 		await testCompletion(docUri, position(11, 11), [{ label: '$tilde', detail: 'node_modules/foo/bar.scss' }]);
 	});
 
+	it('Offers completions from tilde imports on top node_modules', async () => {
+		await testCompletion(docUri, position(23, 11), [{ label: '$yellow', detail: '../node_modules/oao/foo.scss' }]);
+	});
+
 	it('Offers completions from partial file', async () => {
 		await testCompletion(docUri, position(17, 11), [{ label: '$partial', detail: 'partial.scss' }]);
+	});
+
+	it('Offers completions from alias file', async () => {
+		await testCompletion(docUri, position(29, 11), [{ label: '$black', detail: '../src/color.scss' }]);
 	});
 });

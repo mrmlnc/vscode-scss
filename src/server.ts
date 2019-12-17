@@ -22,6 +22,7 @@ import { doSignatureHelp } from './providers/signatureHelp';
 import { goDefinition } from './providers/goDefinition';
 import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
 import { findFiles } from './utils/fs';
+import { changeResolverAlias } from './utils/resolve';
 
 let workspaceRoot: string;
 let settings: ISettings;
@@ -48,6 +49,7 @@ connection.onInitialize(
 	async (params: InitializeParams): Promise<InitializeResult> => {
 		workspaceRoot = params.rootPath;
 		settings = params.initializationOptions.settings;
+		changeResolverAlias(settings);
 		storageService = new StorageService();
 		scannerService = new ScannerService(storageService, settings);
 
@@ -82,6 +84,7 @@ connection.onInitialize(
 
 connection.onDidChangeConfiguration(params => {
 	settings = params.settings.scss;
+	changeResolverAlias(settings);
 });
 
 connection.onDidChangeWatchedFiles(event => {

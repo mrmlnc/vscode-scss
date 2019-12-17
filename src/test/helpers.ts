@@ -46,6 +46,7 @@ export function makeSettings(options?: Partial<ISettings>): ISettings {
 		suggestMixins: true,
 		suggestFunctions: true,
 		suggestFunctionsInStringContextAfterSymbols: ' (+-*%',
+		aliasPaths: {},
 		...options
 	};
 }

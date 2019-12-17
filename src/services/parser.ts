@@ -8,6 +8,7 @@ import { getSCSSLanguageService, SymbolKind, DocumentLink } from 'vscode-css-lan
 import { INode, NodeType } from '../types/nodes';
 import { IDocument, ISymbols, IVariable, IImport } from '../types/symbols';
 import { getNodeAtOffset, getParentNodeByType } from '../utils/ast';
+import { resolve } from '../utils/resolve';
 
 // RegExp's
 const reReferenceCommentGlobal = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/g;
@@ -109,7 +110,11 @@ function findDocumentLinks(document: TextDocument, ast: INode): DocumentLink[] {
 
 export function resolveReference(ref: string, base: string): string {
 	if (ref[0] === '~') {
-		ref = 'node_modules/' + ref.slice(1);
+		try {
+			return resolve(Files.uriToFilePath(base) ?? base, ref.slice(1));
+		} catch {
+			ref = 'node_modules/' + ref.slice(1);
+		}
 	}
 
 	if (!ref.endsWith('.scss') && !ref.endsWith('.css')) {

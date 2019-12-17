@@ -17,4 +17,5 @@ export interface ISettings {
 	suggestMixins: boolean;
 	suggestFunctions: boolean;
 	suggestFunctionsInStringContextAfterSymbols: string;
+	aliasPaths: Record<string, string>;
 }

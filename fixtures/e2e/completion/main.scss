@@ -16,3 +16,15 @@ $fonts: -apple-system;
 .foo {
   color: $;
 }
+
+@import '~oao/foo.scss';
+
+.foo {
+  color: $;
+}
+
+@import '~@/color';
+
+.foo {
+  color: $;
+}
