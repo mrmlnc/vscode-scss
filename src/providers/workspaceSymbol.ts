@@ -1,19 +1,20 @@
 'use strict';
 
 import { SymbolInformation, SymbolKind } from 'vscode-languageserver';
-import Uri from 'vscode-uri';
+import { URI } from 'vscode-uri';
 
 import StorageService from '../services/storage';
 import { getSymbolsCollection } from '../utils/symbols';
 
-/**
- * All Symbol Definitions in Folder :)
- */
-export function searchWorkspaceSymbol(query: string, storage: StorageService, root: string): SymbolInformation[] {
+export async function searchWorkspaceSymbol(
+	query: string,
+	storage: StorageService,
+	root: string
+): Promise<SymbolInformation[]> {
 	const workspaceSymbols: SymbolInformation[] = [];
 
 	getSymbolsCollection(storage).forEach(symbols => {
-		const documentUri = Uri.file(symbols.filepath);
+		const documentUri = URI.file(symbols.filepath);
 		if (!documentUri.fsPath.includes(root)) {
 			return;
 		}

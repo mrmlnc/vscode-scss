@@ -137,10 +137,11 @@ function parseArgumentsAtLine(text: string): IMixinEntry {
 	};
 }
 
-/**
- * Do Signature Help :)
- */
-export function doSignatureHelp(document: TextDocument, offset: number, storage: StorageService): SignatureHelp {
+export async function doSignatureHelp(
+	document: TextDocument,
+	offset: number,
+	storage: StorageService
+): Promise<SignatureHelp> {
 	const suggestions: { name: string; parameters: IVariable[] }[] = [];
 
 	const ret: SignatureHelp = {
@@ -167,7 +168,7 @@ export function doSignatureHelp(document: TextDocument, offset: number, storage:
 
 	const symbolType = textBeforeWord.indexOf('@include') !== -1 ? 'mixins' : 'functions';
 
-	const resource = parseDocument(document, offset);
+	const resource = await parseDocument(document, offset);
 
 	storage.set(documentPath, resource.symbols);
 

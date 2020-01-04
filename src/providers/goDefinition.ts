@@ -1,7 +1,7 @@
 'use strict';
 
 import { TextDocument, Location, Position, Files } from 'vscode-languageserver';
-import Uri from 'vscode-uri';
+import { URI } from 'vscode-uri';
 
 import { NodeType } from '../types/nodes';
 import { ISymbols } from '../types/symbols';
@@ -50,19 +50,16 @@ function getSymbols(symbolList: ISymbols[], identifier: IIdentifier, currentPath
 	return list;
 }
 
-/**
- * Do Go Definition :)
- */
-export function goDefinition(document: TextDocument, offset: number, storage: StorageService): Promise<Location> {
+export async function goDefinition(document: TextDocument, offset: number, storage: StorageService): Promise<Location> {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
-		return Promise.resolve(null);
+		return null;
 	}
 
-	const resource = parseDocument(document, offset);
+	const resource = await parseDocument(document, offset);
 	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
-		return Promise.resolve(null);
+		return null;
 	}
 
 	let identifier: IIdentifier = null;
@@ -98,7 +95,7 @@ export function goDefinition(document: TextDocument, offset: number, storage: St
 	}
 
 	if (!identifier) {
-		return Promise.resolve(null);
+		return null;
 	}
 
 	storage.set(resource.symbols.document, resource.symbols);
@@ -108,12 +105,12 @@ export function goDefinition(document: TextDocument, offset: number, storage: St
 	// Symbols
 	const candidates = getSymbols(symbolsList, identifier, documentPath);
 	if (candidates.length === 0) {
-		return Promise.resolve(null);
+		return null;
 	}
 
 	const definition = candidates[0];
 
-	const symbol = Location.create(Uri.file(definition.document).toString(), {
+	const symbol = Location.create(URI.file(definition.document).toString(), {
 		start: definition.info.position,
 		end: {
 			line: definition.info.position.line,
@@ -121,5 +118,5 @@ export function goDefinition(document: TextDocument, offset: number, storage: St
 		}
 	});
 
-	return Promise.resolve(symbol);
+	return symbol;
 }

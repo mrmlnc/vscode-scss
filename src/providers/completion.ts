@@ -221,15 +221,12 @@ function createFunctionCompletionItems(
 	return completions;
 }
 
-/**
- * Do Completion :)
- */
-export function doCompletion(
+export async function doCompletion(
 	document: TextDocument,
 	offset: number,
 	settings: ISettings,
 	storage: StorageService
-): CompletionList {
+): Promise<CompletionList> {
 	const completions = CompletionList.create([], false);
 
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
@@ -237,7 +234,7 @@ export function doCompletion(
 		return null;
 	}
 
-	const resource = parseDocument(document, offset);
+	const resource = await parseDocument(document, offset);
 
 	storage.set(documentPath, resource.symbols);
 

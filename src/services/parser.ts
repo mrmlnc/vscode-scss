@@ -1,52 +1,31 @@
 'use strict';
 
-import * as path from 'path';
-
 import { TextDocument, Files } from 'vscode-languageserver';
-import { getSCSSLanguageService, SymbolKind, DocumentLink } from 'vscode-css-languageservice';
+import { SymbolKind, DocumentLink } from 'vscode-css-languageservice';
+import { URI } from 'vscode-uri';
 
 import { INode, NodeType } from '../types/nodes';
 import { IDocument, ISymbols, IVariable, IImport } from '../types/symbols';
 import { getNodeAtOffset, getParentNodeByType } from '../utils/ast';
+import { buildDocumentContext } from '../utils/document';
+import { getLanguageService } from '../language-service';
 
-// RegExp's
-const reReferenceCommentGlobal = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/g;
-const reReferenceComment = /\/\/\s*<reference\s*path=["'](.*)['"]\s*\/?>/;
 const reDynamicPath = /[#{}\*]/;
 
-// SCSS Language Service
-const ls = getSCSSLanguageService();
-
-ls.configure({
-	validate: false
-});
+const ls = getLanguageService();
 
 /**
  * Returns all Symbols in a single document.
  */
-export function parseDocument(document: TextDocument, offset: number = null): IDocument {
+export async function parseDocument(document: TextDocument, offset: number = null): Promise<IDocument> {
 	const ast = ls.parseStylesheet(document) as INode;
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 
 	const symbols: ISymbols = {
 		document: documentPath,
 		filepath: documentPath,
-		...findDocumentSymbols(document, ast)
+		...(await findDocumentSymbols(document, ast))
 	};
-
-	// Get `<reference *> comments from document
-	const references = document.getText().match(reReferenceCommentGlobal);
-	if (references) {
-		references.forEach(x => {
-			const filepath = reReferenceComment.exec(x)[1];
-			symbols.imports.push({
-				css: filepath.endsWith('.css'),
-				dynamic: reDynamicPath.test(filepath),
-				filepath: resolveReference(filepath, documentPath),
-				reference: true
-			});
-		});
-	}
 
 	return {
 		node: getNodeAtOffset(ast, offset),
@@ -54,9 +33,9 @@ export function parseDocument(document: TextDocument, offset: number = null): ID
 	};
 }
 
-function findDocumentSymbols(document: TextDocument, ast: INode): ISymbols {
+async function findDocumentSymbols(document: TextDocument, ast: INode): Promise<ISymbols> {
 	const symbols = ls.findDocumentSymbols(document, ast);
-	const links = findDocumentLinks(document, ast);
+	const links = await findDocumentLinks(document, ast);
 
 	const result: ISymbols = {
 		functions: [],
@@ -96,27 +75,16 @@ function findDocumentSymbols(document: TextDocument, ast: INode): ISymbols {
 	return result;
 }
 
-function findDocumentLinks(document: TextDocument, ast: INode): DocumentLink[] {
-	const links = ls.findDocumentLinks(document, ast, {
-		resolveReference: (ref, base = Files.uriToFilePath(document.uri)) => resolveReference(ref, base)
-	});
+async function findDocumentLinks(document: TextDocument, ast: INode): Promise<DocumentLink[]> {
+	// The `findDocumentLinks2` method requires URI.
+	const uri = document.uri.startsWith('file:') ? document.uri : URI.file(document.uri).toString();
+
+	const links = await ls.findDocumentLinks2(document, ast, buildDocumentContext(uri));
 
 	return links.map(link => ({
 		...link,
-		target: link.target.startsWith('file:') ? Files.uriToFilePath(link.target) : link.target
+		target: URI.parse(link.target).fsPath
 	}));
-}
-
-export function resolveReference(ref: string, base: string): string {
-	if (ref[0] === '~') {
-		ref = 'node_modules/' + ref.slice(1);
-	}
-
-	if (!ref.endsWith('.scss') && !ref.endsWith('.css')) {
-		ref += '.scss';
-	}
-
-	return path.join(path.dirname(base), ref);
 }
 
 function getVariableValue(ast: INode, offset: number): string | null {

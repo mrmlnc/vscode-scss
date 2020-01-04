@@ -25,7 +25,7 @@ storage.set('file.scss', {
 	imports: []
 });
 
-function getHover(lines: string[]): Hover | null {
+function getHover(lines: string[]): Promise<Hover | null> {
 	const text = lines.join('\n');
 
 	const document = helpers.makeDocument(text);
@@ -35,8 +35,8 @@ function getHover(lines: string[]): Hover | null {
 }
 
 describe('Providers/Hover', () => {
-	it('should suggest local symbols', () => {
-		const actual = getHover([
+	it('should suggest local symbols', async () => {
+		const actual = await getHover([
 			'$one: 1;',
 			'.a { content: $one|; }'
 		]);
@@ -47,8 +47,8 @@ describe('Providers/Hover', () => {
 		});
 	});
 
-	it('should suggest global variables', () => {
-		const actual = getHover([
+	it('should suggest global variables', async () => {
+		const actual = await getHover([
 			'.a { content: $variable|; }'
 		]);
 
@@ -58,8 +58,8 @@ describe('Providers/Hover', () => {
 		});
 	});
 
-	it('should suggest global mixins', () => {
-		const actual = getHover([
+	it('should suggest global mixins', async () => {
+		const actual = await getHover([
 			'@include mixin|'
 		]);
 
@@ -70,8 +70,8 @@ describe('Providers/Hover', () => {
 	});
 
 	// Does not work right now
-	it.skip('should suggest global functions', () => {
-		const actual = getHover([
+	it.skip('should suggest global functions', async () => {
+		const actual = await getHover([
 			'.a { content: make|(); }'
 		]);
 

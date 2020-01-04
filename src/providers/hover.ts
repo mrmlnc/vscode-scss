@@ -88,16 +88,13 @@ function getSymbol(symbolList: ISymbols[], identifier: any, currentPath: string)
 	return null;
 }
 
-/**
- * Do Hover :)
- */
-export function doHover(document: TextDocument, offset: number, storage: StorageService): Hover | null {
+export async function doHover(document: TextDocument, offset: number, storage: StorageService): Promise<Hover | null> {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
 		return null;
 	}
 
-	const resource = parseDocument(document, offset);
+	const resource = await parseDocument(document, offset);
 	const hoverNode = resource.node;
 	if (!hoverNode || !hoverNode.type) {
 		return null;

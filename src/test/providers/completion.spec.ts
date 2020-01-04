@@ -30,7 +30,7 @@ storage.set('one.scss', {
 	imports: []
 });
 
-function getCompletionList(lines: string[], options?: Partial<ISettings>): CompletionList {
+function getCompletionList(lines: string[], options?: Partial<ISettings>): Promise<CompletionList> {
 	const text = lines.join('\n');
 
 	const settings = helpers.makeSettings(options);
@@ -41,40 +41,40 @@ function getCompletionList(lines: string[], options?: Partial<ISettings>): Compl
 }
 
 describe('Providers/Completion - Basic', () => {
-	it('Variables', () => {
-		const actual = getCompletionList(['$|']);
+	it('Variables', async () => {
+		const actual = await getCompletionList(['$|']);
 
 		assert.equal(actual.items.length, 5);
 	});
 
-	it('Mixins', () => {
-		const actual = getCompletionList(['@include |']);
+	it('Mixins', async () => {
+		const actual = await getCompletionList(['@include |']);
 
 		assert.equal(actual.items.length, 1);
 	});
 });
 
-describe('Providers/Completion - Context', () => {
-	it('Empty property value', () => {
-		const actual = getCompletionList(['.a { content: | }']);
+describe('Providers/Completion - Context', async () => {
+	it('Empty property value', async () => {
+		const actual = await getCompletionList(['.a { content: | }']);
 
 		assert.equal(actual.items.length, 5);
 	});
 
-	it('Non-empty property value without suggestions', () => {
-		const actual = getCompletionList(['.a { background: url(../images/one|.png); }']);
+	it('Non-empty property value without suggestions', async () => {
+		const actual = await getCompletionList(['.a { background: url(../images/one|.png); }']);
 
 		assert.equal(actual.items.length, 0);
 	});
 
-	it('Non-empty property value with Variables', () => {
-		const actual = getCompletionList(['.a { background: url(../images/#{$one|}/one.png); }']);
+	it('Non-empty property value with Variables', async () => {
+		const actual = await getCompletionList(['.a { background: url(../images/#{$one|}/one.png); }']);
 
 		assert.equal(actual.items.length, 5);
 	});
 
-	it('Discard suggestions inside quotes', () => {
-		const actual = getCompletionList([
+	it('Discard suggestions inside quotes', async () => {
+		const actual = await getCompletionList([
 			'.a {',
 			'    background: url("../images/#{$one}/$one|.png");',
 			'}'
@@ -83,28 +83,28 @@ describe('Providers/Completion - Context', () => {
 		assert.equal(actual.items.length, 0);
 	});
 
-	it('Custom value for `suggestFunctionsInStringContextAfterSymbols` option', () => {
-		const actual = getCompletionList(['.a { background: url(../images/m|'], {
+	it('Custom value for `suggestFunctionsInStringContextAfterSymbols` option', async () => {
+		const actual = await getCompletionList(['.a { background: url(../images/m|'], {
 			suggestFunctionsInStringContextAfterSymbols: '/'
 		});
 
 		assert.equal(actual.items.length, 1);
 	});
 
-	it('Discard suggestions inside single-line comments', () => {
-		const actual = getCompletionList(['// $|']);
+	it('Discard suggestions inside single-line comments', async () => {
+		const actual = await getCompletionList(['// $|']);
 
 		assert.equal(actual.items.length, 0);
 	});
 
-	it('Discard suggestions inside block comments', () => {
-		const actual = getCompletionList(['/* $| */']);
+	it('Discard suggestions inside block comments', async () => {
+		const actual = await getCompletionList(['/* $| */']);
 
 		assert.equal(actual.items.length, 0);
 	});
 
-	it('Identify color variables', () => {
-		const actual = getCompletionList(['$|']);
+	it('Identify color variables', async () => {
+		const actual = await getCompletionList(['$|']);
 
 		assert.equal(actual.items[0].kind, CompletionItemKind.Variable);
 		assert.equal(actual.items[1].kind, CompletionItemKind.Variable);
@@ -115,22 +115,22 @@ describe('Providers/Completion - Context', () => {
 });
 
 describe('Providers/Completion - Implicitly', () => {
-	it('Show default implicitly label', () => {
-		const actual = getCompletionList(['$|']);
+	it('Show default implicitly label', async () => {
+		const actual = await getCompletionList(['$|']);
 
 		assert.equal(actual.items[0].detail, '(implicitly) one.scss');
 	});
 
-	it('Show custom implicitly label', () => {
-		const actual = getCompletionList(['$|'], {
+	it('Show custom implicitly label', async () => {
+		const actual = await getCompletionList(['$|'], {
 			implicitlyLabel: '👻'
 		});
 
 		assert.equal(actual.items[0].detail, '👻 one.scss');
 	});
 
-	it('Hide implicitly label', () => {
-		const actual = getCompletionList(['$|'], {
+	it('Hide implicitly label', async () => {
+		const actual = await getCompletionList(['$|'], {
 			implicitlyLabel: null
 		});
 
