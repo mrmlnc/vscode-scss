@@ -1966,10 +1966,10 @@ vrsource-tslint-rules@^6.0.0:
   resolved "https://registry.yarnpkg.com/vrsource-tslint-rules/-/vrsource-tslint-rules-6.0.0.tgz#a4e25e8f3fdd487684174f423c090c35d60f37a9"
   integrity sha512-pmcnJdIVziZTk1V0Cqehmh3gIabBRkBYXkv9vx+1CZDNEa41kNGUBFwQLzw21erYOd2QnD8jJeZhBGqnlT1HWw==
 
-vscode-css-languageservice@^4.0.3-next.23:
-  version "4.0.3-next.23"
-  resolved "https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-4.0.3-next.23.tgz#b7a835c317a6f0b96ec104e3ce168770f5f0d4ff"
-  integrity sha512-DmMXBzTd3uYnVMffNlcp+Sy4qdzeE+UG5yivo/5Y1f/Qr//4FyssH0eCZ7K9Vf/9DMKYf9J3HeCNZSTq4EzMrg==
+vscode-css-languageservice@4.0.3-next.25:
+  version "4.0.3-next.25"
+  resolved "https://registry.yarnpkg.com/vscode-css-languageservice/-/vscode-css-languageservice-4.0.3-next.25.tgz#c200039f33c08a11e6848ae1165ef302e0ee194e"
+  integrity sha512-c6qoSiYUJUDYizqQRZw5tb7n3IjCgGeFg74aWV0IsihrLWKPmMwDdRDzIDohWwlOf5myrEvuHmbPo7wTaspG+w==
   dependencies:
     vscode-languageserver-textdocument "^1.0.0-next.4"
     vscode-languageserver-types "^3.15.0-next.6"
@@ -2008,9 +2008,9 @@ vscode-languageserver-types@3.14.0, vscode-languageserver-types@^3.14.0:
   integrity sha512-lTmS6AlAlMHOvPQemVwo3CezxBp0sNB95KNPkqp3Nxd5VFEnuG1ByM0zlRWos0zjO3ZWtkvhal0COgiV1xIA4A==
 
 vscode-languageserver-types@^3.15.0-next.6:
-  version "3.15.0-next.8"
-  resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.15.0-next.8.tgz#59bfe70e5690bcef7d28d0f3a7f813915edf62e1"
-  integrity sha512-AEfWrSNyeamWMKPehh/kd3nBnKD9ZGCPhzfxMnW9YNqElSh28G2+Puk3knIQWyaWyV6Bzh28ok9BRJsPzXFCkQ==
+  version "3.15.0-next.9"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.15.0-next.9.tgz#957a9d1d5998a02edf62298fb7e37d9efcc6c157"
+  integrity sha512-Rl/8qJ6932nrHCdPn+9y0x08uLVQaSLRG+U4JzhyKpWU4eJbVaDRoAcz1Llj7CErJGbPr6kdBvShPy5fRfR+Uw==
 
 vscode-languageserver@^5.2.1:
   version "5.2.1"
