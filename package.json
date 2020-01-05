@@ -131,7 +131,7 @@
 		"clean": "rimraf out",
 		"lint": "tslint src/**/*.ts --project ./tsconfig.json",
 		"compile": "tsc",
-		"test": "mocha out/**/*.spec.js",
+		"test": "mocha \"out/**/*.spec.js\"",
 		"test:e2e": "node ./out/test/e2e/runTest.js",
 		"build": "npm run clean && npm run lint && npm run compile && npm test",
 		"watch": "npm run clean && npm run lint && tsc --watch"
