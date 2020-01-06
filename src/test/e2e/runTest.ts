@@ -1,6 +1,7 @@
 import * as path from 'path';
+import * as cp from 'child_process';
 
-import { runTests } from 'vscode-test';
+import { runTests, downloadAndUnzipVSCode, resolveCliPathFromVSCodeExecutablePath } from 'vscode-test';
 
 async function main() {
 	try {
@@ -15,11 +16,20 @@ async function main() {
 		const workspaceDir = path.resolve(__dirname, '../../../fixtures/e2e');
 
 		// Download VS Code, unzip it and run the integration test
+		const vscodeExecutablePath = await downloadAndUnzipVSCode('1.40.0');
+
+		const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
+		cp.spawnSync(cliPath, ['--install-extension', 'octref.vetur'], {
+			encoding: 'utf-8',
+			stdio: 'inherit'
+		});
+
 		await runTests({
+			vscodeExecutablePath,
 			version: '1.40.0',
 			extensionDevelopmentPath,
 			extensionTestsPath,
-			launchArgs: [workspaceDir, '--disable-extensions']
+			launchArgs: [workspaceDir]
 		});
 	} catch (err) {
 		console.error('Failed to run tests');

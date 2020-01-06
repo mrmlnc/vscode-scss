@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 
 	const clientOptions: LanguageClientOptions = {
-		documentSelector: ['scss'],
+		documentSelector: ['scss', 'vue'],
 		synchronize: {
 			configurationSection: ['scss'],
 			fileEvents: vscode.workspace.createFileSystemWatcher('**/*.scss')
