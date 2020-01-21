@@ -31,19 +31,13 @@ describe('SCSS Hover Test', () => {
 
 	it('shows hover for variables on vue file', async () => {
 		await testHover(vueDocUri, position(13, 13), {
-			contents: [
-				'Determines which page\\-based occurrence of a given element is applied to a counter or string value\\.',
-				'\n```scss\n$variable: \'value\';\n@import "../_variables.scss" (implicitly)\n```\n'
-			]
+			contents: ['\n```scss\n$variable: \'value\';\n@import "../_variables.scss" (implicitly)\n```\n']
 		});
 	});
 
 	it('shows hover for functions on vue file', async () => {
 		await testHover(vueDocUri, position(13, 24), {
-			contents: [
-				'Determines which page\\-based occurrence of a given element is applied to a counter or string value\\.',
-				'\n```scss\n@function function() {…}\n@import "../_functions.scss" (implicitly)\n```\n'
-			]
+			contents: ['\n```scss\n@function function() {…}\n@import "../_functions.scss" (implicitly)\n```\n']
 		});
 	});
 
