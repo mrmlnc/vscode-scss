@@ -41,7 +41,6 @@ Just install the plugin and use it.
   * Code navigation
     * Go to (variables, mixins, functions) — [description](http://code.visualstudio.com/docs/extensions/language-support#_show-definitions-of-a-symbol)
     * Show all All Symbol Definitions in Folder (variables, mixin, functions) — [description](http://code.visualstudio.com/docs/extensions/language-support#_show-all-all-symbol-definitions-in-folder)
-  * Visual Studio reference comments: `// <reference path="./variable.scss" />`.
   * Import files by `@import "filepath";` from anywhere. Even outside of the open workspace.
   * Support vue file scss block.
 
