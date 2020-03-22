@@ -7,6 +7,7 @@ out/**/*.spec.*
 .gitignore
 .prettierignore
 .travis.yml
+.mergify.yml
 tsconfig.json
 tslint.json
 *.vsix

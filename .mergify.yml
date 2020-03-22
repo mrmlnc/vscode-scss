@@ -1,0 +1,37 @@
+pull_request_rules:
+  - name: Conflicts
+    conditions:
+      - conflict
+    actions:
+      comment:
+        message: This pull request is now in conflicts. Could you fix it?
+
+  - name: Merge with review
+    conditions:
+      - base=master
+      - status-success=mrmlnc.vscode-scss
+      - approved-reviews-by~=mrmlnc|octref
+      - "label=mergify: merge"
+    actions:
+      merge:
+        strict: true
+        strict_method: rebase
+        method: merge
+
+  - name: Merge without review
+    conditions:
+      - base=master
+      - status-success=mrmlnc.vscode-scss
+      - "label=mergify: merge"
+      - "label=mergify: skip review"
+    actions:
+      merge:
+        strict: true
+        strict_method: rebase
+        method: merge
+
+  - name: Deleting Merged Branch
+    conditions:
+      - merged
+    actions:
+      delete_head_branch: {}
