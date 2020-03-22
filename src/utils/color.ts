@@ -90,9 +90,7 @@ export function findWords(text): string[] {
 		}
 
 		try {
-			const color = Color(matchedColor)
-				.rgb()
-				.string();
+			const color = Color(matchedColor).rgb().string();
 
 			result.push(color);
 		} catch (e) {

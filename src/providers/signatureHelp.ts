@@ -1,6 +1,7 @@
 'use strict';
 
-import { SignatureHelp, SignatureInformation, TextDocument, Files } from 'vscode-languageserver';
+import { SignatureHelp, SignatureInformation, Files } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { tokenizer } from 'scss-symbols-parser';
 
 import { IVariable } from '../types/symbols';

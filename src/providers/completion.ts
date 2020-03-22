@@ -1,6 +1,7 @@
 'use strict';
 
-import { CompletionList, CompletionItemKind, TextDocument, Files, CompletionItem } from 'vscode-languageserver';
+import { CompletionList, CompletionItemKind, Files, CompletionItem } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { IMixin, ISymbols } from '../types/symbols';
 import { ISettings } from '../types/settings';

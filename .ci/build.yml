@@ -1,0 +1,47 @@
+trigger:
+  branches:
+    include:
+      - master
+
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-latest'
+    mac:
+      imageName: 'macOS-latest'
+    windows:
+      imageName: 'windows-latest'
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: 10.x
+
+  - script: node --version && npm --version
+    displayName: Environment information
+
+  - bash: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+    displayName: Start Display Server
+    condition: eq(variables['Agent.OS'], 'Linux')
+
+  - task: Npm@1
+    displayName: Install dependencies
+    inputs:
+      command: ci
+
+  - script: npm run compile
+    displayName: Compile Sources
+
+  - script: npm run lint
+    displayName: Run Hygiene Checks
+
+  - script: npm run test
+    displayName: Run Unit Tests
+
+  - script: npm run test:e2e
+    displayName: Run E2E Tests
+    env:
+      DISPLAY: ':99.0'

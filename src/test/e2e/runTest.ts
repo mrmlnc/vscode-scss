@@ -16,9 +16,10 @@ async function main() {
 		const workspaceDir = path.resolve(__dirname, '../../../fixtures/e2e');
 
 		// Download VS Code, unzip it and run the integration test
-		const vscodeExecutablePath = await downloadAndUnzipVSCode('1.40.0');
+		const vscodeExecutablePath = await downloadAndUnzipVSCode('insiders');
 
 		const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
+
 		cp.spawnSync(cliPath, ['--install-extension', 'octref.vetur'], {
 			encoding: 'utf-8',
 			stdio: 'inherit'
@@ -26,7 +27,7 @@ async function main() {
 
 		await runTests({
 			vscodeExecutablePath,
-			version: '1.40.0',
+			version: 'insiders',
 			extensionDevelopmentPath,
 			extensionTestsPath,
 			launchArgs: [workspaceDir]

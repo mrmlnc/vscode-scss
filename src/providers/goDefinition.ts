@@ -1,6 +1,7 @@
 'use strict';
 
-import { TextDocument, Location, Position, Files } from 'vscode-languageserver';
+import { Location, Files } from 'vscode-languageserver';
+import { TextDocument, Position } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 
 import { NodeType } from '../types/nodes';

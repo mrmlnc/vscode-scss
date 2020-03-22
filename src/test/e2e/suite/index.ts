@@ -1,39 +1,35 @@
 import * as path from 'path';
-import * as Mocha from 'mocha';
-import * as glob from 'glob';
 
-export function run(): Promise<void> {
-	// Create the mocha test
+import * as Mocha from 'mocha';
+import * as fg from 'fast-glob';
+
+const ONE_SECOND_IN_MS = 1 * 1000;
+
+export async function run(): Promise<void> {
 	const mocha = new Mocha({
 		ui: 'bdd',
-		// E2E test can be slow
-		timeout: 100000
+		timeout: ONE_SECOND_IN_MS * 10
 	});
+
 	mocha.useColors(true);
 
-	const testsRoot = path.resolve(__dirname, '..');
+	const files = await fg('**/*.test.js', {
+		cwd: path.resolve(__dirname, '..'),
+		absolute: true
+	});
 
-	return new Promise((c, e) => {
-		glob('**/**.test.js', { cwd: testsRoot }, (err, files) => {
-			if (err) {
-				return e(err);
+	// Add files to the test suite
+	files.forEach(file => mocha.addFile(file));
+
+	return new Promise((resolve, reject) => {
+		mocha.run(failures => {
+			if (failures === 0) {
+				return resolve();
 			}
 
-			// Add files to the test suite
-			files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
+			const error = new Error(`${failures} tests failed.`);
 
-			try {
-				// Run the mocha test
-				mocha.run(failures => {
-					if (failures > 0) {
-						e(new Error(`${failures} tests failed.`));
-					} else {
-						c();
-					}
-				});
-			} catch (err) {
-				e(err);
-			}
+			reject(error);
 		});
 	});
 }
