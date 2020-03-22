@@ -1,9 +1,9 @@
 sudo: false
 language: node_js
+node_js: 8
 os:
   - osx
   - linux
-node_js: 8
 
 install:
   - |
@@ -11,13 +11,12 @@ install:
       export DISPLAY=':99.0'
       /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     fi
-  - yarn
+  - npm install
 
 script:
-  - yarn build
-  - yarn test:e2e
+  - npm build
+  - npm test:e2e
 
 cache:
-  yarn: true
   directories:
   - .vscode-test
