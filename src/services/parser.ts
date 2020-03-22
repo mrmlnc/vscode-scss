@@ -1,7 +1,8 @@
 'use strict';
 
-import { TextDocument, Files } from 'vscode-languageserver';
+import { Files } from 'vscode-languageserver';
 import { SymbolKind, DocumentLink } from 'vscode-css-languageservice';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 
 import { INode, NodeType } from '../types/nodes';

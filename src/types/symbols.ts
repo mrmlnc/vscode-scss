@@ -1,6 +1,6 @@
 'use strict';
 
-import { Position } from 'vscode-languageserver';
+import { Position } from 'vscode-languageserver-textdocument';
 import { IVariable as IVar, IMixin as IMix, IFunction as IFun, IImport as IImp } from 'scss-symbols-parser';
 import { INode } from './nodes';
 

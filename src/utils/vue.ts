@@ -1,4 +1,4 @@
-import { TextDocument, Position } from 'vscode-languageserver';
+import { TextDocument, Position } from 'vscode-languageserver-textdocument';
 
 type Region = [number, number];
 
@@ -40,7 +40,9 @@ function convertVueTextDocument(document: TextDocument, regions: Region[]) {
 
 export function getSCSSRegionsDocument(document: TextDocument, position: Position) {
 	const offset = document.offsetAt(position);
-	if (!isVueFile(document.uri)) { return { document, offset }; }
+	if (!isVueFile(document.uri)) {
+		return { document, offset };
+	}
 
 	const vueSCSSRegions = getVueSCSSRegions(document.getText());
 	if (vueSCSSRegions.some(region => region[0] <= offset && region[1] >= offset)) {

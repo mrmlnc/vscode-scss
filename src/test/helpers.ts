@@ -1,5 +1,5 @@
-import { TextDocument, Range, Position } from 'vscode-languageserver';
-import { getSCSSLanguageService } from 'vscode-css-languageservice';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+import { getSCSSLanguageService, Position, Range } from 'vscode-css-languageservice';
 
 import { INode } from '../types/nodes';
 import { ISettings } from '../types/settings';

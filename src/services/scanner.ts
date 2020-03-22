@@ -1,6 +1,6 @@
 import * as path from 'path';
 
-import { TextDocument } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { ISettings } from '../types/settings';
 import { readFile, fileExists } from '../utils/fs';

@@ -1,6 +1,7 @@
 'use strict';
 
-import { Hover, MarkedString, TextDocument, Files } from 'vscode-languageserver';
+import { Hover, MarkedString, Files } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { NodeType } from '../types/nodes';
 import { ISymbols, IVariable, IMixin, IFunction } from '../types/symbols';

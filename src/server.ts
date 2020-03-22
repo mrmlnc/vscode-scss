@@ -8,8 +8,10 @@ import {
 	TextDocuments,
 	InitializeParams,
 	InitializeResult,
-	Files
+	Files,
+	TextDocumentSyncKind
 } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { ISettings } from './types/settings';
 
@@ -37,7 +39,7 @@ console.error = connection.console.error.bind(connection.console);
 
 // Create a simple text document manager. The text document manager
 // _supports full document sync only
-const documents: TextDocuments = new TextDocuments();
+const documents = new TextDocuments(TextDocument);
 
 // Make the text document manager listen on the connection
 // _for open, change and close text document events
@@ -68,7 +70,7 @@ connection.onInitialize(
 
 		return {
 			capabilities: {
-				textDocumentSync: documents.syncKind,
+				textDocumentSync: TextDocumentSyncKind.Incremental,
 				completionProvider: { resolveProvider: false },
 				signatureHelpProvider: {
 					triggerCharacters: ['(', ',', ';']
