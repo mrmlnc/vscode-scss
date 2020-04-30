@@ -91,6 +91,16 @@
 					"type": "number",
 					"description": "The port that SCSS IntelliSense server listens to. Can be used for attaching to the server Node process for debugging / profiling.",
 					"default": -1
+				},
+				"scss.trace.server": {
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Traces the communication between VS Code and SCSS Language Server."
 				}
 			}
 		}

@@ -51,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 		revealOutputChannelOn: RevealOutputChannelOn.Never
 	};
 
-	const client = new LanguageClient('scss-intellisense', 'SCSS IntelliSense', serverOptions, clientOptions);
+	const client = new LanguageClient('scss', 'SCSS IntelliSense', serverOptions, clientOptions);
 	context.subscriptions.push(client.start());
 
 	const promise = client.onReady().catch(e => {
