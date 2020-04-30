@@ -1,6 +1,6 @@
 'use strict';
 
-import { CompletionList, CompletionItemKind, Files, CompletionItem } from 'vscode-languageserver';
+import { CompletionList, CompletionItemKind, Files, CompletionItem, TextEdit, Range } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { IMixin, ISymbols } from '../types/symbols';
@@ -265,6 +265,25 @@ export async function doCompletion(
 
 		completions.items = completions.items.concat(functions);
 	}
+
+	completions.items = completions.items.map(el => {
+		const word = getTextBeforePosition(document.getText(), offset);
+		const insertText = el.insertText ?? el.label;
+		const startDistance = (() => {
+			let i = 0;
+			let temp = insertText.slice(0, insertText.length - i);
+			while (!word.endsWith(temp)) {
+				temp = insertText.slice(0, insertText.length - ++i);
+			}
+			return insertText.length - i;
+		})();
+		el.textEdit = TextEdit.replace(
+			Range.create(document.positionAt(offset - startDistance), document.positionAt(offset)),
+			insertText
+		);
+
+		return el;
+	});
 
 	return completions;
 }
