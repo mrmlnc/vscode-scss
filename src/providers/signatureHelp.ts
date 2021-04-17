@@ -1,11 +1,11 @@
 'use strict';
 
 import { SignatureHelp, SignatureInformation, Files } from 'vscode-languageserver';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { tokenizer } from 'scss-symbols-parser';
 
-import { IVariable } from '../types/symbols';
-import StorageService from '../services/storage';
+import type { IVariable } from '../types/symbols';
+import type StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
@@ -27,7 +27,7 @@ interface IMixinEntry {
 function getSymbolName(text: string): string {
 	const tokens = tokenizer(text);
 	let pos = tokens.length;
-	let token;
+	let token: [string, string, string];
 	let parenthesisCount = 0;
 
 	while (pos !== 0) {

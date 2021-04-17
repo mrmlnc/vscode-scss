@@ -75,9 +75,10 @@ export interface INode {
 	type: NodeType;
 	offset: number;
 	length: number;
+	end: number;
 
 	// Methods
-	accept(node: any): boolean;
+	accept(node: (node: INode) => boolean): boolean;
 
 	getName(): string;
 	getValue(): INode;

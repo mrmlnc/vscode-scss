@@ -1,6 +1,7 @@
 import * as assert from 'assert';
 
 import StorageService from '../../services/storage';
+import type { IDocumentSymbols } from '../../types/symbols';
 
 describe('Services → Storage', () => {
 	describe('.set & .get', () => {
@@ -60,7 +61,7 @@ describe('Services → Storage', () => {
 		it('should return storage values', () => {
 			const service = new StorageService();
 
-			const symbols = {
+			const symbols: IDocumentSymbols = {
 				functions: [],
 				imports: [],
 				mixins: [],
@@ -79,7 +80,7 @@ describe('Services → Storage', () => {
 		it('should return storage entries', () => {
 			const service = new StorageService();
 
-			const symbols = {
+			const symbols: IDocumentSymbols = {
 				functions: [],
 				imports: [],
 				mixins: [],

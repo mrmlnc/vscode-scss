@@ -2,7 +2,7 @@
 
 import * as assert from 'assert';
 
-import { Hover } from 'vscode-languageserver';
+import type { Hover } from 'vscode-languageserver';
 
 import StorageService from '../../services/storage';
 import { doHover } from '../../providers/hover';

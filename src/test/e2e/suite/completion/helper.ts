@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 
 import * as vscode from 'vscode';
-import { CompletionItem, MarkupContent } from 'vscode-languageclient';
+import type { CompletionItem, MarkupContent } from 'vscode-languageclient';
 import { showFile } from '../util';
 
 export async function testCompletion(

@@ -7,7 +7,7 @@ import { CompletionItemKind, CompletionList } from 'vscode-languageserver';
 import StorageService from '../../services/storage';
 import { doCompletion } from '../../providers/completion';
 import * as helpers from '../helpers';
-import { ISettings } from '../../types/settings';
+import type { ISettings } from '../../types/settings';
 
 const storage = new StorageService();
 

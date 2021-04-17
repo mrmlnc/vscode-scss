@@ -1,12 +1,12 @@
 'use strict';
 
 import { Location, Files } from 'vscode-languageserver';
-import { TextDocument, Position } from 'vscode-languageserver-textdocument';
+import type { TextDocument, Position } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 
 import { NodeType } from '../types/nodes';
-import { ISymbols } from '../types/symbols';
-import StorageService from '../services/storage';
+import type { IDocumentSymbols, ISymbols } from '../types/symbols';
+import type StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsRelatedToDocument } from '../utils/symbols';
@@ -19,7 +19,7 @@ interface ISymbol {
 }
 
 interface IIdentifier {
-	type: string;
+	type: keyof ISymbols;
 	position: Position;
 	name: string;
 }
@@ -31,13 +31,17 @@ function samePosition(a: Position, b: Position) {
 /**
  * Returns the Symbol, if it present in the documents.
  */
-function getSymbols(symbolList: ISymbols[], identifier: IIdentifier, currentPath: string): ISymbol[] {
+function getSymbols(symbolList: IDocumentSymbols[], identifier: IIdentifier, currentPath: string): ISymbol[] {
 	const list: ISymbol[] = [];
 
-	symbolList.forEach(symbols => {
+	for (const symbols of symbolList) {
 		const fsPath = getDocumentPath(currentPath, symbols.document);
 
-		symbols[identifier.type].forEach(item => {
+		if (identifier.type === 'imports') {
+			continue;
+		}
+
+		for (const item of symbols[identifier.type]) {
 			if (item.name === identifier.name && !samePosition(item.position, identifier.position)) {
 				list.push({
 					document: symbols.filepath,
@@ -45,8 +49,8 @@ function getSymbols(symbolList: ISymbols[], identifier: IIdentifier, currentPath
 					info: item
 				});
 			}
-		});
-	});
+		}
+	}
 
 	return list;
 }
@@ -82,7 +86,7 @@ export async function goDefinition(document: TextDocument, offset: number, stora
 		}
 
 		if (node && (node.type === NodeType.MixinReference || node.type === NodeType.Function)) {
-			let type = 'mixins';
+			let type: keyof ISymbols = 'mixins';
 			if (node.type === NodeType.Function) {
 				type = 'functions';
 			}

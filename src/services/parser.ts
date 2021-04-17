@@ -2,11 +2,11 @@
 
 import { Files } from 'vscode-languageserver';
 import { SymbolKind, DocumentLink } from 'vscode-css-languageservice';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 
 import { INode, NodeType } from '../types/nodes';
-import { IDocument, ISymbols, IVariable, IImport } from '../types/symbols';
+import type { IDocument, IDocumentSymbols, IVariable, IImport } from '../types/symbols';
 import { getNodeAtOffset, getParentNodeByType } from '../utils/ast';
 import { buildDocumentContext } from '../utils/document';
 import { getLanguageService } from '../language-service';
@@ -22,7 +22,7 @@ export async function parseDocument(document: TextDocument, offset: number = nul
 	const ast = ls.parseStylesheet(document) as INode;
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 
-	const symbols: ISymbols = {
+	const symbols: IDocumentSymbols = {
 		document: documentPath,
 		filepath: documentPath,
 		...(await findDocumentSymbols(document, ast))
@@ -34,11 +34,11 @@ export async function parseDocument(document: TextDocument, offset: number = nul
 	};
 }
 
-async function findDocumentSymbols(document: TextDocument, ast: INode): Promise<ISymbols> {
+async function findDocumentSymbols(document: TextDocument, ast: INode): Promise<IDocumentSymbols> {
 	const symbols = ls.findDocumentSymbols(document, ast);
 	const links = await findDocumentLinks(document, ast);
 
-	const result: ISymbols = {
+	const result: IDocumentSymbols = {
 		functions: [],
 		imports: convertLinksToImports(links),
 		mixins: [],

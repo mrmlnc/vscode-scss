@@ -13,7 +13,7 @@ import {
 } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-import { ISettings } from './types/settings';
+import type { ISettings } from './types/settings';
 
 import ScannerService from './services/scanner';
 import StorageService from './services/storage';

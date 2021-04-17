@@ -1,16 +1,18 @@
 'use strict';
 
 import { Hover, MarkedString, Files } from 'vscode-languageserver';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { NodeType } from '../types/nodes';
-import { ISymbols, IVariable, IMixin, IFunction } from '../types/symbols';
-import StorageService from '../services/storage';
+import type { IDocumentSymbols, IVariable, IMixin, IFunction, ISymbols } from '../types/symbols';
+import type StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
 import { getLimitedString } from '../utils/string';
+
+type Identifier = { type: keyof ISymbols; name: string };
 
 /**
  * Returns a colored (marked) line for Variable.
@@ -68,8 +70,12 @@ interface ISymbol {
 /**
  * Returns the Symbol, if it present in the documents.
  */
-function getSymbol(symbolList: ISymbols[], identifier: any, currentPath: string): ISymbol {
+function getSymbol(symbolList: IDocumentSymbols[], identifier: Identifier, currentPath: string): ISymbol {
 	for (let i = 0; i < symbolList.length; i++) {
+		if (identifier.type === 'imports') {
+			continue;
+		}
+
 		const symbols = symbolList[i];
 		const symbolsByType = symbols[identifier.type];
 
@@ -101,7 +107,7 @@ export async function doHover(document: TextDocument, offset: number, storage: S
 		return null;
 	}
 
-	let identifier: { type: string; name: string } = null;
+	let identifier: Identifier = null;
 	if (hoverNode.type === NodeType.VariableName) {
 		const parent = hoverNode.getParent();
 
@@ -113,7 +119,7 @@ export async function doHover(document: TextDocument, offset: number, storage: S
 		}
 	} else if (hoverNode.type === NodeType.Identifier) {
 		let node;
-		let type;
+		let type: keyof ISymbols;
 
 		const parent = hoverNode.getParent();
 		if (parent.type === NodeType.Function) {

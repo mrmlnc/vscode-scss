@@ -26,7 +26,7 @@ class ScannerServiceTest extends ScannerService {
 
 describe('Services/Scanner', () => {
 	describe('.scan', () => {
-		let statStub;
+		let statStub: sinon.SinonStub;
 
 		beforeEach(() => {
 			statStub = sinon.stub(fs, 'stat').yields(null, new Stats());

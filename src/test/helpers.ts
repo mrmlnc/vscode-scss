@@ -1,8 +1,8 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { getSCSSLanguageService, Position, Range } from 'vscode-css-languageservice';
 
-import { INode } from '../types/nodes';
-import { ISettings } from '../types/settings';
+import type { INode } from '../types/nodes';
+import type { ISettings } from '../types/settings';
 
 const ls = getSCSSLanguageService();
 

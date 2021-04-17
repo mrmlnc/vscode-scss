@@ -3,7 +3,7 @@
 import * as path from 'path';
 import * as url from 'url';
 
-import { DocumentContext } from 'vscode-css-languageservice';
+import type { DocumentContext } from 'vscode-css-languageservice';
 import { URI } from 'vscode-uri';
 import { fileExistsSync } from '../utils/fs';
 

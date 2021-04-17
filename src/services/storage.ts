@@ -1,9 +1,9 @@
-import { ISymbols } from '../types/symbols';
+import type { IDocumentSymbols } from '../types/symbols';
 
 export type Storage = Map<StorageItemKey, StorageItemValue>;
 export type StorageItemEntry = [StorageItemKey, StorageItemValue];
 export type StorageItemKey = string;
-export type StorageItemValue = ISymbols;
+export type StorageItemValue = IDocumentSymbols;
 
 export default class StorageService {
 	private readonly _storage: Storage = new Map();

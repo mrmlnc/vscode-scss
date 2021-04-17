@@ -3,7 +3,8 @@
 import { SymbolInformation, SymbolKind } from 'vscode-languageserver';
 import { URI } from 'vscode-uri';
 
-import StorageService from '../services/storage';
+import type StorageService from '../services/storage';
+import type { ISymbols } from '../types/symbols';
 import { getSymbolsCollection } from '../utils/symbols';
 
 export async function searchWorkspaceSymbol(
@@ -19,7 +20,9 @@ export async function searchWorkspaceSymbol(
 			return;
 		}
 
-		['variables', 'mixins', 'functions'].forEach(type => {
+		const types: Array<keyof ISymbols> = ['variables', 'mixins', 'functions'];
+
+		types.forEach(type => {
 			let kind = SymbolKind.Variable;
 			if (type === 'mixins') {
 				kind = SymbolKind.Function as any;
@@ -27,9 +30,13 @@ export async function searchWorkspaceSymbol(
 				kind = SymbolKind.Interface as any;
 			}
 
-			symbols[type].forEach(symbol => {
+			if (type === 'imports') {
+				return;
+			}
+
+			for (const symbol of symbols[type]) {
 				if (!symbol.name.includes(query)) {
-					return;
+					continue;
 				}
 
 				workspaceSymbols.push({
@@ -46,7 +53,7 @@ export async function searchWorkspaceSymbol(
 						}
 					}
 				});
-			});
+			}
 		});
 	});
 

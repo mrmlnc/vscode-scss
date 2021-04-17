@@ -1,8 +1,8 @@
 'use strict';
 
-import { Position } from 'vscode-languageserver-textdocument';
-import { IVariable as IVar, IMixin as IMix, IFunction as IFun, IImport as IImp } from 'scss-symbols-parser';
-import { INode } from './nodes';
+import type { Position } from 'vscode-languageserver-textdocument';
+import type { IVariable as IVar, IMixin as IMix, IFunction as IFun, IImport as IImp } from 'scss-symbols-parser';
+import type { INode } from './nodes';
 
 export interface IVariable extends IVar {
 	position?: Position;
@@ -21,7 +21,7 @@ export interface IImport extends IImp {
 	reference?: boolean;
 }
 
-export interface ISymbols {
+export interface IDocumentSymbols extends ISymbols {
 	/**
 	 * The imported path in the document.
 	 */
@@ -30,6 +30,9 @@ export interface ISymbols {
 	 * The real path to the file on the file system.
 	 */
 	filepath?: string;
+}
+
+export interface ISymbols {
 	variables: IVariable[];
 	mixins: IMixin[];
 	functions: IFunction[];
@@ -38,5 +41,5 @@ export interface ISymbols {
 
 export interface IDocument {
 	node: INode;
-	symbols: ISymbols;
+	symbols: IDocumentSymbols;
 }

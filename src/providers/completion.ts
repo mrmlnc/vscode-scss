@@ -1,11 +1,11 @@
 'use strict';
 
 import { CompletionList, CompletionItemKind, Files, CompletionItem } from 'vscode-languageserver';
-import { TextDocument } from 'vscode-languageserver-textdocument';
+import type { TextDocument } from 'vscode-languageserver-textdocument';
 
-import { IMixin, ISymbols } from '../types/symbols';
-import { ISettings } from '../types/settings';
-import StorageService from '../services/storage';
+import type { IMixin, IDocumentSymbols } from '../types/symbols';
+import type { ISettings } from '../types/settings';
+import type StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsRelatedToDocument } from '../utils/symbols';
@@ -119,7 +119,7 @@ function createCompletionContext(document: TextDocument, offset: number, setting
 }
 
 function createVariableCompletionItems(
-	symbols: ISymbols[],
+	symbols: IDocumentSymbols[],
 	filepath: string,
 	imports: string[],
 	settings: ISettings
@@ -159,7 +159,7 @@ function createVariableCompletionItems(
 }
 
 function createMixinCompletionItems(
-	symbols: ISymbols[],
+	symbols: IDocumentSymbols[],
 	filepath: string,
 	imports: string[],
 	settings: ISettings
@@ -191,7 +191,7 @@ function createMixinCompletionItems(
 }
 
 function createFunctionCompletionItems(
-	symbols: ISymbols[],
+	symbols: IDocumentSymbols[],
 	filepath: string,
 	imports: string[],
 	settings: ISettings

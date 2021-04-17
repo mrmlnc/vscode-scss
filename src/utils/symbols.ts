@@ -1,15 +1,15 @@
 'use strict';
 
-import { ISymbols } from '../types/symbols';
-import StorageService from '../services/storage';
+import type { IDocumentSymbols } from '../types/symbols';
+import type StorageService from '../services/storage';
 
 /**
  * Returns Symbols from all documents.
  */
-export function getSymbolsCollection(storage: StorageService): ISymbols[] {
+export function getSymbolsCollection(storage: StorageService): IDocumentSymbols[] {
 	return storage.values();
 }
 
-export function getSymbolsRelatedToDocument(storage: StorageService, current: string): ISymbols[] {
+export function getSymbolsRelatedToDocument(storage: StorageService, current: string): IDocumentSymbols[] {
 	return getSymbolsCollection(storage).filter(item => item.document !== current || item.filepath !== current);
 }

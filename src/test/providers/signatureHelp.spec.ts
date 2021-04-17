@@ -2,7 +2,7 @@
 
 import * as assert from 'assert';
 
-import { SignatureHelp } from 'vscode-languageserver';
+import type { SignatureHelp } from 'vscode-languageserver';
 
 import StorageService from '../../services/storage';
 import { doSignatureHelp } from '../../providers/signatureHelp';

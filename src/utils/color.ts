@@ -13,7 +13,7 @@ const preparedRePart = Object.keys(webColors)
 
 const colorWeb = new RegExp('.?(' + preparedRePart + ')(?!-)', 'g');
 
-export function getVariableColor(value): string[] {
+export function getVariableColor(value: string): string[] {
 	const hex = findHex(value);
 	const fn = findFn(value);
 	const words = findWords(value);
@@ -34,7 +34,7 @@ export function getVariableColor(value): string[] {
 /*
  * Find color from hexcode
  */
-export function findHex(text): string[] {
+export function findHex(text: string): string[] {
 	let match = colorHex.exec(text);
 	const result = [];
 
@@ -58,7 +58,7 @@ export function findHex(text): string[] {
 /**
  * Find color from rgb/hsl
  */
-export function findFn(text): string[] {
+export function findFn(text: string): string[] {
 	let match = colorFunctions.exec(text);
 	const result = [];
 
@@ -76,7 +76,7 @@ export function findFn(text): string[] {
 /**
  * Find color from words
  */
-export function findWords(text): string[] {
+export function findWords(text: string): string[] {
 	let match = colorWeb.exec(text);
 	const result = [];
 

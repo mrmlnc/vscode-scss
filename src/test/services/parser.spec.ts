@@ -6,16 +6,16 @@ import * as fs from 'fs';
 
 import * as sinon from 'sinon';
 import { Stats } from '@nodelib/fs.macchiato';
-import { DocumentLink } from 'vscode-languageclient';
+import type { DocumentLink } from 'vscode-languageclient';
 
 import { parseDocument, convertLinksToImports } from '../../services/parser';
 import * as helpers from '../helpers';
 import { NodeType } from '../../types/nodes';
-import { IImport } from '../../types/symbols';
+import type { IImport } from '../../types/symbols';
 
 describe('Services/Parser', () => {
 	describe('.parseDocument', () => {
-		let statStub;
+		let statStub: sinon.SinonStub;
 
 		beforeEach(() => {
 			statStub = sinon.stub(fs, 'stat').yields(null, new Stats());
