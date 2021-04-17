@@ -17,11 +17,14 @@ export async function testHover(docUri: vscode.Uri, position: vscode.Position, e
 		throw Error('Hover failed');
 	}
 
-	const contents = result[0].contents;
-	contents.forEach((c, i) => {
-		const val = (c as any).value;
-		assert.equal(val, expectedHover.contents[i]);
-	});
+	const contents = result
+		.map(item => {
+			return item.contents.map((content: any) => content.value);
+		})
+		.join('\n');
+
+	// We use `.includes` here because the hover can contain content from other plugins.
+	assert.ok(contents.includes(expectedHover.contents.join('')));
 
 	if (expectedHover.range && result[0] && result[0].range) {
 		assert.ok(result[0].range!.isEqual(expectedHover.range!));
