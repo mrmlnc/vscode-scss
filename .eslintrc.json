@@ -1,0 +1,6 @@
+{
+	"extends": "mrmlnc",
+	"ignorePatterns": [
+		"**/unsafe/**/*.ts"
+	]
+}
