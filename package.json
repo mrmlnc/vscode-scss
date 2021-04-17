@@ -131,22 +131,5 @@
 		"test:e2e": "node ./out/unsafe/test/e2e/runTest.js",
 		"build": "npm run clean && npm run lint && npm run compile && npm test",
 		"watch": "npm run clean && npm run lint && tsc --watch"
-	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "lint-staged",
-			"pre-push": "npm test"
-		}
-	},
-	"lint-staged": {
-		"*.ts": [
-			"prettier --write",
-			"tslint src/**/*.ts --project ./tsconfig.json --fix",
-			"git add"
-		],
-		"*.json": [
-			"prettier --write",
-			"git add"
-		]
 	}
 }
