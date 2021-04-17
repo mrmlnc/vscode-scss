@@ -26,7 +26,7 @@ import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
 import { findFiles } from './utils/fs';
 import { getSCSSRegionsDocument } from './utils/vue';
 
-let workspaceRoot: string;
+let workspaceRoot: string | null | undefined;
 let settings: ISettings;
 let storageService: StorageService;
 let scannerService: ScannerService;
@@ -55,7 +55,7 @@ connection.onInitialize(
 		scannerService = new ScannerService(storageService, settings);
 
 		const files = await findFiles('**/*.scss', {
-			cwd: params.rootPath,
+			cwd: params.rootPath || undefined,
 			deep: settings.scannerDepth,
 			ignore: settings.scannerExclude
 		});
@@ -88,14 +88,27 @@ connection.onDidChangeConfiguration(params => {
 });
 
 connection.onDidChangeWatchedFiles(event => {
-	const files = event.changes.map(file => Files.uriToFilePath(file.uri));
+	const files = event.changes.reduce<string[]>((collection, file) => {
+		const filepath = Files.uriToFilePath(file.uri);
+
+		if (filepath !== undefined) {
+			collection.push(filepath);
+		}
+
+		return collection;
+	}, []);
 
 	return scannerService.scan(files);
 });
 
 connection.onCompletion(textDocumentPosition => {
+	const uri = documents.get(textDocumentPosition.textDocument.uri);
+	if (uri === undefined) {
+		return;
+	}
+
 	const { document, offset } = getSCSSRegionsDocument(
-		documents.get(textDocumentPosition.textDocument.uri),
+		uri,
 		textDocumentPosition.position
 	);
 	if (!document) {
@@ -105,8 +118,13 @@ connection.onCompletion(textDocumentPosition => {
 });
 
 connection.onHover(textDocumentPosition => {
+	const uri = documents.get(textDocumentPosition.textDocument.uri);
+	if (uri === undefined) {
+		return;
+	}
+
 	const { document, offset } = getSCSSRegionsDocument(
-		documents.get(textDocumentPosition.textDocument.uri),
+		uri,
 		textDocumentPosition.position
 	);
 	if (!document) {
@@ -116,8 +134,13 @@ connection.onHover(textDocumentPosition => {
 });
 
 connection.onSignatureHelp(textDocumentPosition => {
+	const uri = documents.get(textDocumentPosition.textDocument.uri);
+	if (uri === undefined) {
+		return;
+	}
+
 	const { document, offset } = getSCSSRegionsDocument(
-		documents.get(textDocumentPosition.textDocument.uri),
+		uri,
 		textDocumentPosition.position
 	);
 	if (!document) {
@@ -127,8 +150,13 @@ connection.onSignatureHelp(textDocumentPosition => {
 });
 
 connection.onDefinition(textDocumentPosition => {
+	const uri = documents.get(textDocumentPosition.textDocument.uri);
+	if (uri === undefined) {
+		return;
+	}
+
 	const { document, offset } = getSCSSRegionsDocument(
-		documents.get(textDocumentPosition.textDocument.uri),
+		uri,
 		textDocumentPosition.position
 	);
 	if (!document) {
@@ -138,6 +166,10 @@ connection.onDefinition(textDocumentPosition => {
 });
 
 connection.onWorkspaceSymbol(workspaceSymbolParams => {
+	if (workspaceRoot === null || workspaceRoot === undefined) {
+		return;
+	}
+
 	return searchWorkspaceSymbol(workspaceSymbolParams.query, storageService, workspaceRoot);
 });
 

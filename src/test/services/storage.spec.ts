@@ -17,7 +17,7 @@ describe('Services → Storage', () => {
 
 			const actual = service.get('key');
 
-			assert.deepStrictEqual(actual.functions, []);
+			assert.deepStrictEqual(actual?.functions, []);
 		});
 	});
 

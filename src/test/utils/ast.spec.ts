@@ -17,8 +17,8 @@ describe('Utils/Ast', () => {
 
 		const node = getNodeAtOffset(ast, 4);
 
-		assert.equal(node.type, NodeType.Declarations);
-		assert.equal(node.getText(), '{}');
+		assert.equal(node?.type, NodeType.Declarations);
+		assert.equal(node?.getText(), '{}');
 	});
 
 	it('getParentNodeByType', () => {
@@ -29,7 +29,7 @@ describe('Utils/Ast', () => {
 		const node = getNodeAtOffset(ast, 4);
 		const parentNode = getParentNodeByType(node, NodeType.Ruleset);
 
-		assert.equal(parentNode.type, NodeType.Ruleset);
-		assert.equal(parentNode.getText(), '.a {}');
+		assert.equal(parentNode?.type, NodeType.Ruleset);
+		assert.equal(parentNode?.getText(), '.a {}');
 	});
 });

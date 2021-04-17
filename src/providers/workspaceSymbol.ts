@@ -15,6 +15,10 @@ export async function searchWorkspaceSymbol(
 	const workspaceSymbols: SymbolInformation[] = [];
 
 	getSymbolsCollection(storage).forEach(symbols => {
+		if (symbols.filepath === undefined) {
+			return;
+		}
+
 		const documentUri = URI.file(symbols.filepath);
 		if (!documentUri.fsPath.includes(root)) {
 			return;
@@ -35,7 +39,7 @@ export async function searchWorkspaceSymbol(
 			}
 
 			for (const symbol of symbols[type]) {
-				if (!symbol.name.includes(query)) {
+				if (!symbol.name.includes(query) || symbol.position === undefined) {
 					continue;
 				}
 

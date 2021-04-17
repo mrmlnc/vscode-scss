@@ -13,6 +13,10 @@ export async function testDefinition(docUri: vscode.Uri, position: vscode.Positi
 		position
 	)) as vscode.Location[];
 
+	if (result[0] === undefined) {
+		assert.fail("The 'result[0]' is undefined.");
+	}
+
 	assert.ok(result[0].range.isEqual(expectedLocation.range));
 	assert.equal(result[0].uri.fsPath, expectedLocation.uri.fsPath);
 }

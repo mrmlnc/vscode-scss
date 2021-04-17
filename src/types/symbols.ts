@@ -40,6 +40,6 @@ export interface ISymbols {
 }
 
 export interface IDocument {
-	node: INode;
+	node: INode | null;
 	symbols: IDocumentSymbols;
 }

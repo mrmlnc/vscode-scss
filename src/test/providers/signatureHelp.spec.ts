@@ -15,15 +15,15 @@ storage.set('one.scss', {
 	filepath: 'one.scss',
 	variables: [],
 	mixins: [
-		{ name: 'one', parameters: [], offset: 0, position: null },
-		{ name: 'two', parameters: [], offset: 0, position: null },
+		{ name: 'one', parameters: [], offset: 0, position: undefined },
+		{ name: 'two', parameters: [], offset: 0, position: undefined },
 		{
 			name: 'two',
 			parameters: [
 				{ name: '$a', value: null, offset: 0 }
 			],
 			offset: 0,
-			position: null
+			position: undefined
 		},
 		{
 			name: 'two',
@@ -32,11 +32,11 @@ storage.set('one.scss', {
 				{ name: '$b', value: null, offset: 0 }
 			],
 			offset: 0,
-			position: null
+			position: undefined
 		}
 	],
 	functions: [
-		{ name: 'make', parameters: [], offset: 0, position: null },
+		{ name: 'make', parameters: [], offset: 0, position: undefined },
 		{
 			name: 'one',
 			parameters: [
@@ -45,7 +45,7 @@ storage.set('one.scss', {
 				{ name: '$c', value: null, offset: 0 }
 			],
 			offset: 0,
-			position: null
+			position: undefined
 		},
 		{
 			name: 'two',
@@ -54,7 +54,7 @@ storage.set('one.scss', {
 				{ name: '$b', value: null, offset: 0 }
 			],
 			offset: 0,
-			position: null
+			position: undefined
 		}
 	],
 	imports: []
@@ -172,62 +172,62 @@ describe('Providers/SignatureHelp - parseArgumentsAtLine for Functions', () => {
 		const actual = await getSignatureHelp(['content: make(|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
-		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
+		assert.ok(actual.signatures[0]?.label.startsWith('make'), 'name');
 	});
 
 	it('Single-line Function reference', async () => {
 		const actual = await getSignatureHelp(['content: make()+make(|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
-		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
+		assert.ok(actual.signatures[0]?.label.startsWith('make'), 'name');
 	});
 
 	it('Inside another uncompleted function', async () => {
 		const actual = await getSignatureHelp(['content: attr(make(|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
-		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
+		assert.ok(actual.signatures[0]?.label.startsWith('make'), 'name');
 	});
 
 	it('Inside another completed function', async () => {
 		const actual = await getSignatureHelp(['content: attr(one(1, two(1, two(1, 2)),|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
-		assert.ok(actual.signatures[0].label.startsWith('one'), 'name');
+		assert.ok(actual.signatures[0]?.label.startsWith('one'), 'name');
 	});
 
 	it('Inside several completed functions', async () => {
 		const actual = await getSignatureHelp(['background: url(one(1, one(1, 2, two(1, 2)),|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
-		assert.ok(actual.signatures[0].label.startsWith('one'), 'name');
+		assert.ok(actual.signatures[0]?.label.startsWith('one'), 'name');
 	});
 
 	it('Inside another function with CSS function', async () => {
 		const actual = await getSignatureHelp(['background-color: make(rgba(|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
-		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
+		assert.ok(actual.signatures[0]?.label.startsWith('make'), 'name');
 	});
 
 	it('Inside another function with uncompleted CSS function', async () => {
 		const actual = await getSignatureHelp(['background-color: make(rgba(1, 1,2,|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
-		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
+		assert.ok(actual.signatures[0]?.label.startsWith('make'), 'name');
 	});
 
 	it('Inside another function with completed CSS function', async () => {
 		const actual = await getSignatureHelp(['background-color: make(rgba(1,2, 3,.5)|']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
-		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
+		assert.ok(actual.signatures[0]?.label.startsWith('make'), 'name');
 	});
 
 	it('Interpolation', async () => {
 		const actual = await getSignatureHelp(['background-color: "#{make(|}"']);
 
 		assert.equal(actual.signatures.length, 1, 'length');
-		assert.ok(actual.signatures[0].label.startsWith('make'), 'name');
+		assert.ok(actual.signatures[0]?.label.startsWith('make'), 'name');
 	});
 });

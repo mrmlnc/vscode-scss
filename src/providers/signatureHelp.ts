@@ -17,14 +17,14 @@ const reNestedParenthesis = /\(([\w-]+)\(/;
 const reSymbolName = /[\w-]+$/;
 
 interface IMixinEntry {
-	name: string;
+	name: string | null;
 	parameters: number;
 }
 
 /**
  * Returns name of last Mixin or Function in the string.
  */
-function getSymbolName(text: string): string {
+function getSymbolName(text: string): string | null | undefined {
 	const tokens = tokenizer(text);
 	let pos = tokens.length;
 	let token: [string, string, string];
@@ -195,7 +195,7 @@ export async function doSignatureHelp(
 		const signatureInfo = SignatureInformation.create(`${mixin.name} (${paramsString})`);
 
 		mixin.parameters.forEach(param => {
-			signatureInfo.parameters.push({
+			signatureInfo.parameters?.push({
 				label: param.name,
 				documentation: ''
 			});

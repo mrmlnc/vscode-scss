@@ -10,7 +10,11 @@ import { fileExistsSync } from '../utils/fs';
 /**
  * Returns the path to the document, relative to the current document.
  */
-export function getDocumentPath(currentPath: string, symbolsPath: string): string {
+export function getDocumentPath(currentPath: string, symbolsPath: string | undefined): string {
+	if (symbolsPath === undefined) {
+		throw new Error("Unexpected behaviour. The 'symbolsPath' argument is undefined.");
+	}
+
 	const rootUri = path.dirname(currentPath);
 	const docPath = path.relative(rootUri, symbolsPath);
 

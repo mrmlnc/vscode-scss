@@ -41,7 +41,7 @@ describe('Providers/Hover', () => {
 			'.a { content: $one|; }'
 		]);
 
-		assert.deepStrictEqual(actual.contents, {
+		assert.deepStrictEqual(actual?.contents, {
 			language: 'scss',
 			value: '$one: 1;'
 		});
@@ -52,7 +52,7 @@ describe('Providers/Hover', () => {
 			'.a { content: $variable|; }'
 		]);
 
-		assert.deepStrictEqual(actual.contents, {
+		assert.deepStrictEqual(actual?.contents, {
 			language: 'scss',
 			value: '$variable: null;\n@import "file.scss" (implicitly)'
 		});
@@ -63,7 +63,7 @@ describe('Providers/Hover', () => {
 			'@include mixin|'
 		]);
 
-		assert.deepStrictEqual(actual.contents, {
+		assert.deepStrictEqual(actual?.contents, {
 			language: 'scss',
 			value: '@mixin mixin() {…}\n@import "file.scss" (implicitly)'
 		});
@@ -75,7 +75,7 @@ describe('Providers/Hover', () => {
 			'.a { content: make|(); }'
 		]);
 
-		assert.deepStrictEqual(actual.contents, {
+		assert.deepStrictEqual(actual?.contents, {
 			language: 'scss',
 			value: '@function make($a: null) {…}\n@import "file.scss" (implicitly)'
 		});

@@ -5,13 +5,13 @@ import { INode, NodeType } from '../types/nodes';
 /**
  * Get Node by offset position.
  */
-export function getNodeAtOffset(parsedDocument: INode, posOffset: number): INode {
-	let candidate: INode = null;
+export function getNodeAtOffset(parsedDocument: INode, posOffset: number | null): INode | null {
+	let candidate: INode | null = null;
 
 	parsedDocument.accept(node => {
 		if (node.offset === -1 && node.length === -1) {
 			return true;
-		} else if (node.offset <= posOffset && node.end >= posOffset) {
+		} else if (posOffset !== null && node.offset <= posOffset && node.end >= posOffset) {
 			if (!candidate) {
 				candidate = node;
 			} else if (node.length <= candidate.length) {
@@ -28,7 +28,11 @@ export function getNodeAtOffset(parsedDocument: INode, posOffset: number): INode
 /**
  * Returns the parent Node of the specified type.
  */
-export function getParentNodeByType(node: INode, type: NodeType): INode | null {
+export function getParentNodeByType(node: INode | null, type: NodeType): INode | null {
+	if (node === null) {
+		return null;
+	}
+
 	node = node.getParent();
 
 	while (node.type !== type) {

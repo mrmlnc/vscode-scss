@@ -13,7 +13,7 @@ import { getSymbolsRelatedToDocument } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
 
 interface ISymbol {
-	document: string;
+	document: string | undefined;
 	path: string;
 	info: any;
 }
@@ -24,7 +24,11 @@ interface IIdentifier {
 	name: string;
 }
 
-function samePosition(a: Position, b: Position) {
+function samePosition(a: Position | undefined, b: Position): boolean {
+	if (a === undefined) {
+		return false;
+	}
+
 	return a.line === b.line && a.character === b.character;
 }
 
@@ -55,7 +59,7 @@ function getSymbols(symbolList: IDocumentSymbols[], identifier: IIdentifier, cur
 	return list;
 }
 
-export async function goDefinition(document: TextDocument, offset: number, storage: StorageService): Promise<Location> {
+export async function goDefinition(document: TextDocument, offset: number, storage: StorageService): Promise<Location | null> {
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 	if (!documentPath) {
 		return null;
@@ -67,7 +71,7 @@ export async function goDefinition(document: TextDocument, offset: number, stora
 		return null;
 	}
 
-	let identifier: IIdentifier = null;
+	let identifier: IIdentifier | null = null;
 	if (hoverNode.type === NodeType.VariableName) {
 		const parent = hoverNode.getParent();
 		if (parent.type !== NodeType.FunctionParameter && parent.type !== NodeType.VariableDeclaration) {
@@ -103,7 +107,9 @@ export async function goDefinition(document: TextDocument, offset: number, stora
 		return null;
 	}
 
-	storage.set(resource.symbols.document, resource.symbols);
+	if ( resource.symbols.document !== undefined) {
+		storage.set(resource.symbols.document, resource.symbols);
+	}
 
 	const symbolsList = getSymbolsRelatedToDocument(storage, documentPath);
 
@@ -114,6 +120,10 @@ export async function goDefinition(document: TextDocument, offset: number, stora
 	}
 
 	const definition = candidates[0];
+
+	if (definition?.document === undefined) {
+		return null;
+	}
 
 	const symbol = Location.create(URI.file(definition.document).toString(), {
 		start: definition.info.position,

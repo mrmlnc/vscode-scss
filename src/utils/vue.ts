@@ -11,10 +11,12 @@ export function getVueSCSSRegions(content: string) {
 	const startRe = /<style[\w=\"\' \n\t]{1,}lang=[\"\']scss[\"\'][\w=\"\' \n\t]{0,}>/g;
 	const endRe = /<\/style>/g;
 	/* tslint:disable:no-conditional-assignment */
-	let start: RegExpExecArray;
-	let end: RegExpExecArray;
+	let start: RegExpExecArray | null;
+	let end: RegExpExecArray | null;
 	while ((start = startRe.exec(content)) !== null && (end = endRe.exec(content)) !== null) {
-		regions.push([start.index + start[0].length, end.index]);
+		if (start[0] !== undefined) {
+			regions.push([start.index + start[0].length, end.index]);
+		}
 	}
 	return regions;
 }

@@ -13,7 +13,7 @@ const preparedRePart = Object.keys(webColors)
 
 const colorWeb = new RegExp('.?(' + preparedRePart + ')(?!-)', 'g');
 
-export function getVariableColor(value: string): string[] {
+export function getVariableColor(value: string): string[] | null {
 	const hex = findHex(value);
 	const fn = findFn(value);
 	const words = findWords(value);
@@ -60,12 +60,14 @@ export function findHex(text: string): string[] {
  */
 export function findFn(text: string): string[] {
 	let match = colorFunctions.exec(text);
-	const result = [];
+	const result: string[] = [];
 
 	while (match !== null) {
 		const color = match[0];
 
-		result.push(color);
+		if (color !== undefined) {
+			result.push(color);
+		}
 
 		match = colorFunctions.exec(text);
 	}
@@ -81,10 +83,10 @@ export function findWords(text: string): string[] {
 	const result = [];
 
 	while (match !== null) {
-		const firstChar = match[0][0];
+		const firstChar = match[0]?.[0];
 		const matchedColor = match[1];
 
-		if (firstChar.length && /[-\\$@#]/.test(firstChar)) {
+		if (firstChar && firstChar.length && /[-\\$@#]/.test(firstChar)) {
 			match = colorWeb.exec(text);
 			continue;
 		}

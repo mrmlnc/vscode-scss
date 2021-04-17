@@ -24,7 +24,11 @@ const reQuotes = /['"]/;
 /**
  * Returns `true` if the path is not present in the document.
  */
-function isImplicitly(symbolsDocument: string, documentPath: string, documentImports: string[]): boolean {
+function isImplicitly(symbolsDocument: string | undefined, documentPath: string, documentImports: string[]): boolean {
+	if (symbolsDocument === undefined) {
+		return true;
+	}
+
 	return symbolsDocument !== documentPath && documentImports.indexOf(symbolsDocument) === -1;
 }
 
@@ -131,7 +135,7 @@ function createVariableCompletionItems(
 		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
 
 		symbol.variables.forEach(variable => {
-			const color = getVariableColor(variable.value);
+			const color = getVariableColor(variable.value || '');
 			const completionKind = color ? CompletionItemKind.Color : CompletionItemKind.Variable;
 
 			// Add 'implicitly' prefix for Path if the file imported implicitly
@@ -150,7 +154,7 @@ function createVariableCompletionItems(
 				label: variable.name,
 				kind: completionKind,
 				detail: detailText,
-				documentation: getLimitedString(color ? color.toString() : variable.value)
+				documentation: getLimitedString(color ? color.toString() : variable.value || '')
 			});
 		});
 	});
@@ -227,7 +231,7 @@ export async function doCompletion(
 	offset: number,
 	settings: ISettings,
 	storage: StorageService
-): Promise<CompletionList> {
+): Promise<CompletionList | null> {
 	const completions = CompletionList.create([], false);
 
 	const documentPath = Files.uriToFilePath(document.uri) || document.uri;

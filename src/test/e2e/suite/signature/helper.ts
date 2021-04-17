@@ -13,6 +13,10 @@ export async function testSignature(docUri: vscode.Uri, position: vscode.Positio
 		position
 	);
 
+	if (result === undefined) {
+		assert.fail("The 'result' is undefined.");
+	}
+
 	assert.equal(result.activeParameter, signature.activeParameter, 'activeParameter');
 	assert.equal(result.activeSignature, signature.activeSignature, 'activeSignature');
 
@@ -24,6 +28,11 @@ export async function testSignature(docUri: vscode.Uri, position: vscode.Positio
 
 	signature.signatures.forEach((expectedSignature, i) => {
 		const actualSignature = result.signatures[i];
+
+		if (actualSignature === undefined) {
+			assert.fail("The 'actualSignature' is undefined.");
+		}
+
 		assert.equal(actualSignature.label, expectedSignature.label);
 
 		assert.equal(

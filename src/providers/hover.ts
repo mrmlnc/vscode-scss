@@ -18,7 +18,7 @@ type Identifier = { type: keyof ISymbols; name: string };
  * Returns a colored (marked) line for Variable.
  */
 function makeVariableAsMarkedString(symbol: IVariable, fsPath: string, suffix: string): MarkedString {
-	const value = getLimitedString(symbol.value);
+	const value = getLimitedString(symbol.value || '');
 	if (fsPath !== 'current') {
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
@@ -62,7 +62,7 @@ function makeFunctionAsMarkedString(symbol: IFunction, fsPath: string, suffix: s
 }
 
 interface ISymbol {
-	document: string;
+	document?: string;
 	path: string;
 	info: any;
 }
@@ -70,23 +70,30 @@ interface ISymbol {
 /**
  * Returns the Symbol, if it present in the documents.
  */
-function getSymbol(symbolList: IDocumentSymbols[], identifier: Identifier, currentPath: string): ISymbol {
+function getSymbol(symbolList: IDocumentSymbols[], identifier: Identifier, currentPath: string): ISymbol | null {
 	for (let i = 0; i < symbolList.length; i++) {
 		if (identifier.type === 'imports') {
 			continue;
 		}
 
 		const symbols = symbolList[i];
+
+		if (symbols === undefined) {
+			continue;
+		}
+
 		const symbolsByType = symbols[identifier.type];
 
 		const fsPath = getDocumentPath(currentPath, symbols.filepath || symbols.document);
 
 		for (let j = 0; j < symbolsByType.length; j++) {
-			if (symbolsByType[j].name === identifier.name) {
+			const symbol = symbolsByType[j];
+
+			if (symbol && symbol.name === identifier.name) {
 				return {
 					document: symbols.document,
 					path: fsPath,
-					info: symbolsByType[j]
+					info: symbol
 				};
 			}
 		}
@@ -107,7 +114,7 @@ export async function doHover(document: TextDocument, offset: number, storage: S
 		return null;
 	}
 
-	let identifier: Identifier = null;
+	let identifier: Identifier | null = null;
 	if (hoverNode.type === NodeType.VariableName) {
 		const parent = hoverNode.getParent();
 
@@ -119,7 +126,7 @@ export async function doHover(document: TextDocument, offset: number, storage: S
 		}
 	} else if (hoverNode.type === NodeType.Identifier) {
 		let node;
-		let type: keyof ISymbols;
+		let type: keyof ISymbols | null = null;
 
 		const parent = hoverNode.getParent();
 		if (parent.type === NodeType.Function) {
@@ -128,6 +135,10 @@ export async function doHover(document: TextDocument, offset: number, storage: S
 		} else if (parent.type === NodeType.MixinReference) {
 			node = parent;
 			type = 'mixins';
+		}
+
+		if (type === null) {
+			return null;
 		}
 
 		if (node) {
@@ -155,10 +166,10 @@ export async function doHover(document: TextDocument, offset: number, storage: S
 
 	// Content for Hover popup
 	let contents: MarkedString = '';
-	if (symbol) {
+	if (symbol && symbol.document !== undefined) {
 		// Add 'implicitly' suffix if the file imported implicitly
 		let contentSuffix = '';
-		if (symbol.path !== 'current' && documentImports.indexOf(symbol.document) === -1) {
+		if (symbol.path !== 'current' && symbol.document && documentImports.indexOf(symbol.document) === -1) {
 			contentSuffix = ' (implicitly)';
 		}
 

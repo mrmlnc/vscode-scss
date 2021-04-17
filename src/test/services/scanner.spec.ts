@@ -51,7 +51,7 @@ describe('Services/Scanner', () => {
 			await scanner.scan([indexDocumentPath, variablesDocumentPath]);
 
 			assert.deepStrictEqual(storage.keys(), [indexDocumentPath, variablesDocumentPath]);
-			assert.strictEqual(storage.get(indexDocumentPath).variables.length, 1);
+			assert.strictEqual(storage.get(indexDocumentPath)?.variables.length, 1);
 
 			assert.strictEqual(scanner.fileExistsStub.callCount, 2);
 			assert.strictEqual(scanner.readFileStub.callCount, 2);
