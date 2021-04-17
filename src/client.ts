@@ -3,19 +3,20 @@
 import * as path from 'path';
 
 import * as vscode from 'vscode';
+import type {
+	LanguageClientOptions,
+	ServerOptions } from 'vscode-languageclient';
 import {
 	LanguageClient,
-	LanguageClientOptions,
-	ServerOptions,
 	TransportKind,
 	RevealOutputChannelOn
 } from 'vscode-languageclient';
 
-export function activate(context: vscode.ExtensionContext) {
-	const serverModule = path.join(__dirname, 'server.js');
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
+	const serverModule = path.join(__dirname, 'unsafe/server.js');
 
 	const runExecArgv: string[] = [];
-	const scssPort = vscode.workspace.getConfiguration().get('scss.dev.serverPort', -1);
+	const scssPort = vscode.workspace.getConfiguration().get<number>('scss.dev.serverPort', -1);
 	if (scssPort !== -1) {
 		runExecArgv.push(`--inspect=${scssPort}`);
 	}
@@ -54,12 +55,12 @@ export function activate(context: vscode.ExtensionContext) {
 	const client = new LanguageClient('scss-intellisense', 'SCSS IntelliSense', serverOptions, clientOptions);
 	context.subscriptions.push(client.start());
 
-	const promise = client.onReady().catch(e => {
+	const promise = client.onReady().catch((error) => {
 		console.log('Client initialization failed');
-		console.error(e);
+		console.error(error);
 	});
 
-	return vscode.window.withProgress(
+	await vscode.window.withProgress(
 		{
 			title: 'SCSS IntelliSense initialization',
 			location: vscode.ProgressLocation.Window

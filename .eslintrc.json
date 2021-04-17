@@ -2,5 +2,8 @@
 	"extends": "mrmlnc",
 	"ignorePatterns": [
 		"**/unsafe/**/*.ts"
-	]
+	],
+	"rules": {
+		"import/no-unresolved": ["error", { "ignore": ["vscode"] }]
+	}
 }

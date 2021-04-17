@@ -128,7 +128,7 @@
 		"lint": "eslint \"src/**/*.ts\" --cache",
 		"compile": "tsc",
 		"test": "mocha \"out/**/*.spec.js\"",
-		"test:e2e": "node ./out/test/e2e/runTest.js",
+		"test:e2e": "node ./out/unsafe/test/e2e/runTest.js",
 		"build": "npm run clean && npm run lint && npm run compile && npm test",
 		"watch": "npm run clean && npm run lint && tsc --watch"
 	},

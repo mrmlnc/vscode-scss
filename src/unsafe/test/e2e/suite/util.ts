@@ -10,7 +10,7 @@ export function position(line: number, char: number) {
 }
 
 export function getDocPath(p: string) {
-	return path.resolve(__dirname, '../../../../fixtures/e2e', p);
+	return path.resolve(__dirname, '../../../../../fixtures/e2e', p);
 }
 
 export function sameLineRange(line: number, startChar: number, endChar: number) {
