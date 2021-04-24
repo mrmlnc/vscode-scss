@@ -1,45 +1,65 @@
-'use strict';
-
 import * as path from 'path';
 
 import * as vscode from 'vscode';
-import type {
-	LanguageClientOptions,
-	ServerOptions } from 'vscode-languageclient';
-import {
-	LanguageClient,
-	TransportKind,
-	RevealOutputChannelOn
-} from 'vscode-languageclient';
+import type { LanguageClientOptions, NodeModule, ServerOptions } from 'vscode-languageclient';
+import { LanguageClient, TransportKind, RevealOutputChannelOn } from 'vscode-languageclient';
+import { EXTENSION_ID, EXTENSION_NAME } from './constants';
+
+const EXTENSION_SERVER_MODULE_PATH = path.join(__dirname, 'unsafe/server.js');
+const EXTENSION_DEFAULT_DEBUG_PORT = -1;
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-	const serverModule = path.join(__dirname, 'unsafe/server.js');
+	const client = buildClient();
 
-	const runExecArgv: string[] = [];
-	const scssPort = vscode.workspace.getConfiguration().get<number>('scss.dev.serverPort', -1);
-	if (scssPort !== -1) {
-		runExecArgv.push(`--inspect=${scssPort}`);
-	}
+	context.subscriptions.push(client.start());
 
-	const debugOptions = {
-		execArgv: ['--nolazy', '--inspect=6006']
-	};
+	const action = client.onReady()
+		.catch((error: unknown) => {
+			console.log('SCSS initialization failed');
+			console.error(error);
+		});
 
-	const serverOptions: ServerOptions = {
-		run: {
-			module: serverModule,
-			transport: TransportKind.ipc,
-			options: { execArgv: runExecArgv }
+	await vscode.window.withProgress(
+		{
+			title: 'SCSS initialization',
+			location: vscode.ProgressLocation.Window
 		},
-		debug: {
-			module: serverModule,
-			transport: TransportKind.ipc,
-			options: debugOptions
+		() => action
+	);
+}
+
+function buildClient(): LanguageClient {
+	return new LanguageClient(EXTENSION_ID, EXTENSION_NAME, buildServerOptions(), buildClientOptions());
+}
+
+function buildServerOptions(): ServerOptions {
+	const workspace = vscode.workspace.getConfiguration();
+	const extensionServerPort = workspace.get<number>('scss.dev.serverPort', EXTENSION_DEFAULT_DEBUG_PORT);
+
+	const configuration: NodeModule = {
+		module: EXTENSION_SERVER_MODULE_PATH,
+		transport: TransportKind.ipc,
+		options: {
+			execArgv: extensionServerPort === EXTENSION_DEFAULT_DEBUG_PORT ? [] : [`--inspect=${extensionServerPort}`]
 		}
 	};
 
-	const clientOptions: LanguageClientOptions = {
-		documentSelector: ['scss', 'vue'],
+	return {
+		run: {
+			...configuration
+		},
+		debug: {
+			...configuration,
+			options: {
+				execArgv: ['--nolazy', '--inspect=6006']
+			}
+		}
+	};
+}
+
+function buildClientOptions(): LanguageClientOptions {
+	return {
+		documentSelector: [{ scheme: 'file', language: 'scss' }],
 		synchronize: {
 			configurationSection: ['scss'],
 			fileEvents: vscode.workspace.createFileSystemWatcher('**/*.scss')
@@ -47,24 +67,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 		initializationOptions: {
 			settings: vscode.workspace.getConfiguration('scss')
 		},
-
 		// Don't open the output console (very annoying) in case of error
 		revealOutputChannelOn: RevealOutputChannelOn.Never
 	};
-
-	const client = new LanguageClient('scss-intellisense', 'SCSS IntelliSense', serverOptions, clientOptions);
-	context.subscriptions.push(client.start());
-
-	const promise = client.onReady().catch((error) => {
-		console.log('Client initialization failed');
-		console.error(error);
-	});
-
-	await vscode.window.withProgress(
-		{
-			title: 'SCSS IntelliSense initialization',
-			location: vscode.ProgressLocation.Window
-		},
-		() => promise
-	);
 }
