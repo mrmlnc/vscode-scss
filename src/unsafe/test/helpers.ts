@@ -1,5 +1,8 @@
+import * as path from 'path';
+
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { getSCSSLanguageService, Position, Range } from 'vscode-css-languageservice';
+import { getSCSSLanguageService, MarkupContent, MarkupKind, Position, Range } from 'vscode-css-languageservice';
+import { URI } from 'vscode-uri';
 
 import type { INode } from '../types/nodes';
 import type { ISettings } from '../types/settings';
@@ -18,7 +21,7 @@ export type MakeDocumentOptions = {
 
 export function makeDocument(lines: string | string[], options: MakeDocumentOptions = {}): TextDocument {
 	return TextDocument.create(
-		options.uri || 'index.scss',
+		options.uri || URI.file(path.join(process.cwd(), 'index.scss')).toString(),
 		options.languageId || 'scss',
 		options.version || 1,
 		Array.isArray(lines) ? lines.join('\n') : lines
@@ -48,4 +51,11 @@ export function makeSettings(options?: Partial<ISettings>): ISettings {
 		suggestFunctionsInStringContextAfterSymbols: ' (+-*%',
 		...options
 	};
+}
+
+export function makeMarkupContentForScssLanguage(content: string): MarkupContent {
+	return {
+		kind: MarkupKind.Markdown,
+		value: ['```scss', content, '```'].join('\n')
+	}
 }

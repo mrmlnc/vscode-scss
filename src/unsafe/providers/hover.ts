@@ -1,6 +1,6 @@
 'use strict';
 
-import type { Hover, MarkedString } from 'vscode-languageserver';
+import { Hover, MarkupContent, MarkupKind } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 
@@ -15,25 +15,23 @@ import { getLimitedString } from '../utils/string';
 
 type Identifier = { type: keyof ISymbols; name: string };
 
-/**
- * Returns a colored (marked) line for Variable.
- */
-function makeVariableAsMarkedString(symbol: IVariable, fsPath: string, suffix: string): MarkedString {
+function formatVariableMarkupContent(symbol: IVariable, fsPath: string, suffix: string): MarkupContent {
 	const value = getLimitedString(symbol.value || '');
 	if (fsPath !== 'current') {
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
 	return {
-		language: 'scss',
-		value: `${symbol.name}: ${value};` + suffix
+		kind: MarkupKind.Markdown,
+		value: [
+			'```scss',
+			`${symbol.name}: ${value};${suffix}`,
+			'```'
+		].join('\n')
 	};
 }
 
-/**
- * Returns a colored (marked) line for Mixin.
- */
-function makeMixinAsMarkedString(symbol: IMixin, fsPath: string, suffix: string): MarkedString {
+function formatMixinMarkupContent(symbol: IMixin, fsPath: string, suffix: string): MarkupContent {
 	const args = symbol.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
 
 	if (fsPath !== 'current') {
@@ -41,15 +39,16 @@ function makeMixinAsMarkedString(symbol: IMixin, fsPath: string, suffix: string)
 	}
 
 	return {
-		language: 'scss',
-		value: '@mixin ' + symbol.name + `(${args}) {\u2026}` + suffix
-	};
+		kind: MarkupKind.Markdown,
+		value: [
+			'```scss',
+			`@mixin ${symbol.name}(${args}) {\u2026}${suffix}`,
+			'```'
+		].join('\n')
+	}
 }
 
-/**
- * Returns a colored (marked) line for Function.
- */
-function makeFunctionAsMarkedString(symbol: IFunction, fsPath: string, suffix: string): MarkedString {
+function formatFunctionMarkupContent(symbol: IFunction, fsPath: string, suffix: string): MarkupContent {
 	const args = symbol.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
 
 	if (fsPath !== 'current') {
@@ -57,8 +56,12 @@ function makeFunctionAsMarkedString(symbol: IFunction, fsPath: string, suffix: s
 	}
 
 	return {
-		language: 'scss',
-		value: '@function ' + symbol.name + `(${args}) {\u2026}` + suffix
+		kind: MarkupKind.Markdown,
+		value: [
+			'```scss',
+			`@function ${symbol.name}(${args}) {\u2026}${suffix}`,
+			'```'
+		].join('\n')
 	};
 }
 
@@ -163,7 +166,7 @@ export async function doHover(document: TextDocument, offset: number, storage: S
 	const symbol = getSymbol(symbolsList, identifier, documentPath);
 
 	// Content for Hover popup
-	let contents: MarkedString = '';
+	let contents: MarkupContent | undefined;
 	if (symbol && symbol.document !== undefined) {
 		// Add 'implicitly' suffix if the file imported implicitly
 		let contentSuffix = '';
@@ -172,12 +175,16 @@ export async function doHover(document: TextDocument, offset: number, storage: S
 		}
 
 		if (identifier.type === 'variables') {
-			contents = makeVariableAsMarkedString(symbol.info, symbol.path, contentSuffix);
+			contents = formatVariableMarkupContent(symbol.info, symbol.path, contentSuffix);
 		} else if (identifier.type === 'mixins') {
-			contents = makeMixinAsMarkedString(symbol.info, symbol.path, contentSuffix);
+			contents = formatMixinMarkupContent(symbol.info, symbol.path, contentSuffix);
 		} else if (identifier.type === 'functions') {
-			contents = makeFunctionAsMarkedString(symbol.info, symbol.path, contentSuffix);
+			contents = formatFunctionMarkupContent(symbol.info, symbol.path, contentSuffix);
 		}
+	}
+
+	if (contents === undefined) {
+		return null;
 	}
 
 	return {
