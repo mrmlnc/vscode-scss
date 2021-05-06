@@ -36,37 +36,37 @@ describe('Services/Parser', () => {
 			const { symbols } = await parseDocument(document, null);
 
 			// Variables
-			assert.equal(symbols.variables.length, 1);
+			assert.strictEqual(symbols.variables.length, 1);
 
-			assert.equal(symbols.variables[0]?.name, '$name');
-			assert.equal(symbols.variables[0]?.value, '"value"');
+			assert.strictEqual(symbols.variables[0]?.name, '$name');
+			assert.strictEqual(symbols.variables[0]?.value, '"value"');
 
 			// Mixins
-			assert.equal(symbols.mixins.length, 1);
+			assert.strictEqual(symbols.mixins.length, 1);
 
-			assert.equal(symbols.mixins[0]?.name, 'mixin');
-			assert.equal(symbols.mixins[0]?.parameters.length, 2);
+			assert.strictEqual(symbols.mixins[0]?.name, 'mixin');
+			assert.strictEqual(symbols.mixins[0]?.parameters.length, 2);
 
-			assert.equal(symbols.mixins[0]?.parameters[0]?.name, '$a');
-			assert.equal(symbols.mixins[0]?.parameters[0]?.value, '1');
+			assert.strictEqual(symbols.mixins[0]?.parameters[0]?.name, '$a');
+			assert.strictEqual(symbols.mixins[0]?.parameters[0]?.value, '1');
 
-			assert.equal(symbols.mixins[0]?.parameters[1]?.name, '$b');
-			assert.equal(symbols.mixins[0]?.parameters[1]?.value, null);
+			assert.strictEqual(symbols.mixins[0]?.parameters[1]?.name, '$b');
+			assert.strictEqual(symbols.mixins[0]?.parameters[1]?.value, null);
 
 			// Functions
-			assert.equal(symbols.functions.length, 1);
+			assert.strictEqual(symbols.functions.length, 1);
 
-			assert.equal(symbols.functions[0]?.name, 'function');
-			assert.equal(symbols.functions[0]?.parameters.length, 2);
+			assert.strictEqual(symbols.functions[0]?.name, 'function');
+			assert.strictEqual(symbols.functions[0]?.parameters.length, 2);
 
-			assert.equal(symbols.functions[0]?.parameters[0]?.name, '$a');
-			assert.equal(symbols.functions[0]?.parameters[0]?.value, '1');
+			assert.strictEqual(symbols.functions[0]?.parameters[0]?.name, '$a');
+			assert.strictEqual(symbols.functions[0]?.parameters[0]?.value, '1');
 
-			assert.equal(symbols.functions[0]?.parameters[1]?.name, '$b');
-			assert.equal(symbols.functions[0]?.parameters[1]?.value, null);
+			assert.strictEqual(symbols.functions[0]?.parameters[1]?.name, '$b');
+			assert.strictEqual(symbols.functions[0]?.parameters[1]?.value, null);
 
 			// Imports
-			assert.equal(symbols.imports.length, 1);
+			assert.strictEqual(symbols.imports.length, 1);
 
 			assert.ok(symbols.imports[0]?.filepath.endsWith('file.scss'));
 		});
@@ -85,7 +85,7 @@ describe('Services/Parser', () => {
 
 			const { node } = await parseDocument(document, offset);
 
-			assert.equal(node?.type, NodeType.Identifier);
+			assert.strictEqual(node?.type, NodeType.Identifier);
 		});
 	});
 
