@@ -10,6 +10,7 @@ import { Stats } from '@nodelib/fs.macchiato';
 import StorageService from '../../services/storage';
 import ScannerService from '../../services/scanner';
 import * as helpers from '../helpers';
+import { URI } from 'vscode-uri';
 
 class ScannerServiceTest extends ScannerService {
 	protected _readFile = sinon.stub();
@@ -38,7 +39,9 @@ describe('Services/Scanner', () => {
 
 		it('should find files and update cache', async () => {
 			const indexDocumentPath = path.resolve('index.scss').toLowerCase();
+			const indexDocumentUri = URI.file(indexDocumentPath).toString();
 			const variablesDocumentPath = path.resolve('variables.scss').toLowerCase();
+			const variablesDocumentUri = URI.file(variablesDocumentPath).toString();
 
 			const storage = new StorageService();
 			const settings = helpers.makeSettings();
@@ -50,8 +53,8 @@ describe('Services/Scanner', () => {
 
 			await scanner.scan([indexDocumentPath, variablesDocumentPath]);
 
-			assert.deepStrictEqual(storage.keys(), [indexDocumentPath, variablesDocumentPath]);
-			assert.strictEqual(storage.get(indexDocumentPath)?.variables.length, 1);
+			assert.deepStrictEqual(storage.keys(), [indexDocumentUri, variablesDocumentUri]);
+			assert.strictEqual(storage.get(indexDocumentUri)?.variables.length, 1);
 
 			assert.strictEqual(scanner.fileExistsStub.callCount, 2);
 			assert.strictEqual(scanner.readFileStub.callCount, 2);
@@ -59,7 +62,9 @@ describe('Services/Scanner', () => {
 
 		it('should find file and imported files', async () => {
 			const indexDocumentPath = path.resolve('index.scss').toLowerCase();
+			const indexDocumentUri = URI.file(indexDocumentPath).toString();
 			const variablesDocumentPath = path.resolve('variables.scss').toLowerCase();
+			const variablesDocumentUri = URI.file(variablesDocumentPath).toString();
 
 			const storage = new StorageService();
 			const settings = helpers.makeSettings();
@@ -71,7 +76,7 @@ describe('Services/Scanner', () => {
 
 			await scanner.scan([indexDocumentPath]);
 
-			assert.deepStrictEqual(storage.keys(), [indexDocumentPath, variablesDocumentPath]);
+			assert.deepStrictEqual(storage.keys(), [indexDocumentUri, variablesDocumentUri]);
 
 			assert.strictEqual(scanner.fileExistsStub.callCount, 2);
 			assert.strictEqual(scanner.readFileStub.callCount, 2);
@@ -88,7 +93,7 @@ describe('Services/Scanner', () => {
 
 			await scanner.scan(['index.scss']);
 
-			assert.deepStrictEqual(storage.keys(), ['index.scss']);
+			assert.deepStrictEqual(storage.keys(), [URI.file('index.scss').toString()]);
 
 			assert.strictEqual(scanner.fileExistsStub.callCount, 1);
 			assert.strictEqual(scanner.readFileStub.callCount, 1);
@@ -105,7 +110,7 @@ describe('Services/Scanner', () => {
 
 			await scanner.scan(['index.scss'], /* recursive */ false);
 
-			assert.deepStrictEqual(storage.keys(), ['index.scss']);
+			assert.deepStrictEqual(storage.keys(), [URI.file('index.scss').toString()]);
 
 			assert.strictEqual(scanner.fileExistsStub.callCount, 1);
 			assert.strictEqual(scanner.readFileStub.callCount, 1);

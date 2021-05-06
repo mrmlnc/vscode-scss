@@ -8,7 +8,6 @@ import {
 	TextDocuments,
 	InitializeParams,
 	InitializeResult,
-	Files,
 	TextDocumentSyncKind
 } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -25,6 +24,7 @@ import { goDefinition } from './providers/goDefinition';
 import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
 import { findFiles } from './utils/fs';
 import { getSCSSRegionsDocument } from './utils/vue';
+import { URI } from 'vscode-uri';
 
 interface InitializationOption {
 	workspace: string;
@@ -96,15 +96,7 @@ connection.onDidChangeConfiguration(params => {
 });
 
 connection.onDidChangeWatchedFiles(event => {
-	const files = event.changes.reduce<string[]>((collection, file) => {
-		const filepath = Files.uriToFilePath(file.uri);
-
-		if (filepath !== undefined) {
-			collection.push(filepath);
-		}
-
-		return collection;
-	}, []);
+	const files = event.changes.map((file) => URI.parse(file.uri).fsPath);
 
 	return scannerService.scan(files);
 });

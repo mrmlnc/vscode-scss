@@ -2,7 +2,7 @@
 
 import * as assert from 'assert';
 
-import { Files } from 'vscode-languageserver';
+import { URI } from 'vscode-uri';
 
 import StorageService from '../../services/storage';
 import { goDefinition } from '../../providers/goDefinition';
@@ -31,7 +31,9 @@ describe('Providers/GoDefinition', () => {
 
 		const actual = await goDefinition(document, 15, storage);
 
-		assert.ok(Files.uriToFilePath(actual?.uri || ''), 'one.scss');
+
+
+		assert.ok(URI.parse(actual?.uri ?? ''), 'one.scss');
 		assert.deepEqual(actual?.range, {
 			start: { line: 1, character: 1 },
 			end: { line: 1, character: 3 }
@@ -51,7 +53,7 @@ describe('Providers/GoDefinition', () => {
 
 		const actual = await goDefinition(document, 16, storage);
 
-		assert.ok(Files.uriToFilePath(actual?.uri || ''), 'one.scss');
+		assert.ok(URI.parse(actual?.uri ?? ''), 'one.scss');
 		assert.deepEqual(actual?.range, {
 			start: { line: 1, character: 1 },
 			end: { line: 1, character: 6 }
@@ -79,7 +81,7 @@ describe('Providers/GoDefinition', () => {
 
 		const actual = await goDefinition(document, 16, storage);
 
-		assert.ok(Files.uriToFilePath(actual?.uri || ''), 'one.scss');
+		assert.ok(URI.parse(actual?.uri ?? ''), 'one.scss');
 		assert.deepEqual(actual?.range, {
 			start: { line: 1, character: 1 },
 			end: { line: 1, character: 5 }
