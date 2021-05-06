@@ -1,24 +1,30 @@
 'use strict';
 
 import type { Position } from 'vscode-languageserver-textdocument';
-import type { IVariable as IVar, IMixin as IMix, IFunction as IFun, IImport as IImp } from 'scss-symbols-parser';
 import type { INode } from './nodes';
 
-export interface IVariable extends IVar {
+export interface IVariable {
 	position?: Position;
 	mixin?: string;
+    name: string;
+    value: string | null;
+    offset: number;
 }
 
-export interface IMixin extends IMix {
+export interface IMixin {
 	position?: Position;
+	name: string;
+    parameters: IVariable[];
+    offset: number;
 }
 
-export interface IFunction extends IFun {
-	position?: Position;
-}
+export type IFunction = IMixin;
 
-export interface IImport extends IImp {
+export interface IImport {
 	reference?: boolean;
+	filepath: string;
+    dynamic: boolean;
+    css: boolean;
 }
 
 export interface IDocumentSymbols extends ISymbols {
