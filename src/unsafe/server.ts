@@ -26,7 +26,12 @@ import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
 import { findFiles } from './utils/fs';
 import { getSCSSRegionsDocument } from './utils/vue';
 
-let workspaceRoot: string | null | undefined;
+interface InitializationOption {
+	workspace: string;
+	settings: ISettings;
+}
+
+let workspaceRoot: string;
 let settings: ISettings;
 let storageService: StorageService;
 let scannerService: ScannerService;
@@ -49,13 +54,16 @@ documents.listen(connection);
 // _in the passed params the rootPath of the workspace plus the client capabilites
 connection.onInitialize(
 	async (params: InitializeParams): Promise<InitializeResult> => {
-		workspaceRoot = params.rootPath;
-		settings = params.initializationOptions.settings;
+		const options = params.initializationOptions as InitializationOption;
+
+		workspaceRoot = options.workspace;
+		settings = options.settings;
+
 		storageService = new StorageService();
 		scannerService = new ScannerService(storageService, settings);
 
 		const files = await findFiles('**/*.scss', {
-			cwd: params.rootPath || undefined,
+			cwd: workspaceRoot,
 			deep: settings.scannerDepth,
 			ignore: settings.scannerExclude
 		});
@@ -166,10 +174,6 @@ connection.onDefinition(textDocumentPosition => {
 });
 
 connection.onWorkspaceSymbol(workspaceSymbolParams => {
-	if (workspaceRoot === null || workspaceRoot === undefined) {
-		return;
-	}
-
 	return searchWorkspaceSymbol(workspaceSymbolParams.query, storageService, workspaceRoot);
 });
 
