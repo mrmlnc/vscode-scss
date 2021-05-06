@@ -81,7 +81,7 @@ async function findDocumentLinks(document: TextDocument, ast: INode): Promise<Do
 	const result: DocumentLink[] = [];
 
 	for (const link of links) {
-		if (link.target !== undefined) {
+		if (link.target !== undefined && link.target !== '') {
 			result.push({
 				...link,
 				target: URI.parse(link.target).fsPath
