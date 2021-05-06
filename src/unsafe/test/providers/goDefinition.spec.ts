@@ -45,7 +45,7 @@ describe('Providers/GoDefinition', () => {
 
 		const actual = await goDefinition(document, 2, storage);
 
-		assert.equal(actual, null);
+		assert.strictEqual(actual, null);
 	});
 
 	it('doGoDefinition - Mixins', async () => {
@@ -65,7 +65,7 @@ describe('Providers/GoDefinition', () => {
 
 		const actual = await goDefinition(document, 8, storage);
 
-		assert.equal(actual, null);
+		assert.strictEqual(actual, null);
 	});
 
 	it('doGoDefinition - Mixin Arguments', async () => {
@@ -73,7 +73,7 @@ describe('Providers/GoDefinition', () => {
 
 		const actual = await goDefinition(document, 10, storage);
 
-		assert.equal(actual, null);
+		assert.strictEqual(actual, null);
 	});
 
 	it('doGoDefinition - Functions', async () => {
@@ -93,7 +93,7 @@ describe('Providers/GoDefinition', () => {
 
 		const actual = await goDefinition(document, 8, storage);
 
-		assert.equal(actual, null);
+		assert.strictEqual(actual, null);
 	});
 
 	it('doGoDefinition - Function Arguments', async () => {
@@ -101,6 +101,6 @@ describe('Providers/GoDefinition', () => {
 
 		const actual = await goDefinition(document, 13, storage);
 
-		assert.equal(actual, null);
+		assert.strictEqual(actual, null);
 	});
 });
