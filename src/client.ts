@@ -2,8 +2,8 @@ import * as path from 'path';
 
 import * as vscode from 'vscode';
 import type { URI } from 'vscode-uri';
-import type { LanguageClientOptions, NodeModule, ServerOptions } from 'vscode-languageclient';
-import { LanguageClient, TransportKind, RevealOutputChannelOn } from 'vscode-languageclient';
+import type { LanguageClientOptions, NodeModule, ServerOptions } from 'vscode-languageclient/node';
+import { LanguageClient, TransportKind, RevealOutputChannelOn } from 'vscode-languageclient/node';
 import { EXTENSION_ID, EXTENSION_NAME } from './constants';
 
 const EXTENSION_SERVER_MODULE_PATH = path.join(__dirname, './unsafe/server.js');

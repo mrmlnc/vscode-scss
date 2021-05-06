@@ -2,14 +2,14 @@
 
 import {
 	createConnection,
-	IConnection,
+	Connection,
 	IPCMessageReader,
 	IPCMessageWriter,
 	TextDocuments,
 	InitializeParams,
 	InitializeResult,
 	TextDocumentSyncKind
-} from 'vscode-languageserver';
+} from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import type { ISettings } from './types/settings';
@@ -37,7 +37,7 @@ let storageService: StorageService;
 let scannerService: ScannerService;
 
 // Create a connection for the server
-const connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
+const connection: Connection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 
 console.log = connection.console.log.bind(connection.console);
 console.error = connection.console.error.bind(connection.console);

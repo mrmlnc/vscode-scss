@@ -11,8 +11,6 @@ export async function run(): Promise<void> {
 		timeout: ONE_SECOND_IN_MS * 10
 	});
 
-	mocha.useColors(true);
-
 	const files = await fg('**/*.test.js', {
 		cwd: path.resolve(__dirname, '..'),
 		absolute: true
