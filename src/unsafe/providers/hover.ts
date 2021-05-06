@@ -1,7 +1,8 @@
 'use strict';
 
-import { Hover, MarkedString, Files } from 'vscode-languageserver';
+import type { Hover, MarkedString } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { URI } from 'vscode-uri';
 
 import { NodeType } from '../types/nodes';
 import type { IDocumentSymbols, IVariable, IMixin, IFunction, ISymbols } from '../types/symbols';
@@ -103,10 +104,7 @@ function getSymbol(symbolList: IDocumentSymbols[], identifier: Identifier, curre
 }
 
 export async function doHover(document: TextDocument, offset: number, storage: StorageService): Promise<Hover | null> {
-	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
-	if (!documentPath) {
-		return null;
-	}
+	const documentPath = URI.parse(document.uri).fsPath;
 
 	const resource = await parseDocument(document, offset);
 	const hoverNode = resource.node;

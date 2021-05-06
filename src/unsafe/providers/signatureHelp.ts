@@ -1,8 +1,9 @@
 'use strict';
 
-import { SignatureHelp, SignatureInformation, Files } from 'vscode-languageserver';
+import { SignatureHelp, SignatureInformation } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { tokenizer } from 'scss-symbols-parser';
+import { URI } from 'vscode-uri';
 
 import type { IVariable } from '../types/symbols';
 import type StorageService from '../services/storage';
@@ -151,10 +152,7 @@ export async function doSignatureHelp(
 		signatures: []
 	};
 
-	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
-	if (!documentPath) {
-		return ret;
-	}
+	const documentPath = URI.parse(document.uri).fsPath;
 
 	// Skip suggestions if the text not include `(` or include `);`
 	const textBeforeWord = getTextBeforePosition(document.getText(), offset);
