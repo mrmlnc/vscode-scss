@@ -1,4 +1,5 @@
 .vscode/**
+.github/**
 .ci/**
 typings/**
 fixtures/**
@@ -6,8 +7,8 @@ src/**
 out/**/*.spec.*
 .editorconfig
 .gitignore
-.prettierignore
 .mergify.yml
 tsconfig.json
-tslint.json
+.eslintrc.json
+.eslintcache
 *.vsix
