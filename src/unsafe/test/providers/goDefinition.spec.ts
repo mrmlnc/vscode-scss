@@ -34,7 +34,7 @@ describe('Providers/GoDefinition', () => {
 
 
 		assert.ok(URI.parse(actual?.uri ?? ''), 'one.scss');
-		assert.deepEqual(actual?.range, {
+		assert.deepStrictEqual(actual?.range, {
 			start: { line: 1, character: 1 },
 			end: { line: 1, character: 3 }
 		});
@@ -54,7 +54,7 @@ describe('Providers/GoDefinition', () => {
 		const actual = await goDefinition(document, 16, storage);
 
 		assert.ok(URI.parse(actual?.uri ?? ''), 'one.scss');
-		assert.deepEqual(actual?.range, {
+		assert.deepStrictEqual(actual?.range, {
 			start: { line: 1, character: 1 },
 			end: { line: 1, character: 6 }
 		});
@@ -82,7 +82,7 @@ describe('Providers/GoDefinition', () => {
 		const actual = await goDefinition(document, 16, storage);
 
 		assert.ok(URI.parse(actual?.uri ?? ''), 'one.scss');
-		assert.deepEqual(actual?.range, {
+		assert.deepStrictEqual(actual?.range, {
 			start: { line: 1, character: 1 },
 			end: { line: 1, character: 5 }
 		});
