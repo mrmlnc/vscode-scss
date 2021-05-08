@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import type { URI } from 'vscode-uri';
 import type { LanguageClientOptions, NodeModule, ServerOptions } from 'vscode-languageclient/node';
 import { LanguageClient, TransportKind, RevealOutputChannelOn } from 'vscode-languageclient/node';
+
 import { EXTENSION_ID, EXTENSION_NAME } from './constants';
 
 const EXTENSION_SERVER_MODULE_PATH = path.join(__dirname, './unsafe/server.js');
@@ -102,12 +103,21 @@ function buildServerOptions(workspace: URI): ServerOptions {
 }
 
 function buildClientOptions(workspace: URI): LanguageClientOptions {
+	/**
+	 * The workspace path is used to separate clients in multi-workspace environment.
+	 * Otherwise, each client will participate in each workspace.
+	 */
+	const pattern = `${workspace.fsPath.replace(/\\/g, '/')}/**`;
+
 	return {
-		documentSelector: [{ scheme: 'file', language: 'scss' }, { scheme: 'file', language: 'vue' }],
+		documentSelector: [
+			{ scheme: 'file', language: 'scss', pattern },
+			{ scheme: 'file', language: 'vue', pattern }
+		],
 		synchronize: {
 			configurationSection: ['scss'],
 			fileEvents: vscode.workspace.createFileSystemWatcher({
-				base: path.dirname(workspace.fsPath),
+				base: workspace.fsPath,
 				pattern: '**/*.scss'
 			})
 		},
