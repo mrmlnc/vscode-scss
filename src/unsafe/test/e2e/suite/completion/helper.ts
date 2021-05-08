@@ -31,20 +31,20 @@ export async function testCompletion(
 				return;
 			}
 
-			assert.equal(match.label, ei.label);
+			assert.strictEqual(match.label, ei.label);
 			if (ei.kind) {
-				assert.equal(match.kind, ei.kind);
+				assert.strictEqual(match.kind, ei.kind);
 			}
 			if (ei.detail) {
-				assert.equal(match.detail, ei.detail);
+				assert.strictEqual(match.detail, ei.detail);
 			}
 
 			if (ei.documentation) {
 				if (typeof match.documentation === 'string') {
-					assert.equal(match.documentation, ei.documentation);
+					assert.strictEqual(match.documentation, ei.documentation);
 				} else {
 					if (ei.documentation && (ei.documentation as MarkupContent).value && match.documentation) {
-						assert.equal(
+						assert.strictEqual(
 							(match.documentation as vscode.MarkdownString).value,
 							(ei.documentation as MarkupContent).value
 						);

@@ -2,15 +2,14 @@
 
 import {
 	createConnection,
-	IConnection,
+	Connection,
 	IPCMessageReader,
 	IPCMessageWriter,
 	TextDocuments,
 	InitializeParams,
 	InitializeResult,
-	Files,
 	TextDocumentSyncKind
-} from 'vscode-languageserver';
+} from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import type { ISettings } from './types/settings';
@@ -25,6 +24,7 @@ import { goDefinition } from './providers/goDefinition';
 import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
 import { findFiles } from './utils/fs';
 import { getSCSSRegionsDocument } from './utils/vue';
+import { URI } from 'vscode-uri';
 
 interface InitializationOption {
 	workspace: string;
@@ -37,7 +37,7 @@ let storageService: StorageService;
 let scannerService: ScannerService;
 
 // Create a connection for the server
-const connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
+const connection: Connection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 
 console.log = connection.console.log.bind(connection.console);
 console.error = connection.console.error.bind(connection.console);
@@ -96,15 +96,7 @@ connection.onDidChangeConfiguration(params => {
 });
 
 connection.onDidChangeWatchedFiles(event => {
-	const files = event.changes.reduce<string[]>((collection, file) => {
-		const filepath = Files.uriToFilePath(file.uri);
-
-		if (filepath !== undefined) {
-			collection.push(filepath);
-		}
-
-		return collection;
-	}, []);
+	const files = event.changes.map((file) => URI.parse(file.uri).fsPath);
 
 	return scannerService.scan(files);
 });

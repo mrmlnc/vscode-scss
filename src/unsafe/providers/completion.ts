@@ -1,7 +1,8 @@
 'use strict';
 
-import { CompletionList, CompletionItemKind, Files, CompletionItem } from 'vscode-languageserver';
+import { CompletionList, CompletionItemKind, CompletionItem } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import { URI } from 'vscode-uri';
 
 import type { IMixin, IDocumentSymbols } from '../types/symbols';
 import type { ISettings } from '../types/settings';
@@ -234,14 +235,11 @@ export async function doCompletion(
 ): Promise<CompletionList | null> {
 	const completions = CompletionList.create([], false);
 
-	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
-	if (!documentPath) {
-		return null;
-	}
+	const documentPath = URI.parse(document.uri).fsPath;
 
 	const resource = await parseDocument(document, offset);
 
-	storage.set(documentPath, resource.symbols);
+	storage.set(document.uri, resource.symbols);
 
 	const symbolsList = getSymbolsRelatedToDocument(storage, documentPath);
 	const documentImports = resource.symbols.imports.map(x => x.filepath);

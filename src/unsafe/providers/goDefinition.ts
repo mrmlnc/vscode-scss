@@ -1,6 +1,6 @@
 'use strict';
 
-import { Location, Files } from 'vscode-languageserver';
+import { Location } from 'vscode-languageserver';
 import type { TextDocument, Position } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 
@@ -60,10 +60,7 @@ function getSymbols(symbolList: IDocumentSymbols[], identifier: IIdentifier, cur
 }
 
 export async function goDefinition(document: TextDocument, offset: number, storage: StorageService): Promise<Location | null> {
-	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
-	if (!documentPath) {
-		return null;
-	}
+	const documentPath = URI.parse(document.uri).fsPath;
 
 	const resource = await parseDocument(document, offset);
 	const hoverNode = resource.node;
@@ -107,8 +104,8 @@ export async function goDefinition(document: TextDocument, offset: number, stora
 		return null;
 	}
 
-	if ( resource.symbols.document !== undefined) {
-		storage.set(resource.symbols.document, resource.symbols);
+	if (resource.symbols.document !== undefined) {
+		storage.set(document.uri, resource.symbols);
 	}
 
 	const symbolsList = getSymbolsRelatedToDocument(storage, documentPath);

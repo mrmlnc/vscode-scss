@@ -41,10 +41,7 @@ describe('Providers/Hover', () => {
 			'.a { content: $one|; }'
 		]);
 
-		assert.deepStrictEqual(actual?.contents, {
-			language: 'scss',
-			value: '$one: 1;'
-		});
+		assert.deepStrictEqual(actual?.contents, helpers.makeMarkupContentForScssLanguage('$one: 1;'));
 	});
 
 	it('should suggest global variables', async () => {
@@ -52,10 +49,7 @@ describe('Providers/Hover', () => {
 			'.a { content: $variable|; }'
 		]);
 
-		assert.deepStrictEqual(actual?.contents, {
-			language: 'scss',
-			value: '$variable: null;\n@import "file.scss" (implicitly)'
-		});
+		assert.deepStrictEqual(actual?.contents, helpers.makeMarkupContentForScssLanguage('$variable: null;\n@import "file.scss" (implicitly)'));
 	});
 
 	it('should suggest global mixins', async () => {
@@ -63,10 +57,7 @@ describe('Providers/Hover', () => {
 			'@include mixin|'
 		]);
 
-		assert.deepStrictEqual(actual?.contents, {
-			language: 'scss',
-			value: '@mixin mixin() {…}\n@import "file.scss" (implicitly)'
-		});
+		assert.deepStrictEqual(actual?.contents, helpers.makeMarkupContentForScssLanguage('@mixin mixin() {…}\n@import "file.scss" (implicitly)'));
 	});
 
 	// Does not work right now
@@ -75,9 +66,6 @@ describe('Providers/Hover', () => {
 			'.a { content: make|(); }'
 		]);
 
-		assert.deepStrictEqual(actual?.contents, {
-			language: 'scss',
-			value: '@function make($a: null) {…}\n@import "file.scss" (implicitly)'
-		});
+		assert.deepStrictEqual(actual?.contents, helpers.makeMarkupContentForScssLanguage('@function make($a: null) {…}\n@import "file.scss" (implicitly)'));
 	});
 });

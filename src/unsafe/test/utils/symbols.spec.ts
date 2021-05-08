@@ -17,6 +17,6 @@ describe('Utils/Symbols', () => {
 			imports: []
 		});
 
-		assert.equal(getSymbolsCollection(storage).length, 1);
+		assert.strictEqual(getSymbolsCollection(storage).length, 1);
 	});
 });

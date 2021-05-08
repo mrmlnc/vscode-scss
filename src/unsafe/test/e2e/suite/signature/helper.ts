@@ -17,10 +17,10 @@ export async function testSignature(docUri: vscode.Uri, position: vscode.Positio
 		assert.fail("The 'result' is undefined.");
 	}
 
-	assert.equal(result.activeParameter, signature.activeParameter, 'activeParameter');
-	assert.equal(result.activeSignature, signature.activeSignature, 'activeSignature');
+	assert.strictEqual(result.activeParameter, signature.activeParameter, 'activeParameter');
+	assert.strictEqual(result.activeSignature, signature.activeSignature, 'activeSignature');
 
-	assert.equal(
+	assert.strictEqual(
 		result.signatures.length,
 		signature.signatures.length,
 		`Count of signatures: ${signature.signatures.length} expected; ${result.signatures.length} actual`
@@ -33,9 +33,9 @@ export async function testSignature(docUri: vscode.Uri, position: vscode.Positio
 			assert.fail("The 'actualSignature' is undefined.");
 		}
 
-		assert.equal(actualSignature.label, expectedSignature.label);
+		assert.strictEqual(actualSignature.label, expectedSignature.label);
 
-		assert.equal(
+		assert.strictEqual(
 			actualSignature.parameters.length,
 			expectedSignature.parameters.length,
 			`Count of parameters for {expectedSignature.label}: ${expectedSignature.parameters.length} expected; ${actualSignature.parameters.length} actual`

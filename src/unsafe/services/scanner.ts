@@ -1,6 +1,7 @@
 import * as path from 'path';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import { URI } from 'vscode-uri';
 
 import type { ISettings } from '../types/settings';
 import { readFile, fileExists } from '../utils/fs';
@@ -17,19 +18,21 @@ export default class ScannerService {
 			// Cast to the system file path style
 			filepath = path.normalize(filepath);
 
+			const uri = URI.file(filepath).toString();
+
 			const isExistFile = await this._fileExists(filepath);
 
 			if (!isExistFile) {
-				this._storage.delete(filepath);
+				this._storage.delete(uri);
 
 				continue;
 			}
 
 			const content = await this._readFile(filepath);
-			const document = TextDocument.create(filepath, 'scss', 1, content);
+			const document = TextDocument.create(uri, 'scss', 1, content);
 			const { symbols } = await parseDocument(document, null);
 
-			this._storage.set(filepath, { ...symbols, filepath });
+			this._storage.set(uri, { ...symbols, filepath });
 
 			if (!recursive || !this._settings.scanImportedFiles) {
 				continue;

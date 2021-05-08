@@ -18,5 +18,5 @@ export async function testDefinition(docUri: vscode.Uri, position: vscode.Positi
 	}
 
 	assert.ok(result[0].range.isEqual(expectedLocation.range));
-	assert.equal(result[0].uri.fsPath, expectedLocation.uri.fsPath);
+	assert.strictEqual(result[0].uri.fsPath, expectedLocation.uri.fsPath);
 }

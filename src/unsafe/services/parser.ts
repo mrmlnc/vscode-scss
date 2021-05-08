@@ -1,6 +1,5 @@
 'use strict';
 
-import { Files } from 'vscode-languageserver';
 import { SymbolKind, DocumentLink } from 'vscode-css-languageservice';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
@@ -19,8 +18,8 @@ const ls = getLanguageService();
  * Returns all Symbols in a single document.
  */
 export async function parseDocument(document: TextDocument, offset: number | null = null): Promise<IDocument> {
+	const documentPath = URI.parse(document.uri).fsPath;
 	const ast = ls.parseStylesheet(document) as INode;
-	const documentPath = Files.uriToFilePath(document.uri) || document.uri;
 
 	const symbols: IDocumentSymbols = {
 		document: documentPath,
@@ -77,10 +76,7 @@ async function findDocumentSymbols(document: TextDocument, ast: INode): Promise<
 }
 
 async function findDocumentLinks(document: TextDocument, ast: INode): Promise<DocumentLink[]> {
-	// The `findDocumentLinks2` method requires URI.
-	const uri = document.uri.startsWith('file:') ? document.uri : URI.file(document.uri).toString();
-
-	const links = await ls.findDocumentLinks2(document, ast, buildDocumentContext(uri));
+	const links = await ls.findDocumentLinks2(document, ast, buildDocumentContext(document.uri));
 
 	const result: DocumentLink[] = [];
 
@@ -132,7 +128,7 @@ function getMethodParameters(ast: INode, offset: number): IVariable[] {
 }
 
 export function convertLinksToImports(links: DocumentLink[]): IImport[] {
-	const result: IImport[] =[];
+	const result: IImport[] = [];
 
 	for (const link of links) {
 		if (link.target !== undefined) {
