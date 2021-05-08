@@ -1,7 +1,6 @@
 'use strict';
 
 import * as assert from 'assert';
-import * as path from 'path';
 import * as fs from 'fs';
 
 import * as sinon from 'sinon';
@@ -31,7 +30,7 @@ describe('Services/Parser', () => {
 				'$name: "value";',
 				'@mixin mixin($a: 1, $b) {}',
 				'@function function($a: 1, $b) {}'
-			], { uri: path.resolve('index.scss') });
+			]);
 
 			const { symbols } = await parseDocument(document, null);
 
