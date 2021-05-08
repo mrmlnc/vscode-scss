@@ -239,7 +239,7 @@ export async function doCompletion(
 
 	const resource = await parseDocument(document, offset);
 
-	storage.set(documentPath, resource.symbols);
+	storage.set(document.uri, resource.symbols);
 
 	const symbolsList = getSymbolsRelatedToDocument(storage, documentPath);
 	const documentImports = resource.symbols.imports.map(x => x.filepath);

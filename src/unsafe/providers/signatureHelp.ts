@@ -3,7 +3,6 @@
 import { SignatureHelp, SignatureInformation } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { tokenizer } from 'scss-symbols-parser';
-import { URI } from 'vscode-uri';
 
 import type { IVariable } from '../types/symbols';
 import type StorageService from '../services/storage';
@@ -152,8 +151,6 @@ export async function doSignatureHelp(
 		signatures: []
 	};
 
-	const documentPath = URI.parse(document.uri).fsPath;
-
 	// Skip suggestions if the text not include `(` or include `);`
 	const textBeforeWord = getTextBeforePosition(document.getText(), offset);
 	if (textBeforeWord.endsWith(');') || !textBeforeWord.includes('(')) {
@@ -169,7 +166,7 @@ export async function doSignatureHelp(
 
 	const resource = await parseDocument(document, offset);
 
-	storage.set(documentPath, resource.symbols);
+	storage.set(document.uri, resource.symbols);
 
 	getSymbolsCollection(storage).forEach(symbols => {
 		symbols[symbolType].forEach(symbol => {

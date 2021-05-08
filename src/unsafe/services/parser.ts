@@ -76,10 +76,7 @@ async function findDocumentSymbols(document: TextDocument, ast: INode): Promise<
 }
 
 async function findDocumentLinks(document: TextDocument, ast: INode): Promise<DocumentLink[]> {
-	// The `findDocumentLinks2` method requires URI.
-	const uri = document.uri.startsWith('file:') ? document.uri : URI.file(document.uri).toString();
-
-	const links = await ls.findDocumentLinks2(document, ast, buildDocumentContext(uri));
+	const links = await ls.findDocumentLinks2(document, ast, buildDocumentContext(document.uri));
 
 	const result: DocumentLink[] = [];
 
