@@ -1,11 +1,4 @@
 pull_request_rules:
-  - name: Conflicts
-    conditions:
-      - conflict
-    actions:
-      comment:
-        message: This pull request is now in conflicts. Could you fix it?
-
   - name: Merge with review
     conditions:
       - base=master

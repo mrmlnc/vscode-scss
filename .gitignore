@@ -5,13 +5,10 @@ npm-debug.log*
 
 # Dependency directory
 node_modules/
-# Fixture dependencies
 !fixtures/e2e/node_modules
 
-# Build directory
+# Compiled and temporary files
 out/
-
-# VS Code binary
-.vscode-test
-
 *.vsix
+.vscode-test
+.eslintcache
