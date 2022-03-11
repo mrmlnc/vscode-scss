@@ -33,6 +33,13 @@ Just install the plugin and use it.
 
 ## Supported settings
 
+#### scss.scannerRoot
+
+* Type: `string`
+* Default: `""`
+
+Set root directory for the scanner, relative to your workspace. `""` means whole workspace will be scanned. If your workspace has many .scss files unrelated to your current work, you should point the scanner to more specific location eg. `"themes/my-theme/src/scss"`.
+
 #### scss.scannerDepth
 
 * Type: `number`
