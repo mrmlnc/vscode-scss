@@ -40,6 +40,7 @@ export function makeSameLineRange(line: number = 1, start: number = 1, end: numb
 
 export function makeSettings(options?: Partial<ISettings>): ISettings {
 	return {
+		scannerRoot: '',
 		scannerDepth: 30,
 		scannerExclude: ['**/.git', '**/node_modules', '**/bower_components'],
 		scanImportedFiles: true,

@@ -25,6 +25,7 @@ import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
 import { findFiles } from './utils/fs';
 import { getSCSSRegionsDocument } from './utils/vue';
 import { URI } from 'vscode-uri';
+import * as path from 'path';
 
 interface InitializationOption {
 	workspace: string;
@@ -56,8 +57,8 @@ connection.onInitialize(
 	async (params: InitializeParams): Promise<InitializeResult> => {
 		const options = params.initializationOptions as InitializationOption;
 
-		workspaceRoot = options.workspace;
 		settings = options.settings;
+		workspaceRoot = path.join(options.workspace, settings.scannerRoot);
 
 		storageService = new StorageService();
 		scannerService = new ScannerService(storageService, settings);

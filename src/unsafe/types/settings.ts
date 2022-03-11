@@ -2,6 +2,7 @@
 
 export interface ISettings {
 	// Scanner
+	scannerRoot: string;
 	scannerDepth: number;
 	scannerExclude: string[];
 	scanImportedFiles: boolean;
