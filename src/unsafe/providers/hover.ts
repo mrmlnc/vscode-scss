@@ -3,6 +3,7 @@
 import { Hover, MarkupContent, MarkupKind } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
+import * as sassdoc from 'sassdoc';
 
 import { NodeType } from '../types/nodes';
 import type { IDocumentSymbols, IVariable, IMixin, IFunction, ISymbols } from '../types/symbols';
@@ -15,51 +16,104 @@ import { getLimitedString } from '../utils/string';
 
 type Identifier = { type: keyof ISymbols; name: string };
 
-function formatVariableMarkupContent(symbol: IVariable, fsPath: string, suffix: string): MarkupContent {
-	const value = getLimitedString(symbol.value || '');
+async function applySassdoc(symbol: ISymbol, identifierType: "function" | "mixin" | "variable"): Promise<string> {
+	try {
+		const sassdocs = await sassdoc.parse(symbol.document);
+
+		if (sassdocs.length) {
+			// Sassdoc strips away the syntax, so we need to rebuild for our preview to look familiar
+			const name = symbol.info.name.replace("$", "");
+			for (let doc of sassdocs) {
+				if (doc.description && doc.context.type === identifierType && doc.context.name === name) {
+					let description = doc.description.split("\n").map(line => line ? `/// ${line}` : line).join("\n").trimStart();
+
+					if (doc.author) {
+						for (let author of doc.author) {
+							description += `/// @author ${author}\n`;
+						}
+					}
+
+					description += `/// @access ${doc.access}\n`;
+
+					if (doc.parameter) {
+						for (let parameter of doc.parameter) {
+								description += `/// @param ${parameter.type ? `{${parameter.type}}` : ''} ${parameter.name}${parameter.description ? ` - ${parameter.description}` : ''}\n`;
+						}
+					}
+
+					if (doc.return) {
+							description += `/// @return {${doc.return.type}}\n`;
+					}
+
+					return description;
+				}
+			}
+		}
+		return "";
+
+	} catch (e) {
+		// Shouldn't happen, but let's not crash the rest of the plugin in case this fails
+		return "";
+	}
+}
+
+async function formatVariableMarkupContent(symbol: ISymbol, suffix: string): Promise<MarkupContent> {
+	const variable = symbol.info as IVariable;
+	const fsPath = symbol.path;
+	const value = getLimitedString(variable.value || '');
 	if (fsPath !== 'current') {
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
+
+	const sassdoc = await applySassdoc(symbol, "variable");
 
 	return {
 		kind: MarkupKind.Markdown,
 		value: [
 			'```scss',
-			`${symbol.name}: ${value};${suffix}`,
+			`${sassdoc}${variable.name}: ${value};${suffix}`,
 			'```'
 		].join('\n')
 	};
 }
 
-function formatMixinMarkupContent(symbol: IMixin, fsPath: string, suffix: string): MarkupContent {
-	const args = symbol.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
+async function formatMixinMarkupContent(symbol: ISymbol, suffix: string): Promise<MarkupContent> {
+	const mixin = symbol.info as IMixin;
+	const fsPath = symbol.path;
+	const args = mixin.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
 
 	if (fsPath !== 'current') {
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
+	const sassdoc = await applySassdoc(symbol, "mixin");
+
 	return {
 		kind: MarkupKind.Markdown,
 		value: [
 			'```scss',
-			`@mixin ${symbol.name}(${args}) {\u2026}${suffix}`,
+			`${sassdoc}@mixin ${mixin.name}(${args}) {\u2026}${suffix}`,
 			'```'
 		].join('\n')
 	}
 }
 
-function formatFunctionMarkupContent(symbol: IFunction, fsPath: string, suffix: string): MarkupContent {
-	const args = symbol.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
+async function formatFunctionMarkupContent(symbol: ISymbol, suffix: string): Promise<MarkupContent> {
+	const func = symbol.info as IFunction;
+	const fsPath = symbol.path;
+	const args = func.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
 
 	if (fsPath !== 'current') {
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
+	const sassdoc = await applySassdoc(symbol, "function");
+
 	return {
 		kind: MarkupKind.Markdown,
 		value: [
 			'```scss',
-			`@function ${symbol.name}(${args}) {\u2026}${suffix}`,
+			`${sassdoc}@function ${func.name}(${args}) {\u2026}${suffix}`,
 			'```'
 		].join('\n')
 	};
@@ -175,11 +229,11 @@ export async function doHover(document: TextDocument, offset: number, storage: S
 		}
 
 		if (identifier.type === 'variables') {
-			contents = formatVariableMarkupContent(symbol.info, symbol.path, contentSuffix);
+			contents = await formatVariableMarkupContent(symbol, contentSuffix);
 		} else if (identifier.type === 'mixins') {
-			contents = formatMixinMarkupContent(symbol.info, symbol.path, contentSuffix);
+			contents = await formatMixinMarkupContent(symbol, contentSuffix);
 		} else if (identifier.type === 'functions') {
-			contents = formatFunctionMarkupContent(symbol.info, symbol.path, contentSuffix);
+			contents = await formatFunctionMarkupContent(symbol, contentSuffix);
 		}
 	}
 
