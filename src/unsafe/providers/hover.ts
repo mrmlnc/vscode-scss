@@ -3,7 +3,6 @@
 import { Hover, MarkupContent, MarkupKind } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
-import * as sassdoc from 'sassdoc';
 
 import { NodeType } from '../types/nodes';
 import type { IDocumentSymbols, IVariable, IMixin, IFunction, ISymbols } from '../types/symbols';
@@ -13,49 +12,9 @@ import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
 import { getLimitedString } from '../utils/string';
+import { applySassdoc} from './sassdoc';
 
 type Identifier = { type: keyof ISymbols; name: string };
-
-async function applySassdoc(symbol: ISymbol, identifierType: "function" | "mixin" | "variable"): Promise<string> {
-	try {
-		const sassdocs = await sassdoc.parse(symbol.document);
-
-		if (sassdocs.length) {
-			// Sassdoc strips away the syntax, so we need to rebuild for our preview to look familiar
-			const name = symbol.info.name.replace("$", "");
-			for (let doc of sassdocs) {
-				if (doc.description && doc.context.type === identifierType && doc.context.name === name) {
-					let description = doc.description.split("\n").map(line => line ? `/// ${line}` : line).join("\n").trimStart();
-
-					if (doc.author) {
-						for (let author of doc.author) {
-							description += `/// @author ${author}\n`;
-						}
-					}
-
-					description += `/// @access ${doc.access}\n`;
-
-					if (doc.parameter) {
-						for (let parameter of doc.parameter) {
-								description += `/// @param ${parameter.type ? `{${parameter.type}}` : ''} ${parameter.name}${parameter.description ? ` - ${parameter.description}` : ''}\n`;
-						}
-					}
-
-					if (doc.return) {
-							description += `/// @return {${doc.return.type}}\n`;
-					}
-
-					return description;
-				}
-			}
-		}
-		return "";
-
-	} catch (e) {
-		// Shouldn't happen, but let's not crash the rest of the plugin in case this fails
-		return "";
-	}
-}
 
 async function formatVariableMarkupContent(symbol: ISymbol, suffix: string): Promise<MarkupContent> {
 	const variable = symbol.info as IVariable;
