@@ -7,6 +7,7 @@ interface ISymbol {
 
 interface ISassDocOptions {
   displayOptions?: {
+		asDocString?: boolean;
     description?: boolean;
     author?: boolean;
     access?: boolean;
@@ -17,6 +18,7 @@ interface ISassDocOptions {
 
 const defaultOptions = {
   displayOptions: {
+		asDocString: true,
     description: true,
     author: true,
     access: true,
@@ -37,26 +39,42 @@ export async function applySassDoc(symbol: ISymbol, identifierType: "function" |
 					let description = '';
 
           if (displayOptions.description) {
-            description += doc.description.trimStart();
+						if (displayOptions.asDocString) {
+							description += doc.description.split("\n").map(line => line ? `/// ${line}` : line).join("\n").trimStart();
+						} else {
+							description += doc.description.trimStart();
+						}
           }
 
 					if (displayOptions.author && doc.author) {
 						for (let author of doc.author) {
+							if (displayOptions.asDocString) {
+								description += '/// ';
+							}
 							description += `@author ${author}\n`;
 						}
 					}
 
           if (displayOptions.access) {
+						if (displayOptions.asDocString) {
+							description += '/// ';
+						}
             description += `@access ${doc.access}\n`;
           }
 
 					if (displayOptions.parameters && doc.parameter) {
 						for (let parameter of doc.parameter) {
+								if (displayOptions.asDocString) {
+									description += '/// ';
+								}
 								description += `@param ${parameter.type ? `{${parameter.type}}` : ''} \`${parameter.name}\`${parameter.description ? ` - ${parameter.description}` : ''}\n`;
 						}
 					}
 
 					if (displayOptions.return && doc.return) {
+							if (displayOptions.asDocString) {
+								description += '/// ';
+							}
 							description += `@return {${doc.return.type}}\n`;
 					}
 
