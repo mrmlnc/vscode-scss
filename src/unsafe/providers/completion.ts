@@ -13,6 +13,7 @@ import { getSymbolsRelatedToDocument } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
 import { getCurrentWord, getLimitedString, getTextBeforePosition } from '../utils/string';
 import { getVariableColor } from '../utils/color';
+import { applySassDoc } from './sassdoc';
 
 // RegExp's
 const rePropertyValue = /.*:\s*/;
@@ -123,19 +124,19 @@ function createCompletionContext(document: TextDocument, offset: number, setting
 	};
 }
 
-function createVariableCompletionItems(
+async function createVariableCompletionItems(
 	symbols: IDocumentSymbols[],
 	filepath: string,
 	imports: string[],
 	settings: ISettings
-): CompletionItem[] {
+): Promise<CompletionItem[]> {
 	const completions: CompletionItem[] = [];
 
-	symbols.forEach(symbol => {
+	for (let symbol of symbols) {
 		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
 		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
 
-		symbol.variables.forEach(variable => {
+		for (let variable of symbol.variables) {
 			const color = getVariableColor(variable.value || '');
 			const completionKind = color ? CompletionItemKind.Color : CompletionItemKind.Variable;
 
@@ -145,84 +146,116 @@ function createVariableCompletionItems(
 				detailPath = settings.implicitlyLabel + ' ' + detailPath;
 			}
 
-			// Add 'argument from MIXIN_NAME' suffix if Variable is Mixin argument
+
+			let documentation = getLimitedString(color ? color.toString() : variable.value || '');
 			let detailText = detailPath;
 			if (variable.mixin) {
+				// Add 'argument from MIXIN_NAME' suffix if Variable is Mixin argument
 				detailText = `argument from ${variable.mixin}, ${detailText}`;
+			} else {
+				// See if there is sassdoc for this standalone variable
+				const sassdoc = await applySassDoc(
+					{ document: symbol.filepath, info: variable },
+					"function",
+					{ displayOptions: { description: true, access: true }}
+				);
+				if (sassdoc) {
+					documentation += `\n\n${sassdoc}`;
+				}
 			}
 
 			completions.push({
 				label: variable.name,
 				kind: completionKind,
 				detail: detailText,
-				documentation: getLimitedString(color ? color.toString() : variable.value || '')
+				documentation,
 			});
-		});
-	});
+		}
+	}
 
 	return completions;
 }
 
-function createMixinCompletionItems(
+async function createMixinCompletionItems(
 	symbols: IDocumentSymbols[],
 	filepath: string,
 	imports: string[],
 	settings: ISettings
-): CompletionItem[] {
+): Promise<CompletionItem[]> {
 	const completions: CompletionItem[] = [];
 
-	symbols.forEach(symbol => {
+	for (let symbol of symbols) {
 		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
 		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
 
-		symbol.mixins.forEach(mixin => {
+		for (let mixin of symbol.mixins) {
 			// Add 'implicitly' prefix for Path if the file imported implicitly
 			let detailPath = fsPath;
 			if (isImplicitlyImport && settings.implicitlyLabel) {
 				detailPath = settings.implicitlyLabel + ' ' + detailPath;
+			}
+
+			let documentation = makeMixinDocumentation(mixin);
+			const sassdoc = await applySassDoc(
+				{ document: symbol.filepath, info: mixin },
+				"mixin",
+				{ displayOptions: { description: true, access: true }}
+			);
+			if (sassdoc) {
+				documentation += `\n\n${sassdoc}`;
 			}
 
 			completions.push({
 				label: mixin.name,
 				kind: CompletionItemKind.Function,
 				detail: detailPath,
-				documentation: makeMixinDocumentation(mixin),
+				documentation,
 				insertText: mixin.name
 			});
-		});
-	});
+		}
+	}
 
 	return completions;
 }
 
-function createFunctionCompletionItems(
+async function createFunctionCompletionItems(
 	symbols: IDocumentSymbols[],
 	filepath: string,
 	imports: string[],
 	settings: ISettings
-): CompletionItem[] {
+): Promise<CompletionItem[]> {
 	const completions: CompletionItem[] = [];
 
-	symbols.forEach(symbol => {
+	for (let symbol of symbols) {
 		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
 		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
 
-		symbol.functions.forEach(func => {
+		for (let func of symbol.functions) {
 			// Add 'implicitly' prefix for Path if the file imported implicitly
 			let detailPath = fsPath;
 			if (isImplicitlyImport && settings.implicitlyLabel) {
 				detailPath = settings.implicitlyLabel + ' ' + detailPath;
 			}
 
+			let documentation = makeMixinDocumentation(func);
+			const sassdoc = await applySassDoc(
+				{ document: symbol.filepath, info: func },
+				"function",
+				{ displayOptions: { description: true, access: true }}
+			);
+			if (sassdoc) {
+				documentation += `\n\n${sassdoc}`;
+			}
+
 			completions.push({
 				label: func.name,
 				kind: CompletionItemKind.Interface,
 				detail: detailPath,
-				documentation: makeMixinDocumentation(func),
+				documentation,
 				insertText: func.name
 			});
-		});
-	});
+		};
+	};
 
 	return completions;
 }
@@ -251,19 +284,19 @@ export async function doCompletion(
 	}
 
 	if (settings.suggestVariables && context.variable) {
-		const variables = createVariableCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
+		const variables = await createVariableCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
 
 		completions.items = completions.items.concat(variables);
 	}
 
 	if (settings.suggestMixins && context.mixin) {
-		const mixins = createMixinCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
+		const mixins = await createMixinCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
 
 		completions.items = completions.items.concat(mixins);
 	}
 
 	if (settings.suggestFunctions && context.function) {
-		const functions = createFunctionCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
+		const functions = await createFunctionCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
 
 		completions.items = completions.items.concat(functions);
 	}
