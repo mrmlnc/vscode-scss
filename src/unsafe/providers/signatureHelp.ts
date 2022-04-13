@@ -4,13 +4,14 @@ import { SignatureHelp, SignatureInformation } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { tokenizer } from 'scss-symbols-parser';
 
-import type { IVariable } from '../types/symbols';
+import type { IFunction, IMixin } from '../types/symbols';
 import type StorageService from '../services/storage';
 
 import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getTextBeforePosition } from '../utils/string';
 import { hasInFacts } from '../utils/facts';
+import { applySassDoc } from './sassdoc';
 
 // RegExp's
 const reNestedParenthesis = /\(([\w-]+)\(/;
@@ -143,7 +144,7 @@ export async function doSignatureHelp(
 	offset: number,
 	storage: StorageService
 ): Promise<SignatureHelp> {
-	const suggestions: { name: string; parameters: IVariable[] }[] = [];
+	const suggestions: Array<{ symbol: IMixin | IFunction; path: string | undefined }> = [];
 
 	const ret: SignatureHelp = {
 		activeSignature: 0,
@@ -169,12 +170,9 @@ export async function doSignatureHelp(
 	storage.set(document.uri, resource.symbols);
 
 	getSymbolsCollection(storage).forEach(symbols => {
-		symbols[symbolType].forEach(symbol => {
+		symbols[symbolType].forEach((symbol: IMixin | IFunction) => {
 			if (entry.name === symbol.name && symbol.parameters.length >= entry.parameters) {
-				suggestions.push({
-					name: symbol.name,
-					parameters: symbol.parameters
-				});
+				suggestions.push({ symbol, path: symbols.filepath });
 			}
 		});
 	});
@@ -185,19 +183,26 @@ export async function doSignatureHelp(
 
 	ret.activeParameter = Math.max(0, entry.parameters);
 
-	suggestions.forEach(mixin => {
-		const paramsString = mixin.parameters.map(x => `${x.name}: ${x.value}`).join(', ');
-		const signatureInfo = SignatureInformation.create(`${mixin.name} (${paramsString})`);
+	for (let { symbol, path } of suggestions) {
+		const paramsString = symbol.parameters.map(x => `${x.name}: ${x.value}`).join(', ');
+		const signatureInfo = SignatureInformation.create(`${symbol.name} (${paramsString})`);
 
-		mixin.parameters.forEach(param => {
+		const sassdoc = await applySassDoc(
+			{ document: path, info: symbol },
+			symbolType === "mixins" ? "mixin" : "function",
+			{ displayOptions: { description: true, access: true }} // Follow convention, reduce duplicate parameter information
+		);
+		signatureInfo.documentation = sassdoc;
+
+		symbol.parameters.forEach(param => {
 			signatureInfo.parameters?.push({
 				label: param.name,
-				documentation: ''
+				documentation: '',
 			});
 		});
 
 		ret.signatures.push(signatureInfo);
-	});
+	}
 
 	return ret;
 }

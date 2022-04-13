@@ -12,7 +12,7 @@ import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
 import { getLimitedString } from '../utils/string';
-import { applySassdoc} from './sassdoc';
+import { applySassDoc} from './sassdoc';
 
 type Identifier = { type: keyof ISymbols; name: string };
 
@@ -24,7 +24,7 @@ async function formatVariableMarkupContent(symbol: ISymbol, suffix: string): Pro
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
-	const sassdoc = await applySassdoc(symbol, "variable");
+	const sassdoc = await applySassDoc(symbol, "variable");
 
 	return {
 		kind: MarkupKind.Markdown,
@@ -45,7 +45,7 @@ async function formatMixinMarkupContent(symbol: ISymbol, suffix: string): Promis
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
-	const sassdoc = await applySassdoc(symbol, "mixin");
+	const sassdoc = await applySassDoc(symbol, "mixin");
 
 	return {
 		kind: MarkupKind.Markdown,
@@ -66,7 +66,7 @@ async function formatFunctionMarkupContent(symbol: ISymbol, suffix: string): Pro
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
-	const sassdoc = await applySassdoc(symbol, "function");
+	const sassdoc = await applySassDoc(symbol, "function");
 
 	return {
 		kind: MarkupKind.Markdown,

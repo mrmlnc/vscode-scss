@@ -5,33 +5,59 @@ interface ISymbol {
 	info: any;
 }
 
-export async function applySassdoc(symbol: ISymbol, identifierType: "function" | "mixin" | "variable"): Promise<string> {
+interface ISassDocOptions {
+  displayOptions?: {
+    description?: boolean;
+    author?: boolean;
+    access?: boolean;
+    parameters?: boolean;
+    return?: boolean;
+  };
+}
+
+const defaultOptions = {
+  displayOptions: {
+    description: true,
+    author: true,
+    access: true,
+    parameters: true,
+    return: true,
+  },
+};
+
+export async function applySassDoc(symbol: ISymbol, identifierType: "function" | "mixin" | "variable", options?: ISassDocOptions): Promise<string> {
 	try {
 		const sassdocs = await sassdoc.parse(symbol.document);
-
 		if (sassdocs.length) {
-			// Sassdoc strips away the syntax, so we need to rebuild for our preview to look familiar
-			const name = symbol.info.name.replace("$", "");
+      const name = symbol.info.name.replace("$", "");
+      const displayOptions = options?.displayOptions || defaultOptions.displayOptions;
+
 			for (let doc of sassdocs) {
 				if (doc.description && doc.context.type === identifierType && doc.context.name === name) {
-					let description = doc.description.split("\n").map(line => line ? `/// ${line}` : line).join("\n").trimStart();
+					let description = '';
 
-					if (doc.author) {
+          if (displayOptions.description) {
+            description += doc.description.trimStart();
+          }
+
+					if (displayOptions.author && doc.author) {
 						for (let author of doc.author) {
-							description += `/// @author ${author}\n`;
+							description += `@author ${author}\n`;
 						}
 					}
 
-					description += `/// @access ${doc.access}\n`;
+          if (displayOptions.access) {
+            description += `@access ${doc.access}\n`;
+          }
 
-					if (doc.parameter) {
+					if (displayOptions.parameters && doc.parameter) {
 						for (let parameter of doc.parameter) {
-								description += `/// @param ${parameter.type ? `{${parameter.type}}` : ''} ${parameter.name}${parameter.description ? ` - ${parameter.description}` : ''}\n`;
+								description += `@param ${parameter.type ? `{${parameter.type}}` : ''} \`${parameter.name}\`${parameter.description ? ` - ${parameter.description}` : ''}\n`;
 						}
 					}
 
-					if (doc.return) {
-							description += `/// @return {${doc.return.type}}\n`;
+					if (displayOptions.return && doc.return) {
+							description += `@return {${doc.return.type}}\n`;
 					}
 
 					return description;
