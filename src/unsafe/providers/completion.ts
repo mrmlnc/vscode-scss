@@ -251,19 +251,19 @@ export async function doCompletion(
 	}
 
 	if (settings.suggestVariables && context.variable) {
-		const variables = createVariableCompletionItems(symbolsList, documentPath, documentImports, settings);
+		const variables = createVariableCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
 
 		completions.items = completions.items.concat(variables);
 	}
 
 	if (settings.suggestMixins && context.mixin) {
-		const mixins = createMixinCompletionItems(symbolsList, documentPath, documentImports, settings);
+		const mixins = createMixinCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
 
 		completions.items = completions.items.concat(mixins);
 	}
 
 	if (settings.suggestFunctions && context.function) {
-		const functions = createFunctionCompletionItems(symbolsList, documentPath, documentImports, settings);
+		const functions = createFunctionCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
 
 		completions.items = completions.items.concat(functions);
 	}
