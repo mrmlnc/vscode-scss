@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as cp from 'child_process';
 
-import { runTests, downloadAndUnzipVSCode, resolveCliPathFromVSCodeExecutablePath } from 'vscode-test';
+import { runTests, downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath } from '@vscode/test-electron';
 
 async function main() {
 	try {
@@ -18,9 +18,13 @@ async function main() {
 		// Download VS Code, unzip it and run the integration test
 		const vscodeExecutablePath = await downloadAndUnzipVSCode('insiders');
 
-		const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
+		const [cli, ...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
 
-		cp.spawnSync(cliPath, ['--install-extension', 'octref.vetur'], {
+		if (!cli) {
+			throw new Error("Something went wrong resolving the CLI path to the download of VS Code");
+		}
+
+		cp.spawnSync(cli, [...args, '--install-extension', 'octref.vetur'], {
 			encoding: 'utf-8',
 			stdio: 'inherit'
 		});
