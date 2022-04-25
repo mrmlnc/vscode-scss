@@ -4,10 +4,12 @@ import { testCompletion } from './helper';
 describe('SCSS Completion Test', () => {
 	const docUri = getDocUri('completion/main.scss');
 	const vueDocUri = getDocUri('completion/AppButton.vue');
+	const svelteDocUri = getDocUri('completion/AppButton.svelte');
 
 	before(async () => {
 		await showFile(docUri);
 		await showFile(vueDocUri);
+		await showFile(svelteDocUri);
 		await sleep(2000);
 	});
 
@@ -38,5 +40,17 @@ describe('SCSS Completion Test', () => {
 
 	it('Offers completions from partial file on vue file', async () => {
 		await testCompletion(vueDocUri, position(28, 11), [{ label: '$partial', detail: '_partial.scss' }]);
+	});
+
+	it('Offers variable completions on svelte file', async () => {
+		await testCompletion(svelteDocUri, position(8, 11), ['$color', '$fonts']);
+	});
+
+	it('Offers completions from tilde imports on svelte file', async () => {
+		await testCompletion(svelteDocUri, position(14, 11), [{ label: '$tilde', detail: 'node_modules/foo/bar.scss' }]);
+	});
+
+	it('Offers completions from partial file on svelte file', async () => {
+		await testCompletion(svelteDocUri, position(20, 11), [{ label: '$partial', detail: '_partial.scss' }]);
 	});
 });

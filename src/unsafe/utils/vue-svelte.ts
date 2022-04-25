@@ -2,13 +2,13 @@ import { TextDocument, Position } from 'vscode-languageserver-textdocument';
 
 type Region = [number, number];
 
-export function isVueFile(path: string) {
-	return path.endsWith('.vue');
+export function isVueOrSvelteFile(path: string) {
+	return path.endsWith('.vue') || path.endsWith('.svelte');
 }
 
-export function getVueSCSSRegions(content: string) {
+export function getSCSSRegions(content: string) {
 	const regions: Region[] = [];
-	const startRe = /<style[\w=\"\' \n\t]{1,}lang=[\"\']scss[\"\'][\w=\"\' \n\t]{0,}>/g;
+	const startRe = /<style[\w=\"\' \n\t]{1,}(lang|type)=[\"\'](text\/)?scss[\"\'][\w=\"\' \n\t]{0,}>/g;
 	const endRe = /<\/style>/g;
 	/* tslint:disable:no-conditional-assignment */
 	let start: RegExpExecArray | null;
@@ -21,7 +21,7 @@ export function getVueSCSSRegions(content: string) {
 	return regions;
 }
 
-export function getVueSCSSContent(content: string, regions = getVueSCSSRegions(content)) {
+export function getSCSSContent(content: string, regions = getSCSSRegions(content)) {
 	const oldContent = content;
 
 	let newContent = oldContent
@@ -36,19 +36,19 @@ export function getVueSCSSContent(content: string, regions = getVueSCSSRegions(c
 	return newContent;
 }
 
-function convertVueTextDocument(document: TextDocument, regions: Region[]) {
-	return TextDocument.create(document.uri, 'scss', document.version, getVueSCSSContent(document.getText(), regions));
+function convertTextDocument(document: TextDocument, regions: Region[]) {
+	return TextDocument.create(document.uri, 'scss', document.version, getSCSSContent(document.getText(), regions));
 }
 
 export function getSCSSRegionsDocument(document: TextDocument, position: Position) {
 	const offset = document.offsetAt(position);
-	if (!isVueFile(document.uri)) {
+	if (!isVueOrSvelteFile(document.uri)) {
 		return { document, offset };
 	}
 
-	const vueSCSSRegions = getVueSCSSRegions(document.getText());
+	const vueSCSSRegions = getSCSSRegions(document.getText());
 	if (vueSCSSRegions.some(region => region[0] <= offset && region[1] >= offset)) {
-		return { document: convertVueTextDocument(document, vueSCSSRegions), offset };
+		return { document: convertTextDocument(document, vueSCSSRegions), offset };
 	}
 	return { document: null, offset };
 }

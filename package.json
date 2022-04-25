@@ -26,7 +26,8 @@
 	],
 	"activationEvents": [
 		"onLanguage:scss",
-		"onLanguage:vue"
+		"onLanguage:vue",
+		"onLanguage:svelte"
 	],
 	"main": "./out/client.js",
 	"contributes": {
