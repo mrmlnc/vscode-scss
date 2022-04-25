@@ -23,7 +23,7 @@ import { doSignatureHelp } from './providers/signatureHelp';
 import { goDefinition } from './providers/goDefinition';
 import { searchWorkspaceSymbol } from './providers/workspaceSymbol';
 import { findFiles } from './utils/fs';
-import { getSCSSRegionsDocument } from './utils/vue';
+import { getSCSSRegionsDocument } from './utils/vue-svelte';
 import { URI } from 'vscode-uri';
 
 interface InitializationOption {

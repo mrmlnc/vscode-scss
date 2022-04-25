@@ -1,3 +1,13 @@
+queue_rules:
+  - name: review
+    conditions:
+      - status-success=mrmlnc.vscode-scss
+      - approved-reviews-by~=mrmlnc|octref
+
+  - name: noreview
+    conditions:
+      - status-success=mrmlnc.vscode-scss
+
 pull_request_rules:
   - name: Merge with review
     conditions:
@@ -6,10 +16,9 @@ pull_request_rules:
       - approved-reviews-by~=mrmlnc|octref
       - "label=mergify: merge"
     actions:
-      merge:
-        strict: true
-        strict_method: rebase
+      queue:
         method: merge
+        name: review
 
   - name: Merge without review
     conditions:
@@ -18,10 +27,9 @@ pull_request_rules:
       - "label=mergify: merge"
       - "label=mergify: skip review"
     actions:
-      merge:
-        strict: true
-        strict_method: rebase
+      queue:
         method: merge
+        name: noreview
 
   - name: Deleting Merged Branch
     conditions:

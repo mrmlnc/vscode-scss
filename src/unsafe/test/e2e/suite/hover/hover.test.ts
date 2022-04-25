@@ -4,10 +4,12 @@ import { testHover } from './helper';
 describe('SCSS Hover Test', () => {
 	const docUri = getDocUri('hover/main.scss');
 	const vueDocUri = getDocUri('hover/AppButton.vue');
+	const svelteDocUri = getDocUri('hover/AppButton.svelte');
 
 	before(async () => {
 		await showFile(docUri);
 		await showFile(vueDocUri);
+		await showFile(svelteDocUri);
 		await sleep(2000);
 	});
 
@@ -43,6 +45,24 @@ describe('SCSS Hover Test', () => {
 
 	it('shows hover for mixins on vue file', async () => {
 		await testHover(vueDocUri, position(15, 12), {
+			contents: ['```scss\n@mixin mixin() {…}\n@import "../_mixins.scss" (implicitly)\n```']
+		});
+	});
+
+	it('shows hover for variables on svelte file', async () => {
+		await testHover(svelteDocUri, position(5, 15), {
+			contents: ['```scss\n$variable: \'value\';\n@import "../_variables.scss" (implicitly)\n```']
+		});
+	});
+
+	it('shows hover for functions on svelte file', async () => {
+		await testHover(svelteDocUri, position(5, 26), {
+			contents: ['```scss\n@function function() {…}\n@import "../_functions.scss" (implicitly)\n```']
+		});
+	});
+
+	it('shows hover for mixins on svelte file', async () => {
+		await testHover(svelteDocUri, position(7, 14), {
 			contents: ['```scss\n@mixin mixin() {…}\n@import "../_mixins.scss" (implicitly)\n```']
 		});
 	});
