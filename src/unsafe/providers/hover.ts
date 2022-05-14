@@ -12,57 +12,85 @@ import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
 import { getLimitedString } from '../utils/string';
+import { applySassDoc} from './sassdoc';
 
 type Identifier = { type: keyof ISymbols; name: string };
 
-function formatVariableMarkupContent(symbol: IVariable, fsPath: string, suffix: string): MarkupContent {
-	const value = getLimitedString(symbol.value || '');
+async function formatVariableMarkupContent(symbol: ISymbol, suffix: string): Promise<MarkupContent> {
+	const variable = symbol.info as IVariable;
+	const fsPath = symbol.path;
+	const value = getLimitedString(variable.value || '');
 	if (fsPath !== 'current') {
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
-	return {
+	const result = {
 		kind: MarkupKind.Markdown,
 		value: [
 			'```scss',
-			`${symbol.name}: ${value};${suffix}`,
+			`${variable.name}: ${value};${suffix}`,
 			'```'
 		].join('\n')
 	};
+
+	const sassdoc = await applySassDoc(symbol, "variable");
+	if (sassdoc) {
+		result.value += `\n____\n${sassdoc}`;
+	}
+
+	return result;
 }
 
-function formatMixinMarkupContent(symbol: IMixin, fsPath: string, suffix: string): MarkupContent {
-	const args = symbol.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
+async function formatMixinMarkupContent(symbol: ISymbol, suffix: string): Promise<MarkupContent> {
+	const mixin = symbol.info as IMixin;
+	const fsPath = symbol.path;
+	const args = mixin.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
 
 	if (fsPath !== 'current') {
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
-	return {
-		kind: MarkupKind.Markdown,
-		value: [
-			'```scss',
-			`@mixin ${symbol.name}(${args}) {\u2026}${suffix}`,
-			'```'
-		].join('\n')
-	}
+	const result = {
+ 		kind: MarkupKind.Markdown,
+ 		value: [
+ 			'```scss',
+ 			`@mixin ${mixin.name}(${args}) {\u2026}${suffix}`,
+ 			'```'
+ 		].join('\n')
+ 	}
+
+ 	const sassdoc = await applySassDoc(symbol, "mixin");
+ 	if (sassdoc) {
+ 		result.value += `\n____\n${sassdoc}`;
+ 	}
+
+ 	return result;
 }
 
-function formatFunctionMarkupContent(symbol: IFunction, fsPath: string, suffix: string): MarkupContent {
-	const args = symbol.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
+async function formatFunctionMarkupContent(symbol: ISymbol, suffix: string): Promise<MarkupContent> {
+	const func = symbol.info as IFunction;
+	const fsPath = symbol.path;
+	const args = func.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
 
 	if (fsPath !== 'current') {
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
-	return {
+	const result = {
 		kind: MarkupKind.Markdown,
 		value: [
 			'```scss',
-			`@function ${symbol.name}(${args}) {\u2026}${suffix}`,
+			`@function ${func.name}(${args}) {\u2026}${suffix}`,
 			'```'
 		].join('\n')
 	};
+
+	const sassdoc = await applySassDoc(symbol, "function");
+	if (sassdoc) {
+		result.value += `\n____\n${sassdoc}`;
+	}
+
+	return result;
 }
 
 interface ISymbol {
@@ -175,11 +203,11 @@ export async function doHover(document: TextDocument, offset: number, storage: S
 		}
 
 		if (identifier.type === 'variables') {
-			contents = formatVariableMarkupContent(symbol.info, symbol.path, contentSuffix);
+			contents = await formatVariableMarkupContent(symbol, contentSuffix);
 		} else if (identifier.type === 'mixins') {
-			contents = formatMixinMarkupContent(symbol.info, symbol.path, contentSuffix);
+			contents = await formatMixinMarkupContent(symbol, contentSuffix);
 		} else if (identifier.type === 'functions') {
-			contents = formatFunctionMarkupContent(symbol.info, symbol.path, contentSuffix);
+			contents = await formatFunctionMarkupContent(symbol, contentSuffix);
 		}
 	}
 

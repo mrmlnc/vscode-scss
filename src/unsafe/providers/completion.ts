@@ -1,6 +1,6 @@
 'use strict';
 
-import { CompletionList, CompletionItemKind, CompletionItem } from 'vscode-languageserver';
+import { CompletionList, CompletionItemKind, CompletionItem, MarkupKind, InsertTextFormat } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 
@@ -13,6 +13,7 @@ import { getSymbolsRelatedToDocument } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
 import { getCurrentWord, getLimitedString, getTextBeforePosition } from '../utils/string';
 import { getVariableColor } from '../utils/color';
+import { applySassDoc } from './sassdoc';
 
 // RegExp's
 const rePropertyValue = /.*:\s*/;
@@ -123,19 +124,19 @@ function createCompletionContext(document: TextDocument, offset: number, setting
 	};
 }
 
-function createVariableCompletionItems(
+async function createVariableCompletionItems(
 	symbols: IDocumentSymbols[],
 	filepath: string,
 	imports: string[],
 	settings: ISettings
-): CompletionItem[] {
+): Promise<CompletionItem[]> {
 	const completions: CompletionItem[] = [];
 
-	symbols.forEach(symbol => {
+	for (let symbol of symbols) {
 		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
 		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
 
-		symbol.variables.forEach(variable => {
+		for (let variable of symbol.variables) {
 			const color = getVariableColor(variable.value || '');
 			const completionKind = color ? CompletionItemKind.Color : CompletionItemKind.Variable;
 
@@ -145,84 +146,149 @@ function createVariableCompletionItems(
 				detailPath = settings.implicitlyLabel + ' ' + detailPath;
 			}
 
-			// Add 'argument from MIXIN_NAME' suffix if Variable is Mixin argument
+
+			let documentation = getLimitedString(color ? color.toString() : variable.value || '');
 			let detailText = detailPath;
 			if (variable.mixin) {
+				// Add 'argument from MIXIN_NAME' suffix if Variable is Mixin argument
 				detailText = `argument from ${variable.mixin}, ${detailText}`;
+			} else {
+				// See if there is sassdoc for this standalone variable
+				const sassdoc = await applySassDoc(
+					{ document: symbol.filepath, info: variable },
+					"function",
+					{ displayOptions: { description: true, deprecated: true, type: true }}
+				);
+				if (sassdoc) {
+					documentation += `\n\n${sassdoc}`;
+				}
 			}
 
 			completions.push({
 				label: variable.name,
 				kind: completionKind,
 				detail: detailText,
-				documentation: getLimitedString(color ? color.toString() : variable.value || '')
+				documentation: {
+					kind: MarkupKind.Markdown,
+					value: documentation,
+				},
 			});
-		});
-	});
+		}
+	}
 
 	return completions;
 }
 
-function createMixinCompletionItems(
+async function createMixinCompletionItems(
 	symbols: IDocumentSymbols[],
 	filepath: string,
 	imports: string[],
 	settings: ISettings
-): CompletionItem[] {
+): Promise<CompletionItem[]> {
 	const completions: CompletionItem[] = [];
 
-	symbols.forEach(symbol => {
+	for (let symbol of symbols) {
 		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
 		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
 
-		symbol.mixins.forEach(mixin => {
+		for (let mixin of symbol.mixins) {
 			// Add 'implicitly' prefix for Path if the file imported implicitly
 			let detailPath = fsPath;
 			if (isImplicitlyImport && settings.implicitlyLabel) {
 				detailPath = settings.implicitlyLabel + ' ' + detailPath;
 			}
 
+			let documentation = makeMixinDocumentation(mixin);
+			const sassdoc = await applySassDoc(
+				{ document: symbol.filepath, info: mixin },
+				"mixin",
+				{ displayOptions: { content: true, description: true, deprecated: true, output: true }}
+			);
+			if (sassdoc) {
+				documentation += `\n\n${sassdoc}`;
+			}
+
+			let insertText = mixin.name;
+
+ 			// Use the SnippetString syntax to provide smart completions of parameter names
+ 			if (mixin.parameters.length > 0) {
+ 				const parametersSnippet = mixin.parameters.map((p, index) => "${" + (index + 1) + ":\$" + p.name + "}").join(", ")
+ 				insertText += `(${parametersSnippet})`;
+ 			}
+
+ 			// Not all mixins have @content, but when they do, be smart about adding brackets
+ 			// and move the cursor to be ready to add said contents.
+ 			if (sassdoc && sassdoc.includes("@content")) {
+ 				insertText += " {\n\t$0\n}"
+ 			}
+
 			completions.push({
 				label: mixin.name,
 				kind: CompletionItemKind.Function,
 				detail: detailPath,
-				documentation: makeMixinDocumentation(mixin),
-				insertText: mixin.name
+				insertTextFormat: InsertTextFormat.Snippet,
+ 				insertText,
+ 				documentation: {
+ 					kind: MarkupKind.Markdown,
+ 					value: documentation,
+ 				}
 			});
-		});
-	});
+		}
+	}
 
 	return completions;
 }
 
-function createFunctionCompletionItems(
+async function createFunctionCompletionItems(
 	symbols: IDocumentSymbols[],
 	filepath: string,
 	imports: string[],
 	settings: ISettings
-): CompletionItem[] {
+): Promise<CompletionItem[]> {
 	const completions: CompletionItem[] = [];
 
-	symbols.forEach(symbol => {
+	for (let symbol of symbols) {
 		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
 		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
 
-		symbol.functions.forEach(func => {
+		for (let func of symbol.functions) {
 			// Add 'implicitly' prefix for Path if the file imported implicitly
 			let detailPath = fsPath;
 			if (isImplicitlyImport && settings.implicitlyLabel) {
 				detailPath = settings.implicitlyLabel + ' ' + detailPath;
+			}
+
+			let insertText = func.name;
+
+ 			// Use the SnippetString syntax to provide smart completions of parameter names
+ 			if (func.parameters.length > 0) {
+ 				const parametersSnippet = func.parameters.map((p, index) => "${" + (index + 1) + ":\$" + p.name + "}").join(", ")
+ 				insertText += `(${parametersSnippet})`;
+ 			}
+
+			let documentation = makeMixinDocumentation(func);
+			const sassdoc = await applySassDoc(
+				{ document: symbol.filepath, info: func },
+				"function",
+				{ displayOptions: { description: true, deprecated: true, return: true }}
+			);
+			if (sassdoc) {
+				documentation += `\n\n${sassdoc}`;
 			}
 
 			completions.push({
 				label: func.name,
 				kind: CompletionItemKind.Interface,
 				detail: detailPath,
-				documentation: makeMixinDocumentation(func),
-				insertText: func.name
+				insertTextFormat: InsertTextFormat.Snippet,
+ 				insertText,
+ 				documentation: {
+ 					kind: MarkupKind.Markdown,
+ 					value: documentation,
+ 				}
 			});
-		});
-	});
+		};
+	};
 
 	return completions;
 }
@@ -251,19 +317,19 @@ export async function doCompletion(
 	}
 
 	if (settings.suggestVariables && context.variable) {
-		const variables = createVariableCompletionItems(symbolsList, documentPath, documentImports, settings);
+		const variables = await createVariableCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
 
 		completions.items = completions.items.concat(variables);
 	}
 
 	if (settings.suggestMixins && context.mixin) {
-		const mixins = createMixinCompletionItems(symbolsList, documentPath, documentImports, settings);
+		const mixins = await createMixinCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
 
 		completions.items = completions.items.concat(mixins);
 	}
 
 	if (settings.suggestFunctions && context.function) {
-		const functions = createFunctionCompletionItems(symbolsList, documentPath, documentImports, settings);
+		const functions = await createFunctionCompletionItems([resource.symbols, ...symbolsList], documentPath, documentImports, settings);
 
 		completions.items = completions.items.concat(functions);
 	}
