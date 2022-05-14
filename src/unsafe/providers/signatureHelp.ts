@@ -1,6 +1,6 @@
 'use strict';
 
-import { SignatureHelp, SignatureInformation } from 'vscode-languageserver';
+import { MarkupKind, SignatureHelp, SignatureInformation } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { tokenizer } from 'scss-symbols-parser';
 
@@ -190,9 +190,12 @@ export async function doSignatureHelp(
 		const sassdoc = await applySassDoc(
 			{ document: path, info: symbol },
 			symbolType === "mixins" ? "mixin" : "function",
-			{ displayOptions: { description: true, access: true }} // Follow convention, reduce duplicate parameter information
+			{ displayOptions: { description: true, deprecated: true, return: true }}
 		);
-		signatureInfo.documentation = sassdoc;
+		signatureInfo.documentation = {
+			kind: MarkupKind.Markdown,
+			value: sassdoc
+		};
 
 		symbol.parameters.forEach(param => {
 			signatureInfo.parameters?.push({

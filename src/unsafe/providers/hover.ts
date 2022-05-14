@@ -12,7 +12,7 @@ import { parseDocument } from '../services/parser';
 import { getSymbolsCollection } from '../utils/symbols';
 import { getDocumentPath } from '../utils/document';
 import { getLimitedString } from '../utils/string';
-import { applySassDoc} from './sassdoc';
+import { applySassDoc} from './sassdoc';
 
 type Identifier = { type: keyof ISymbols; name: string };
 
@@ -24,16 +24,21 @@ async function formatVariableMarkupContent(symbol: ISymbol, suffix: string): Pro
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
-	const sassdoc = await applySassDoc(symbol, "variable");
-
-	return {
+	const result = {
 		kind: MarkupKind.Markdown,
 		value: [
 			'```scss',
-			`${sassdoc}${variable.name}: ${value};${suffix}`,
+			`${variable.name}: ${value};${suffix}`,
 			'```'
 		].join('\n')
 	};
+
+	const sassdoc = await applySassDoc(symbol, "variable");
+	if (sassdoc) {
+		result.value += `\n____\n${sassdoc}`;
+	}
+
+	return result;
 }
 
 async function formatMixinMarkupContent(symbol: ISymbol, suffix: string): Promise<MarkupContent> {
@@ -45,16 +50,21 @@ async function formatMixinMarkupContent(symbol: ISymbol, suffix: string): Promis
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
-	const sassdoc = await applySassDoc(symbol, "mixin");
+	const result = {
+ 		kind: MarkupKind.Markdown,
+ 		value: [
+ 			'```scss',
+ 			`@mixin ${mixin.name}(${args}) {\u2026}${suffix}`,
+ 			'```'
+ 		].join('\n')
+ 	}
 
-	return {
-		kind: MarkupKind.Markdown,
-		value: [
-			'```scss',
-			`${sassdoc}@mixin ${mixin.name}(${args}) {\u2026}${suffix}`,
-			'```'
-		].join('\n')
-	}
+ 	const sassdoc = await applySassDoc(symbol, "mixin");
+ 	if (sassdoc) {
+ 		result.value += `\n____\n${sassdoc}`;
+ 	}
+
+ 	return result;
 }
 
 async function formatFunctionMarkupContent(symbol: ISymbol, suffix: string): Promise<MarkupContent> {
@@ -66,16 +76,21 @@ async function formatFunctionMarkupContent(symbol: ISymbol, suffix: string): Pro
 		suffix = `\n@import "${fsPath}"` + suffix;
 	}
 
-	const sassdoc = await applySassDoc(symbol, "function");
-
-	return {
+	const result = {
 		kind: MarkupKind.Markdown,
 		value: [
 			'```scss',
-			`${sassdoc}@function ${func.name}(${args}) {\u2026}${suffix}`,
+			`@function ${func.name}(${args}) {\u2026}${suffix}`,
 			'```'
 		].join('\n')
 	};
+
+	const sassdoc = await applySassDoc(symbol, "function");
+	if (sassdoc) {
+		result.value += `\n____\n${sassdoc}`;
+	}
+
+	return result;
 }
 
 interface ISymbol {

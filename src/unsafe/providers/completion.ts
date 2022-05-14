@@ -1,6 +1,6 @@
 'use strict';
 
-import { CompletionList, CompletionItemKind, CompletionItem } from 'vscode-languageserver';
+import { CompletionList, CompletionItemKind, CompletionItem, MarkupKind, InsertTextFormat } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import { URI } from 'vscode-uri';
 
@@ -157,7 +157,7 @@ async function createVariableCompletionItems(
 				const sassdoc = await applySassDoc(
 					{ document: symbol.filepath, info: variable },
 					"function",
-					{ displayOptions: { description: true, access: true }}
+					{ displayOptions: { description: true, deprecated: true, type: true }}
 				);
 				if (sassdoc) {
 					documentation += `\n\n${sassdoc}`;
@@ -168,7 +168,10 @@ async function createVariableCompletionItems(
 				label: variable.name,
 				kind: completionKind,
 				detail: detailText,
-				documentation,
+				documentation: {
+					kind: MarkupKind.Markdown,
+					value: documentation,
+				},
 			});
 		}
 	}
@@ -199,18 +202,36 @@ async function createMixinCompletionItems(
 			const sassdoc = await applySassDoc(
 				{ document: symbol.filepath, info: mixin },
 				"mixin",
-				{ displayOptions: { description: true, access: true }}
+				{ displayOptions: { content: true, description: true, deprecated: true, output: true }}
 			);
 			if (sassdoc) {
 				documentation += `\n\n${sassdoc}`;
 			}
 
+			let insertText = mixin.name;
+
+ 			// Use the SnippetString syntax to provide smart completions of parameter names
+ 			if (mixin.parameters.length > 0) {
+ 				const parametersSnippet = mixin.parameters.map((p, index) => "${" + (index + 1) + ":\$" + p.name + "}").join(", ")
+ 				insertText += `(${parametersSnippet})`;
+ 			}
+
+ 			// Not all mixins have @content, but when they do, be smart about adding brackets
+ 			// and move the cursor to be ready to add said contents.
+ 			if (sassdoc && sassdoc.includes("@content")) {
+ 				insertText += " {\n\t$0\n}"
+ 			}
+
 			completions.push({
 				label: mixin.name,
 				kind: CompletionItemKind.Function,
 				detail: detailPath,
-				documentation,
-				insertText: mixin.name
+				insertTextFormat: InsertTextFormat.Snippet,
+ 				insertText,
+ 				documentation: {
+ 					kind: MarkupKind.Markdown,
+ 					value: documentation,
+ 				}
 			});
 		}
 	}
@@ -237,11 +258,19 @@ async function createFunctionCompletionItems(
 				detailPath = settings.implicitlyLabel + ' ' + detailPath;
 			}
 
+			let insertText = func.name;
+
+ 			// Use the SnippetString syntax to provide smart completions of parameter names
+ 			if (func.parameters.length > 0) {
+ 				const parametersSnippet = func.parameters.map((p, index) => "${" + (index + 1) + ":\$" + p.name + "}").join(", ")
+ 				insertText += `(${parametersSnippet})`;
+ 			}
+
 			let documentation = makeMixinDocumentation(func);
 			const sassdoc = await applySassDoc(
 				{ document: symbol.filepath, info: func },
 				"function",
-				{ displayOptions: { description: true, access: true }}
+				{ displayOptions: { description: true, deprecated: true, return: true }}
 			);
 			if (sassdoc) {
 				documentation += `\n\n${sassdoc}`;
@@ -251,8 +280,12 @@ async function createFunctionCompletionItems(
 				label: func.name,
 				kind: CompletionItemKind.Interface,
 				detail: detailPath,
-				documentation,
-				insertText: func.name
+				insertTextFormat: InsertTextFormat.Snippet,
+ 				insertText,
+ 				documentation: {
+ 					kind: MarkupKind.Markdown,
+ 					value: documentation,
+ 				}
 			});
 		};
 	};
