@@ -21,6 +21,7 @@ const reQuotedValueInString = /['"](?:[^'"\\]|\\.)*['"]/g;
 const reMixinReference = /.*@include\s+(.*)/;
 const reComment = /^(\/(\/|\*)|\*)/;
 const reQuotes = /['"]/;
+const rePrivate = /^\$[_-].*$/;
 
 /**
  * Returns `true` if the path is not present in the document.
@@ -136,6 +137,12 @@ function createVariableCompletionItems(
 		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
 
 		symbol.variables.forEach(variable => {
+			const isPrivate = variable.name.match(rePrivate);
+			if (symbol.filepath !== filepath && isPrivate) {
+				// Don't suggest private variables from other files
+				return;
+			}
+
 			const color = getVariableColor(variable.value || '');
 			const completionKind = color ? CompletionItemKind.Color : CompletionItemKind.Variable;
 
@@ -176,6 +183,12 @@ function createMixinCompletionItems(
 		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
 
 		symbol.mixins.forEach(mixin => {
+			const isPrivate = mixin.name.match(rePrivate);
+			if (symbol.filepath !== filepath && isPrivate) {
+				// Don't suggest private mixins from other files
+				return;
+			}
+
 			// Add 'implicitly' prefix for Path if the file imported implicitly
 			let detailPath = fsPath;
 			if (isImplicitlyImport && settings.implicitlyLabel) {
@@ -208,6 +221,12 @@ function createFunctionCompletionItems(
 		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
 
 		symbol.functions.forEach(func => {
+			const isPrivate = func.name.match(rePrivate);
+			if (symbol.filepath !== filepath && isPrivate) {
+				// Don't suggest private functions from other files
+				return;
+			}
+
 			// Add 'implicitly' prefix for Path if the file imported implicitly
 			let detailPath = fsPath;
 			if (isImplicitlyImport && settings.implicitlyLabel) {
