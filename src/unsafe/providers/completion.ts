@@ -1,18 +1,26 @@
-'use strict';
+"use strict";
 
-import { CompletionList, CompletionItemKind, CompletionItem } from 'vscode-languageserver';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { URI } from 'vscode-uri';
+import {
+	CompletionList,
+	CompletionItemKind,
+	CompletionItem,
+} from "vscode-languageserver";
+import type { TextDocument } from "vscode-languageserver-textdocument";
+import { URI } from "vscode-uri";
 
-import type { IMixin, IDocumentSymbols } from '../types/symbols';
-import type { ISettings } from '../types/settings';
-import type StorageService from '../services/storage';
+import type { IMixin, IDocumentSymbols } from "../types/symbols";
+import type { ISettings } from "../types/settings";
+import type StorageService from "../services/storage";
 
-import { parseDocument } from '../services/parser';
-import { getSymbolsRelatedToDocument } from '../utils/symbols';
-import { getDocumentPath } from '../utils/document';
-import { getCurrentWord, getLimitedString, getTextBeforePosition } from '../utils/string';
-import { getVariableColor } from '../utils/color';
+import { parseDocument } from "../services/parser";
+import { getSymbolsRelatedToDocument } from "../utils/symbols";
+import { getDocumentPath } from "../utils/document";
+import {
+	getCurrentWord,
+	getLimitedString,
+	getTextBeforePosition,
+} from "../utils/string";
+import { getVariableColor } from "../utils/color";
 
 // RegExp's
 const rePropertyValue = /.*:\s*/;
@@ -25,19 +33,28 @@ const reQuotes = /['"]/;
 /**
  * Returns `true` if the path is not present in the document.
  */
-function isImplicitly(symbolsDocument: string | undefined, documentPath: string, documentImports: string[]): boolean {
+function isImplicitly(
+	symbolsDocument: string | undefined,
+	documentPath: string,
+	documentImports: string[]
+): boolean {
 	if (symbolsDocument === undefined) {
 		return true;
 	}
 
-	return symbolsDocument !== documentPath && documentImports.indexOf(symbolsDocument) === -1;
+	return (
+		symbolsDocument !== documentPath &&
+		documentImports.indexOf(symbolsDocument) === -1
+	);
 }
 
 /**
  * Return Mixin as string.
  */
 function makeMixinDocumentation(symbol: IMixin): string {
-	const args = symbol.parameters.map(item => `${item.name}: ${item.value}`).join(', ');
+	const args = symbol.parameters
+		.map((item) => `${item.name}: ${item.value}`)
+		.join(", ");
 	return `${symbol.name}(${args}) {\u2026}`;
 }
 
@@ -52,18 +69,21 @@ function checkVariableContext(
 	isQuotes: boolean
 ): boolean {
 	if (isPropertyValue && !isEmptyValue && !isQuotes) {
-		return word.includes('$');
+		return word.includes("$");
 	} else if (isQuotes) {
 		return isInterpolation;
 	}
 
-	return word[0] === '$' || isInterpolation || isEmptyValue;
+	return word[0] === "$" || isInterpolation || isEmptyValue;
 }
 
 /**
  * Check context for Mixins suggestions.
  */
-function checkMixinContext(textBeforeWord: string, isPropertyValue: boolean): boolean {
+function checkMixinContext(
+	textBeforeWord: string,
+	isPropertyValue: boolean
+): boolean {
 	return !isPropertyValue && reMixinReference.test(textBeforeWord);
 }
 
@@ -80,7 +100,11 @@ function checkFunctionContext(
 ): boolean {
 	if (isPropertyValue && !isEmptyValue && !isQuotes) {
 		const lastChar = textBeforeWord.substr(-2, 1);
-		return settings.suggestFunctionsInStringContextAfterSymbols.indexOf(lastChar) !== -1;
+		return (
+			settings.suggestFunctionsInStringContextAfterSymbols.indexOf(
+				lastChar
+			) !== -1
+		);
 	} else if (isQuotes) {
 		return isInterpolation;
 	}
@@ -93,10 +117,14 @@ function isCommentContext(text: string): boolean {
 }
 
 function isInterpolationContext(text: string): boolean {
-	return text.includes('#{');
+	return text.includes("#{");
 }
 
-function createCompletionContext(document: TextDocument, offset: number, settings: ISettings) {
+function createCompletionContext(
+	document: TextDocument,
+	offset: number,
+	settings: ISettings
+) {
 	const currentWord = getCurrentWord(document.getText(), offset);
 	const textBeforeWord = getTextBeforePosition(document.getText(), offset);
 
@@ -106,11 +134,19 @@ function createCompletionContext(document: TextDocument, offset: number, setting
 	// Information about current position
 	const isPropertyValue = rePropertyValue.test(textBeforeWord);
 	const isEmptyValue = reEmptyPropertyValue.test(textBeforeWord);
-	const isQuotes = reQuotes.test(textBeforeWord.replace(reQuotedValueInString, ''));
+	const isQuotes = reQuotes.test(
+		textBeforeWord.replace(reQuotedValueInString, "")
+	);
 
 	return {
 		comment: isCommentContext(textBeforeWord),
-		variable: checkVariableContext(currentWord, isInterpolation, isPropertyValue, isEmptyValue, isQuotes),
+		variable: checkVariableContext(
+			currentWord,
+			isInterpolation,
+			isPropertyValue,
+			isEmptyValue,
+			isQuotes
+		),
 		function: checkFunctionContext(
 			textBeforeWord,
 			isInterpolation,
@@ -119,7 +155,7 @@ function createCompletionContext(document: TextDocument, offset: number, setting
 			isQuotes,
 			settings
 		),
-		mixin: checkMixinContext(textBeforeWord, isPropertyValue)
+		mixin: checkMixinContext(textBeforeWord, isPropertyValue),
 	};
 }
 
@@ -131,18 +167,28 @@ function createVariableCompletionItems(
 ): CompletionItem[] {
 	const completions: CompletionItem[] = [];
 
-	symbols.forEach(symbol => {
-		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
-		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
+	symbols.forEach((symbol) => {
+		const isImplicitlyImport = isImplicitly(
+			symbol.document,
+			filepath,
+			imports
+		);
+		const fsPath = getDocumentPath(
+			filepath,
+			isImplicitlyImport ? symbol.filepath : symbol.document
+		);
 
-		symbol.variables.forEach(variable => {
-			const color = getVariableColor(variable.value || '');
-			const completionKind = color ? CompletionItemKind.Color : CompletionItemKind.Variable;
+		symbol.variables.forEach((variable) => {
+			const color = getVariableColor(variable.value || "");
+			console.log({ CROWRVO: variable.name });
+			const completionKind = color
+				? CompletionItemKind.Color
+				: CompletionItemKind.Variable;
 
 			// Add 'implicitly' prefix for Path if the file imported implicitly
 			let detailPath = fsPath;
 			if (isImplicitlyImport && settings.implicitlyLabel) {
-				detailPath = settings.implicitlyLabel + ' ' + detailPath;
+				detailPath = settings.implicitlyLabel + " " + detailPath;
 			}
 
 			// Add 'argument from MIXIN_NAME' suffix if Variable is Mixin argument
@@ -155,7 +201,9 @@ function createVariableCompletionItems(
 				label: variable.name,
 				kind: completionKind,
 				detail: detailText,
-				documentation: getLimitedString(color ? color.toString() : variable.value || '')
+				documentation: getLimitedString(
+					color ? color.toString() : variable.value || ""
+				),
 			});
 		});
 	});
@@ -171,15 +219,22 @@ function createMixinCompletionItems(
 ): CompletionItem[] {
 	const completions: CompletionItem[] = [];
 
-	symbols.forEach(symbol => {
-		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
-		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
+	symbols.forEach((symbol) => {
+		const isImplicitlyImport = isImplicitly(
+			symbol.document,
+			filepath,
+			imports
+		);
+		const fsPath = getDocumentPath(
+			filepath,
+			isImplicitlyImport ? symbol.filepath : symbol.document
+		);
 
-		symbol.mixins.forEach(mixin => {
+		symbol.mixins.forEach((mixin) => {
 			// Add 'implicitly' prefix for Path if the file imported implicitly
 			let detailPath = fsPath;
 			if (isImplicitlyImport && settings.implicitlyLabel) {
-				detailPath = settings.implicitlyLabel + ' ' + detailPath;
+				detailPath = settings.implicitlyLabel + " " + detailPath;
 			}
 
 			completions.push({
@@ -187,7 +242,7 @@ function createMixinCompletionItems(
 				kind: CompletionItemKind.Function,
 				detail: detailPath,
 				documentation: makeMixinDocumentation(mixin),
-				insertText: mixin.name
+				insertText: mixin.name,
 			});
 		});
 	});
@@ -203,15 +258,22 @@ function createFunctionCompletionItems(
 ): CompletionItem[] {
 	const completions: CompletionItem[] = [];
 
-	symbols.forEach(symbol => {
-		const isImplicitlyImport = isImplicitly(symbol.document, filepath, imports);
-		const fsPath = getDocumentPath(filepath, isImplicitlyImport ? symbol.filepath : symbol.document);
+	symbols.forEach((symbol) => {
+		const isImplicitlyImport = isImplicitly(
+			symbol.document,
+			filepath,
+			imports
+		);
+		const fsPath = getDocumentPath(
+			filepath,
+			isImplicitlyImport ? symbol.filepath : symbol.document
+		);
 
-		symbol.functions.forEach(func => {
+		symbol.functions.forEach((func) => {
 			// Add 'implicitly' prefix for Path if the file imported implicitly
 			let detailPath = fsPath;
 			if (isImplicitlyImport && settings.implicitlyLabel) {
-				detailPath = settings.implicitlyLabel + ' ' + detailPath;
+				detailPath = settings.implicitlyLabel + " " + detailPath;
 			}
 
 			completions.push({
@@ -219,7 +281,7 @@ function createFunctionCompletionItems(
 				kind: CompletionItemKind.Interface,
 				detail: detailPath,
 				documentation: makeMixinDocumentation(func),
-				insertText: func.name
+				insertText: func.name,
 			});
 		});
 	});
@@ -242,28 +304,42 @@ export async function doCompletion(
 	storage.set(document.uri, resource.symbols);
 
 	const symbolsList = getSymbolsRelatedToDocument(storage, documentPath);
-	const documentImports = resource.symbols.imports.map(x => x.filepath);
+	const documentImports = resource.symbols.imports.map((x) => x.filepath);
 	const context = createCompletionContext(document, offset, settings);
 
 	// Drop suggestions inside `//` and `/* */` comments
 	if (context.comment) {
 		return completions;
 	}
-
 	if (settings.suggestVariables && context.variable) {
-		const variables = createVariableCompletionItems(symbolsList, documentPath, documentImports, settings);
+		const variables = createVariableCompletionItems(
+			symbolsList,
+			documentPath,
+			documentImports,
+			settings
+		);
 
 		completions.items = completions.items.concat(variables);
 	}
 
 	if (settings.suggestMixins && context.mixin) {
-		const mixins = createMixinCompletionItems(symbolsList, documentPath, documentImports, settings);
+		const mixins = createMixinCompletionItems(
+			symbolsList,
+			documentPath,
+			documentImports,
+			settings
+		);
 
 		completions.items = completions.items.concat(mixins);
 	}
 
 	if (settings.suggestFunctions && context.function) {
-		const functions = createFunctionCompletionItems(symbolsList, documentPath, documentImports, settings);
+		const functions = createFunctionCompletionItems(
+			symbolsList,
+			documentPath,
+			documentImports,
+			settings
+		);
 
 		completions.items = completions.items.concat(functions);
 	}

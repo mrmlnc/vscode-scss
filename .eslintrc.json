@@ -1,9 +1,11 @@
 {
 	"extends": "mrmlnc",
 	"ignorePatterns": [
-		"**/unsafe/**/*.ts"
+		"**/unsafe/**/*.ts",
+		"out/**"
 	],
 	"rules": {
-		"import/no-unresolved": ["error", { "ignore": ["vscode"] }]
+		"import/no-unresolved": ["error", { "ignore": ["vscode"] }],
+		"comma-dangle": ["error", "always"]
 	}
 }
