@@ -40,8 +40,8 @@ describe('Providers/Hover', () => {
 			'$one: 1;',
 			'.a { content: $one|; }'
 		]);
-
-		assert.deepStrictEqual(actual?.contents, helpers.makeMarkupContentForScssLanguage('$one: 1;'));
+		//Should Return the var without the $
+		assert.deepStrictEqual(actual?.contents, helpers.makeMarkupContentForScssLanguage('one: 1;'));
 	});
 
 	it('should suggest global variables', async () => {

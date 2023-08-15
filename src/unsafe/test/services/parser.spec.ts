@@ -37,7 +37,8 @@ describe('Services/Parser', () => {
 			// Variables
 			assert.strictEqual(symbols.variables.length, 1);
 
-			assert.strictEqual(symbols.variables[0]?.name, '$name');
+			// Should Return the var name without the $
+			assert.strictEqual(symbols.variables[0]?.name, 'name');
 			assert.strictEqual(symbols.variables[0]?.value, '"value"');
 
 			// Mixins

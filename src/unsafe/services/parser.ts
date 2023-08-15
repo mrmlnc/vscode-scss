@@ -1,14 +1,19 @@
-'use strict';
+"use strict";
 
-import { SymbolKind, DocumentLink } from 'vscode-css-languageservice';
-import type { TextDocument } from 'vscode-languageserver-textdocument';
-import { URI } from 'vscode-uri';
+import { SymbolKind, DocumentLink } from "vscode-css-languageservice";
+import type { TextDocument } from "vscode-languageserver-textdocument";
+import { URI } from "vscode-uri";
 
-import { INode, NodeType } from '../types/nodes';
-import type { IDocument, IDocumentSymbols, IVariable, IImport } from '../types/symbols';
-import { getNodeAtOffset, getParentNodeByType } from '../utils/ast';
-import { buildDocumentContext } from '../utils/document';
-import { getLanguageService } from '../language-service';
+import { INode, NodeType } from "../types/nodes";
+import type {
+	IDocument,
+	IDocumentSymbols,
+	IVariable,
+	IImport,
+} from "../types/symbols";
+import { getNodeAtOffset, getParentNodeByType } from "../utils/ast";
+import { buildDocumentContext } from "../utils/document";
+import { getLanguageService } from "../language-service";
 
 const reDynamicPath = /[#{}\*]/;
 
@@ -17,23 +22,29 @@ const ls = getLanguageService();
 /**
  * Returns all Symbols in a single document.
  */
-export async function parseDocument(document: TextDocument, offset: number | null = null): Promise<IDocument> {
+export async function parseDocument(
+	document: TextDocument,
+	offset: number | null = null
+): Promise<IDocument> {
 	const documentPath = URI.parse(document.uri).fsPath;
 	const ast = ls.parseStylesheet(document) as INode;
 
 	const symbols: IDocumentSymbols = {
 		document: documentPath,
 		filepath: documentPath,
-		...(await findDocumentSymbols(document, ast))
+		...(await findDocumentSymbols(document, ast)),
 	};
 
 	return {
 		node: getNodeAtOffset(ast, offset),
-		symbols
+		symbols,
 	};
 }
 
-async function findDocumentSymbols(document: TextDocument, ast: INode): Promise<IDocumentSymbols> {
+async function findDocumentSymbols(
+	document: TextDocument,
+	ast: INode
+): Promise<IDocumentSymbols> {
 	const symbols = ls.findDocumentSymbols(document, ast);
 	const links = await findDocumentLinks(document, ast);
 
@@ -41,7 +52,7 @@ async function findDocumentSymbols(document: TextDocument, ast: INode): Promise<
 		functions: [],
 		imports: convertLinksToImports(links),
 		mixins: [],
-		variables: []
+		variables: [],
 	};
 
 	for (const symbol of symbols) {
@@ -50,24 +61,24 @@ async function findDocumentSymbols(document: TextDocument, ast: INode): Promise<
 
 		if (symbol.kind === SymbolKind.Variable) {
 			result.variables.push({
-				name: symbol.name,
+				name: symbol.name.replace("$", ""),
 				offset,
 				position,
-				value: getVariableValue(ast, offset)
+				value: getVariableValue(ast, offset),
 			});
 		} else if (symbol.kind === SymbolKind.Method) {
 			result.mixins.push({
 				name: symbol.name,
 				offset,
 				position,
-				parameters: getMethodParameters(ast, offset)
+				parameters: getMethodParameters(ast, offset),
 			});
 		} else if (symbol.kind === SymbolKind.Function) {
 			result.functions.push({
 				name: symbol.name,
 				offset,
 				position,
-				parameters: getMethodParameters(ast, offset)
+				parameters: getMethodParameters(ast, offset),
 			});
 		}
 	}
@@ -75,16 +86,23 @@ async function findDocumentSymbols(document: TextDocument, ast: INode): Promise<
 	return result;
 }
 
-async function findDocumentLinks(document: TextDocument, ast: INode): Promise<DocumentLink[]> {
-	const links = await ls.findDocumentLinks2(document, ast, buildDocumentContext(document.uri));
+async function findDocumentLinks(
+	document: TextDocument,
+	ast: INode
+): Promise<DocumentLink[]> {
+	const links = await ls.findDocumentLinks2(
+		document,
+		ast,
+		buildDocumentContext(document.uri)
+	);
 
 	const result: DocumentLink[] = [];
 
 	for (const link of links) {
-		if (link.target !== undefined && link.target !== '') {
+		if (link.target !== undefined && link.target !== "") {
 			result.push({
 				...link,
-				target: URI.parse(link.target).fsPath
+				target: URI.parse(link.target).fsPath,
 			});
 		}
 	}
@@ -114,15 +132,18 @@ function getMethodParameters(ast: INode, offset: number): IVariable[] {
 	return node
 		.getParameters()
 		.getChildren()
-		.map(child => {
+		.map((child) => {
 			const defaultValueNode = child.getDefaultValue();
 
-			const value = defaultValueNode === undefined ? null : defaultValueNode.getText();
+			const value =
+				defaultValueNode === undefined
+					? null
+					: defaultValueNode.getText();
 
 			return {
 				name: child.getName(),
 				offset: child.offset,
-				value
+				value,
 			};
 		});
 }
@@ -135,7 +156,7 @@ export function convertLinksToImports(links: DocumentLink[]): IImport[] {
 			result.push({
 				filepath: link.target,
 				dynamic: reDynamicPath.test(link.target),
-				css: link.target.endsWith('.css')
+				css: link.target.endsWith(".css"),
 			});
 		}
 	}
